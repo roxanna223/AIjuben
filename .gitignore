@@ -17,3 +17,6 @@ ai-storyline/data/
 
 # 本机 GitHub 主机指纹缓存
 .ssh/
+
+# 部署期临时密钥(勿提交)
+deploy/ssh_keys/
