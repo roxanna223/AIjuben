@@ -5,19 +5,23 @@
 环境变量：
   STORY_MODE=mock|llm     # 默认 mock（无需API Key）
   LLM_API_KEY / LLM_BASE_URL / LLM_MODEL   # llm 模式配置
+  ADMIN_TOKEN             # 管理接口令牌（/api/admin/* 需 X-Admin-Token 头）
+  RATE_LIMIT_PER_MIN / RATE_TURN_PER_MIN   # 每IP每分钟限流（默认 60 / 20）
+  QILU_EVENTS_FILE / EVENT_SALT            # 行为事件采集（默认 data/events.jsonl）
 """
 import asyncio
 import json
 import os
 import queue
 import threading
+import time
 import uuid
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -26,6 +30,7 @@ from engine.state import WorldState
 from engine.pipeline import Pipeline, build_provider
 from engine.llm import LLMError
 import metrics
+from server import events
 
 BASE = Path(__file__).resolve().parent.parent
 STORIES = BASE / "stories"
@@ -40,6 +45,40 @@ MAX_MEM_SESSIONS = int(os.environ.get("MAX_MEM_SESSIONS", "256"))
 SESSIONS: "OrderedDict[str, Pipeline]" = OrderedDict()
 _cache_c: Dict[str, Constitution] = {}
 _cache_p: Dict[Any, Any] = {}
+
+# ---- 安全与采集配置 ----
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")            # 管理接口令牌；空=管理接口关闭
+RATE_LIMIT_PER_MIN = int(os.environ.get("RATE_LIMIT_PER_MIN", "60"))   # API 每IP每分钟
+RATE_TURN_PER_MIN = int(os.environ.get("RATE_TURN_PER_MIN", "20"))     # 回合接口从严
+_rate_hits: Dict[str, List[float]] = {}
+_rate_lock = threading.Lock()
+
+
+def _client_ip(request: Request) -> str:
+    return request.client.host if request.client else ""
+
+
+def _rate_ok(ip: str, limit: int) -> bool:
+    """滑动窗口限流：每IP每分钟最多 limit 次。"""
+    if limit <= 0:
+        return True
+    now = time.time()
+    with _rate_lock:
+        hits = [t for t in _rate_hits.get(ip, []) if now - t < 60.0]
+        if len(hits) >= limit:
+            _rate_hits[ip] = hits
+            return False
+        hits.append(now)
+        _rate_hits[ip] = hits
+        if len(_rate_hits) > 5000:  # 防内存膨胀：清理空条目
+            for k in [k for k, v in _rate_hits.items() if not v]:
+                _rate_hits.pop(k, None)
+    return True
+
+
+def _admin_ok(request: Request) -> bool:
+    return bool(ADMIN_TOKEN) and \
+        request.headers.get("X-Admin-Token", "") == ADMIN_TOKEN
 
 
 def _remember(p: Pipeline) -> None:
@@ -69,6 +108,23 @@ for _p in sorted(STORIES.glob("*.json")):
 
 DEFAULT_STORY = "midnight-train" if "midnight-train" in STORY_REGISTRY \
     else (next(iter(STORY_REGISTRY), ""))
+
+
+@app.middleware("http")
+async def security_and_analytics(request: Request, call_next):
+    """安全与埋点统一入口：IP 限流 + 首页访问埋点。"""
+    ip = _client_ip(request)
+    path = request.url.path
+    if path.startswith("/api"):
+        limit = RATE_TURN_PER_MIN if path.rstrip("/").endswith("/turn") \
+            else RATE_LIMIT_PER_MIN
+        if not _rate_ok(ip, limit):
+            return JSONResponse(status_code=429,
+                                content={"detail": "请求过于频繁，请稍后再试"})
+    if request.method == "GET" and path in ("/", "/index.html"):
+        events.record_event("page_view", ip=ip,
+                            ua=request.headers.get("user-agent", ""), path=path)
+    return await call_next(request)
 
 
 def _story_path(story_id: str) -> Path:
@@ -187,7 +243,9 @@ class TurnIn(BaseModel):
 
 
 @app.get("/api/stories")
-def list_stories():
+def list_stories(request: Request):
+    events.record_event("stories_view", ip=_client_ip(request),
+                        ua=request.headers.get("user-agent", ""))
     out = []
     for story_id, p in STORY_REGISTRY.items():
         try:
@@ -203,12 +261,15 @@ def list_stories():
 
 
 @app.post("/api/sessions")
-def create_session(body: Optional[CreateIn] = None):
+def create_session(request: Request, body: Optional[CreateIn] = None):
     story_id = body.story_id if body else DEFAULT_STORY
     p = _new_session(story_id)
     scene = p.start()
     _remember(p)
     _persist(p.state)
+    events.record_event("session_create", ip=_client_ip(request),
+                        ua=request.headers.get("user-agent", ""),
+                        story=story_id, sid=p.state.session_id)
     return _session_view(p.state, scene)
 
 
@@ -218,6 +279,16 @@ async def play_turn(sid: str, body: TurnIn, request: Request):
     if p.state.finished:
         return _session_view(p.state, None)
     accept = request.headers.get("accept", "")
+    ip = _client_ip(request)
+    ua = request.headers.get("user-agent", "")
+
+    def _record_turn(state: WorldState) -> None:
+        events.record_event("turn", ip=ip, ua=ua, sid=state.session_id,
+                            story=state.story_id, turn=state.turn,
+                            choice=body.choice_index is not None,
+                            free_len=len(body.free_text or ""),
+                            finished=state.finished,
+                            ending=(state.ending or {}).get("id"))
 
     # NDJSON 流式：生成跑在独立线程，正文增量经队列实时推给前端
     if "ndjson" in accept:
@@ -231,6 +302,7 @@ async def play_turn(sid: str, body: TurnIn, request: Request):
                 scene = p.turn(choice_index=body.choice_index,
                                free_text=body.free_text, on_chunk=on_chunk)
                 _persist(p.state)
+                _record_turn(p.state)
                 q.put(("done", _session_view(p.state, scene)))
             except (ValueError, RuntimeError) as e:
                 q.put(("error", str(e)))
@@ -260,18 +332,25 @@ async def play_turn(sid: str, body: TurnIn, request: Request):
     except (ValueError, RuntimeError) as e:
         raise HTTPException(status_code=400, detail=str(e))
     _persist(p.state)
+    _record_turn(p.state)
     return _session_view(p.state, scene)
 
 
 @app.get("/api/sessions/{sid}")
-def get_session(sid: str):
+def get_session(sid: str, request: Request):
     p = _get_pipeline(sid)
+    events.record_event("session_view", ip=_client_ip(request),
+                        ua=request.headers.get("user-agent", ""),
+                        sid=sid, story=p.state.story_id)
     return _session_view(p.state, p.state.current_scene)
 
 
 @app.get("/api/sessions/{sid}/recap")
-def get_recap(sid: str):
+def get_recap(sid: str, request: Request):
     p = _get_pipeline(sid)
+    events.record_event("recap_view", ip=_client_ip(request),
+                        ua=request.headers.get("user-agent", ""),
+                        sid=sid, story=p.state.story_id)
     s = p.state
     c = _load_constitution(s.story_id)
     choices = [{"turn": e["turn"], "choice": (e.get("payload") or {}).get("choice", "")}
@@ -311,13 +390,33 @@ def health():
 
 
 @app.get("/api/admin/metrics")
-def admin_metrics(story_id: Optional[str] = None):
-    """体验基线指标（对标调研基线）；story_id 缺省统计全部剧本。"""
+def admin_metrics(request: Request, story_id: Optional[str] = None):
+    """体验基线指标（对标调研基线）；story_id 缺省统计全部剧本。
+    需要 X-Admin-Token 请求头（ADMIN_TOKEN 环境变量配置）。"""
+    if not _admin_ok(request):
+        raise HTTPException(status_code=403, detail="管理接口需要 X-Admin-Token")
+    events.record_event("admin_metrics", ip=_client_ip(request),
+                        ua=request.headers.get("user-agent", ""))
     sessions = metrics.load_sessions(str(DATA_DIR), story_id=story_id)
     m = metrics.compute_metrics(sessions)
     m["verdict"] = metrics.verdict(m)
     m["story_id"] = story_id
     return m
+
+
+@app.get("/api/admin/events")
+def admin_events(request: Request, limit: int = 100,
+                 action: Optional[str] = None):
+    """最近玩家行为事件(新→旧)。需要 X-Admin-Token 请求头。"""
+    if not _admin_ok(request):
+        raise HTTPException(status_code=403, detail="管理接口需要 X-Admin-Token")
+    events.record_event("admin_events", ip=_client_ip(request),
+                        ua=request.headers.get("user-agent", ""))
+    limit = max(1, min(limit, 500))
+    rows = events.read_recent(500)
+    if action:
+        rows = [r for r in rows if r.get("action") == action]
+    return {"count": len(rows[:limit]), "events": rows[:limit]}
 
 
 # 静态前端（最后挂载，避免遮蔽API路由）

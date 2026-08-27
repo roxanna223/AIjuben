@@ -17,6 +17,7 @@ client = TestClient(app)
 class TestApi(unittest.TestCase):
     def setUp(self):
         SESSIONS.clear()
+        server_app._rate_hits.clear()  # 避免跨用例累计触发限流
 
     def test_health(self):
         r = client.get("/api/health")

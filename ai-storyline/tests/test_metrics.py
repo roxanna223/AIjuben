@@ -11,6 +11,7 @@ import metrics
 from engine.llm import OpenAICompatProvider
 from fastapi.testclient import TestClient
 
+import server.app as server_app
 from server.app import app, SESSIONS
 
 client = TestClient(app)
@@ -94,6 +95,7 @@ class TestUsageParse(unittest.TestCase):
 class TestHistoryApi(unittest.TestCase):
     def setUp(self):
         SESSIONS.clear()
+        server_app._rate_hits.clear()  # 避免跨用例累计触发限流
 
     def test_history_contains_scenes_and_choices(self):
         r = client.post("/api/sessions")
@@ -108,12 +110,12 @@ class TestHistoryApi(unittest.TestCase):
         self.assertEqual(view["history"][-1]["kind"], "narr")
         self.assertEqual(view["history"][-1]["text"], view["scene"]["narrative"])
 
-    def test_admin_metrics_endpoint(self):
+    def test_admin_metrics_endpoint_requires_token(self):
+        # 生产环境未配 ADMIN_TOKEN 或未带头 → 一律 403(鉴权通过与否由 security_tests 验证)
         r = client.get("/api/admin/metrics")
-        self.assertEqual(r.status_code, 200)
-        body = r.json()
-        self.assertIn("sessions", body)
-        self.assertIn("verdict", body)
+        self.assertEqual(r.status_code, 403)
+        r = client.get("/api/admin/metrics", headers={"X-Admin-Token": "any"})
+        self.assertEqual(r.status_code, 403)
 
 
 if __name__ == "__main__":

@@ -34,6 +34,15 @@
 - 2G swap 兜底,避免内存耗尽进程被杀;
 - 单 worker 运行,uvicorn 线程池处理并发(请求多为等待 LLM 返回的 I/O)。
 
+## 安全与数据采集(v0.2.0+)
+
+| 机制 | 说明 |
+|---|---|
+| 管理接口鉴权 | `/api/admin/metrics`、`/api/admin/events` 需请求头 `X-Admin-Token`(值=`.env` 里 `ADMIN_TOKEN`) |
+| IP 限流 | 普通 API 60 次/分/IP,回合接口 20 次/分/IP,超限 429(`RATE_LIMIT_PER_MIN`/`RATE_TURN_PER_MIN` 可调) |
+| 行为事件 | `data/events.jsonl`,IP 加盐哈希脱敏;查询:带 token 访问 `/api/admin/events?limit=100&action=turn` |
+| 安全测试 | `cd ai-storyline && .venv/bin/python -m unittest discover -s tests -p "security_tests.py"`(独立进程运行) |
+
 ## 备份/恢复要点
 
 - 每日备份 `data/`(会话 JSON + 用量日志);
