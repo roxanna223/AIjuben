@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>歧路 · 午夜列车</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <!-- 开局：剧本选择 -->
+  <div id="start" class="overlay">
+    <div class="start-card">
+      <div class="start-kicker">歧路 · AI实时编剧</div>
+      <h1>选择你的故事</h1>
+      <p class="start-desc">
+        主线骨架已写定，但你的每一个选择都会被记录——<br/>
+        <strong>AI 编剧将为你实时写出一条只属于你的路线。</strong>
+      </p>
+      <div id="story-cards"></div>
+      <p class="hint">演示版本 · Mock模式 · 无需联网</p>
+    </div>
+  </div>
+
+  <!-- 结局 -->
+  <div id="ending" class="overlay hidden">
+    <div class="ending-card">
+      <div class="start-kicker">你的故事到这里了</div>
+      <h1 id="ending-name">结局</h1>
+      <p id="ending-type" class="ending-type"></p>
+      <div id="ending-recap" class="recap"></div>
+      <button id="btn-restart" class="btn primary">重新上车</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">歧路<span> · AI编剧</span></div>
+      <div class="panel">
+        <h3>数值</h3>
+        <div id="stats"></div>
+      </div>
+      <div class="panel">
+        <h3>你的倾向画像</h3>
+        <div id="tendencies"></div>
+      </div>
+      <div class="panel">
+        <h3>剧情路径</h3>
+        <div id="beat-path"><span class="muted">开局后显示</span></div>
+      </div>
+      <div class="panel">
+        <h3>已确认事实</h3>
+        <div id="facts"><span class="muted">暂无</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="story-title" id="story-title">《午夜列车》<span id="chapter-chip" class="chip">第1章</span></div>
+        <button id="btn-new" class="btn ghost small">换剧本</button>
+      </header>
+
+      <div id="chat" class="chat"></div>
+
+      <div class="composer">
+        <div id="thinking" class="thinking hidden">编剧正在书写……</div>
+        <div id="choices" class="choices"></div>
+        <div class="free-row">
+          <input id="free-input" type="text" placeholder="或直接输入你的行动（回车发送）" autocomplete="off" />
+          <button id="btn-send" class="btn ghost small">行动</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

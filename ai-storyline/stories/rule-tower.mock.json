@@ -1,0 +1,125 @@
+{
+  "scenes": {
+    "b1": {
+      "narrative": "你在一阵眩晕里睁开眼。电梯门开在一条灰白的走廊上，楼层指示牌写着：负一层。可这栋楼的电梯，从来不到负一层。电梯口贴着一张泛黄的纸，字是手写的：『规则一：听见敲门声，不要应答。』",
+      "scene_meta": {"beat_id": "b1", "characters_present": ["pc"], "location": "负一层电梯口"},
+      "choices": [
+        {"text": "先观察四周，把规则默背下来", "tendency": {"caution": 1}, "effects": []},
+        {"text": "敲隔壁的门问问情况", "tendency": {"curiosity": 1, "order": -0.5},
+         "effects": [{"type": "stat", "target": "sanity", "delta": -5,
+                      "reason": "没人应答，但猫眼后有一只眼睛缩了回去"}]},
+        {"text": "试着按电梯的下行键", "tendency": {"caution": -1},
+         "effects": [
+           {"type": "stat", "target": "violations", "delta": 1, "reason": "规则三：电梯没有下行键"},
+           {"type": "stat", "target": "sanity", "delta": -10, "reason": "蜂鸣器发出尖啸，灯全灭了"}
+         ]}
+      ],
+      "world_updates": []
+    },
+    "b2": {
+      "narrative": "半夜，三下敲门声。不轻不重，正好三下。门外静得没有呼吸声。隔壁房门忽然开了一条缝，一个女生的声音又急又轻：“别应门！求你了，别应门——”",
+      "scene_meta": {"beat_id": "b2", "characters_present": ["pc", "zhou"], "location": "负一层走廊"},
+      "choices": [
+        {"text": "装睡，一声不吭", "tendency": {"order": 1, "caution": 1},
+         "effects": [
+           {"type": "stat", "target": "trust_zhou", "delta": 10, "reason": "楼梯口的老周冲你点了点头"},
+           {"type": "stat", "target": "sanity", "delta": -5, "reason": "敲门声持续了整整一个小时"}
+         ]},
+        {"text": "问一句“谁啊”", "tendency": {"empathy": 0.5, "trust": -0.5},
+         "effects": [
+           {"type": "stat", "target": "violations", "delta": 1, "reason": "规则一：不要应答"},
+           {"type": "stat", "target": "sanity", "delta": -10,
+            "reason": "门外飘来一句：开门呀，我是妈妈。可你妈三年前就去世了"},
+           {"type": "fact", "id": "f_voice_heard", "text": "门外传来亡母的声音"}
+         ]},
+        {"text": "直接把门打开", "tendency": {"curiosity": 1, "caution": -1},
+         "effects": [
+           {"type": "stat", "target": "violations", "delta": 1, "reason": "规则一：不要应答"},
+           {"type": "stat", "target": "sanity", "delta": -15,
+            "reason": "门外站着戴鸭舌帽的清洁工，朝你笑了笑"},
+           {"type": "fact", "id": "f_met_cleaner", "text": "你与清洁工打了个照面"}
+         ]}
+      ],
+      "world_updates": [
+        {"type": "fact", "id": "f_met_he", "text": "阿禾在隔壁警告你别应门"}
+      ]
+    },
+    "b3": {
+      "narrative": "老周给你倒了杯热茶，手有点抖：“这楼吃人。想出去，只有一条路——三张楼长卡，藏在这栋楼最不讲理的三层。卡集齐，天台的门才开。”",
+      "scene_meta": {"beat_id": "b3", "characters_present": ["pc", "zhou"], "location": "值班室"},
+      "choices": [
+        {"text": "把自己观察到的规则都告诉老周", "tendency": {"trust": 1},
+         "effects": [{"type": "stat", "target": "trust_zhou", "delta": 15, "reason": "开诚布公"}]},
+        {"text": "先听他说，自己有所保留", "tendency": {"caution": 1},
+         "effects": [{"type": "stat", "target": "trust_zhou", "delta": -10, "reason": "他看得出你藏了话"}]}
+      ],
+      "world_updates": [
+        {"type": "fact", "id": "f_card_truth", "text": "三张楼长卡能打开天台的门"}
+      ]
+    },
+    "b4": {
+      "narrative": "午夜十二点，整栋楼发出齿轮咬合的声音。你的房门不知何时开了。走廊尽头，清洁工推着垃圾车，停在了阿禾的门前。敲门声又响起了——这次，敲的是她的门。",
+      "scene_meta": {"beat_id": "b4", "characters_present": ["pc", "he"], "location": "走廊（换层中）"},
+      "choices": [
+        {"text": "冲出去，把阿禾拉进自己房间", "tendency": {"empathy": 0.8, "caution": -0.5},
+         "effects": [
+           {"type": "stat", "target": "trust_zhou", "delta": 10, "reason": "老周在暗处护住了你们"},
+           {"type": "stat", "target": "sanity", "delta": -10, "reason": "清洁工的垃圾车里，有双眼睛在看你"},
+           {"type": "fact", "id": "f_saved_he", "text": "你把阿禾从清洁工门前拉了回来"}
+         ]},
+        {"text": "关紧自己的门", "tendency": {"caution": 1, "empathy": -0.5},
+         "effects": [
+           {"type": "stat", "target": "sanity", "delta": -15, "reason": "阿禾的敲门声在身后停了，再也没响过"},
+           {"type": "close_fact", "id": "f_saved_he"}
+         ]}
+      ],
+      "world_updates": []
+    },
+    "b5": {
+      "narrative": "阿禾缩在墙角，浑身发抖：“其实我已经违规三次了。可我没消失。清洁工说……说我快和他们一样了。”她卷起袖子，手腕上有一圈青灰的印子，像被什么握过。",
+      "scene_meta": {"beat_id": "b5", "characters_present": ["pc", "he"], "location": "你的房间"},
+      "choices": [
+        {"text": "追问她三次违规的经过", "tendency": {"curiosity": 1},
+         "effects": [{"type": "stat", "target": "sanity", "delta": -10,
+                      "reason": "第三次，她应答了“妈妈”的敲门声"}]},
+        {"text": "安抚她，告诉她你不会丢下她", "tendency": {"empathy": 0.5}, "effects": []}
+      ],
+      "world_updates": [
+        {"type": "fact", "id": "f_he_truth", "text": "阿禾已违规三次，正在变成清洁工"}
+      ]
+    },
+    "b7": {
+      "narrative": "老周叹气：“我的钥匙串被扫进垃圾车了。别的无所谓，那一串里，有天台的备份钥匙。”他盯着你，等你开口。",
+      "scene_meta": {"beat_id": "b7", "characters_present": ["pc", "zhou"], "location": "垃圾间外"},
+      "choices": [
+        {"text": "陪他去垃圾间找", "tendency": {"empathy": 0.5, "caution": -0.5},
+         "effects": [
+           {"type": "stat", "target": "sanity", "delta": -10, "reason": "垃圾车里的钟，全部停在0:47"},
+           {"type": "fact", "id": "f_zhou_key", "text": "你在垃圾车里找回了钥匙串"}
+         ]},
+        {"text": "拒绝，这太危险了", "tendency": {"caution": 1}, "effects": []}
+      ],
+      "world_updates": []
+    },
+    "b6": {
+      "narrative": "天台的门。你手里攥着三张楼长卡，门缝外漏进来的是城市的灯光和车流声。身后，清洁工们排成两列，安静地站着。老周低声说：“门开了就关不上。你想好，带谁走。”",
+      "scene_meta": {"beat_id": "b6", "characters_present": ["pc", "zhou", "he"], "location": "天台门前"},
+      "choices": [
+        {"text": "开门，自己离开", "tendency": {"caution": 1},
+         "effects": [{"type": "fact", "id": "f_escaped"}]},
+        {"text": "开门，带阿禾一起走", "tendency": {"empathy": 0.8},
+         "effects": [
+           {"type": "fact", "id": "f_escaped"},
+           {"type": "fact", "id": "f_took_he"}
+         ]},
+        {"text": "把卡交给老周，让他带大家离开，自己留下", "tendency": {"empathy": 1},
+         "effects": [{"type": "fact", "id": "f_gave_cards"}]},
+        {"text": "拒绝开门，留在楼里", "tendency": {"order": -0.5},
+         "effects": [{"type": "fact", "id": "f_refused_door"}]}
+      ],
+      "world_updates": [
+        {"type": "fact", "id": "f_card3", "text": "你集齐了三张楼长卡"}
+      ]
+    }
+  }
+}

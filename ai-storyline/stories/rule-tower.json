@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0",
+  "story_id": "rule-tower",
+  "title": "规则楼",
+  "genre": ["无限流", "规则怪谈"],
+  "world": {
+    "setting": "一栋没有出口的老式居民楼。电梯只上不下，每层电梯口贴着一张泛黄的规则。你下班回家，电梯却把你带到了不存在的负一层。",
+    "rules": [
+      "每层只有一条规则，违反规则会被清洁工带走",
+      "午夜12点整栋楼换层，所有人必须留在房间",
+      "电梯只有上行键，没有下行键",
+      "集齐三张楼长卡才能打开天台的门"
+    ],
+    "tone": "日常中的诡异，规则越平静越瘆人",
+    "style_guide": "对话体：对白≥70%，叙述精短；每场300-600字",
+    "taboos_content": ["不得出现性暗示与血腥细节", "不得出现真实地名与真实事件", "不得宣扬自杀"],
+    "taboos_story": ["节拍b4前不得揭示清洁工身份", "第三张楼长卡的位置不得提前透露"]
+  },
+  "facts": [
+    {"id": "f_met_he", "desc": "阿禾在隔壁警告你别应门"},
+    {"id": "f_voice_heard", "desc": "门外传来亡母的声音"},
+    {"id": "f_met_cleaner", "desc": "主角与清洁工打了照面"},
+    {"id": "f_card_truth", "desc": "三张楼长卡能打开天台的门（b3授予）"},
+    {"id": "f_saved_he", "desc": "主角把阿禾从清洁工门前拉了回来"},
+    {"id": "f_he_truth", "desc": "阿禾已违规三次，正在变成清洁工（b5授予）"},
+    {"id": "f_zhou_key", "desc": "找回了老周的钥匙串（b7授予）"},
+    {"id": "f_card3", "desc": "主角集齐了三张楼长卡（b6授予）"},
+    {"id": "f_escaped", "desc": "主角离开了这栋楼"},
+    {"id": "f_took_he", "desc": "主角带阿禾一起离开"},
+    {"id": "f_gave_cards", "desc": "主角把卡交给老周，自己留下"},
+    {"id": "f_refused_door", "desc": "主角拒绝打开天台的门"}
+  ],
+  "characters": [
+    {
+      "id": "pc", "name": "你", "role": "protagonist",
+      "identity": "加班晚归的上班族",
+      "personality": ["由玩家选择决定"],
+      "goal": "活着走出这栋楼",
+      "secret": "这栋楼是你小时候住过的老楼——只是它早就拆了",
+      "speech": "由玩家选择决定"
+    },
+    {
+      "id": "zhou", "name": "老周", "role": "support",
+      "identity": "守夜人",
+      "personality": ["慢条斯理", "爱叹气", "话里有话"],
+      "goal": "把楼里的活人送出去",
+      "secret": "他是上一个被困在这里的玩家，已违规两次，只剩最后一次机会",
+      "speech": "慢、稳、每句话都像在告别",
+      "voice_sample": "“这楼的规矩，是拿命换来的。别不当回事。”"
+    },
+    {
+      "id": "he", "name": "阿禾", "role": "companion",
+      "identity": "同被困的女生，语速很快，有点神经质",
+      "personality": ["语速快", "神经质", "其实很善良"],
+      "goal": "离开这里，去赴一个三年前的约",
+      "secret": "她已违规三次却没消失——清洁工说，她就快变成他们的一员",
+      "speech": "短促、跳跃、偶尔重复同一个词",
+      "voice_sample": "“别开门！求你了，别开门——”"
+    }
+  ],
+  "relationships": [
+    {"from": "pc", "to": "zhou", "type": "合作", "initial": 40},
+    {"from": "pc", "to": "he", "type": "同情", "initial": 30}
+  ],
+  "beats": [
+    {"id": "b1", "kind": "fixed", "order": 1, "cast": [],
+     "must_happen": "主角醒来，读到第一条规则：听见敲门声不要应答",
+     "constraints": "不得揭示任何超自然真相", "grants": []},
+    {"id": "b2", "kind": "fixed", "order": 2, "cast": ["zhou"],
+     "must_happen": "半夜敲门声，应门还是装睡（分叉点）；隔壁的阿禾出现",
+     "fact_hints": [{"fact": "f_met_he", "hint": "阿禾出场警告时通过world_updates授予"},
+                    {"fact": "f_voice_heard", "hint": "主角应答并听到亡母声音时授予"},
+                    {"fact": "f_met_cleaner", "hint": "主角开门见到清洁工时授予"}],
+     "grants": []},
+    {"id": "b3", "kind": "conditional", "order": 3, "cast": ["zhou"],
+     "when": {"all": [{"fact": "f_met_he"}, {"any": [{"stat": {"trust_zhou": {"gte": 50}}}]}]},
+     "must_happen": "老周透露三张楼长卡的真相",
+     "grants": ["f_card_truth"]},
+    {"id": "b4", "kind": "fixed", "order": 4, "cast": ["he"],
+     "must_happen": "午夜换层，清洁工敲阿禾的门：救她还是自保（分叉点）",
+     "fact_hints": [{"fact": "f_saved_he", "hint": "主角救回阿禾时授予；若选择自保则close_fact此ID"}],
+     "grants": []},
+    {"id": "b5", "kind": "conditional", "order": 5, "cast": ["he"],
+     "when": {"fact": "f_saved_he"},
+     "must_happen": "阿禾吐露自己已违规三次的秘密",
+     "grants": ["f_he_truth"]},
+    {"id": "b7", "kind": "optional", "order": 5, "cast": ["zhou"],
+     "unlock": {"tendency": {"empathy": {"gte": 0.5}}},
+     "must_happen": "帮老周找回被清洁工扫走的钥匙串（天台的备份钥匙）",
+     "fact_hints": [{"fact": "f_zhou_key", "hint": "找回钥匙串时授予"}],
+     "grants": ["f_zhou_key"]},
+    {"id": "b6", "kind": "fixed", "order": 6, "cast": ["zhou", "he"],
+     "must_happen": "天台门前，集齐三张楼长卡，最后的抉择",
+     "fact_hints": [{"fact": "f_escaped", "hint": "主角离开大楼时授予"},
+                    {"fact": "f_took_he", "hint": "主角带阿禾一起走时授予"},
+                    {"fact": "f_gave_cards", "hint": "主角把卡交给老周自己留下时授予"},
+                    {"fact": "f_refused_door", "hint": "主角拒绝打开天台门时授予"}],
+     "grants": ["f_card3"]}
+  ],
+  "endings": [
+    {"id": "end_hero", "name": "全员生还", "type": "secret",
+     "conditions": {"facts": ["f_escaped", "f_took_he", "f_he_truth", "f_zhou_key"],
+                    "stats": {"empathy": {"gte": 0.5}}}},
+    {"id": "end_escape", "name": "逃出生天", "type": "good",
+     "conditions": {"facts": ["f_escaped"], "stats": {"sanity": {"gte": 40}}}},
+    {"id": "end_stay", "name": "守楼人", "type": "neutral",
+     "conditions": {"any": [{"fact": "f_refused_door"}, {"fact": "f_gave_cards"}]}},
+    {"id": "end_cleaner", "name": "清洁工", "type": "bad",
+     "conditions": {"stats": {"sanity": {"lte": 20}}}},
+    {"id": "end_drift", "name": "原地徘徊", "type": "neutral",
+     "conditions": {"facts": ["f_card3"]}}
+  ],
+  "stats": {
+    "characters": {"trust_zhou": {"label": "老周信任", "min": 0, "max": 100, "initial": 40}},
+    "global": {
+      "sanity": {"label": "理智值", "min": 0, "max": 100, "initial": 80},
+      "violations": {"label": "违规次数", "min": 0, "max": 3, "initial": 0}
+    },
+    "tendencies": ["caution", "empathy", "order", "curiosity", "trust"]
+  },
+  "chapter_plan": {"target_chapters": 5, "words_per_scene_min": 300, "words_per_scene_max": 600}
+}

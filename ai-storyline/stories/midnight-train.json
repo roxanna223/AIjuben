@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0",
+  "story_id": "midnight-train",
+  "title": "午夜列车",
+  "genre": ["悬疑", "无限流"],
+  "world": {
+    "setting": "21世纪初华北小城，凌晨0:47开出的绿皮慢车，全程6站，终点是荒废已久的旧站台",
+    "rules": [
+      "每停靠一站，车上就少一名乘客，且除主角与林sir外无人记得少的是谁",
+      "名册上被红笔圈起名字的人，会在下一站消失",
+      "车上的钟永远停在0:47",
+      "下车即‘成为乘客’，除非拿到车长的怀表"
+    ],
+    "tone": "冷峻克制，留白多，细节营造不安",
+    "style_guide": "对话体：对白≥70%，叙述精短；每场300-600字",
+    "taboos_content": ["不得出现性暗示与血腥细节", "不得出现真实地名与真实事件", "不得宣扬自杀"],
+    "taboos_story": ["节拍b4前不得揭示真相", "不得让主角获得手机等即时求援工具", "怀表线索只能在第5章后出现"]
+  },
+  "facts": [
+    {"id": "f_ledger_seen", "desc": "主角看到了名册残页"},
+    {"id": "f_ledger_confirmed", "desc": "林sir掌握着乘客名册（b3授予）"},
+    {"id": "f_got_watch", "desc": "小满把缺角的怀表交给了主角"},
+    {"id": "f_boy_truth", "desc": "小满不是活人，怀表是关键（b5授予）"},
+    {"id": "f_ge_detail", "desc": "葛姨讲述了当年事故的细节（b7授予）"},
+    {"id": "f_truth_revealed", "desc": "三年前的事故真相与主角身份揭晓（b6授予）"},
+    {"id": "f_escaped", "desc": "主角用怀表独自下了车"},
+    {"id": "f_refused_truth", "desc": "主角拒绝相信真相"}
+  ],
+  "characters": [
+    {
+      "id": "pc", "name": "你", "role": "protagonist",
+      "identity": "回家奔丧的年轻编剧",
+      "personality": ["由玩家选择决定"],
+      "goal": "活着下车",
+      "secret": "三年前你坐过这趟车——你是当年事故唯一幸存者，但你不记得了",
+      "speech": "由玩家选择决定"
+    },
+    {
+      "id": "lin", "name": "林sir", "role": "support",
+      "identity": "休假刑警",
+      "personality": ["冷静", "重证据", "黑色幽默"],
+      "goal": "弄清乘客消失的规律",
+      "secret": "他根本不是休假——他是三年前事故的专案调查员",
+      "speech": "短句、冷峻、偶尔自嘲",
+      "voice_sample": "“先别急着害怕。人不会凭空消失，只会被人‘拿走’。”"
+    },
+    {
+      "id": "aunt", "name": "葛姨", "role": "red_herring",
+      "identity": "叫卖茶叶蛋的乘务员",
+      "personality": ["热络", "絮叨", "记性极好"],
+      "goal": "保护当年的遇难者",
+      "secret": "她记得一切，但选择沉默",
+      "speech": "方言味，爱拉家常，句句像闲话又句句有信息",
+      "voice_sample": "“小伙子，蛋要趁热吃。凉了，人就认不得路喽。”"
+    },
+    {
+      "id": "boy", "name": "小满", "role": "victim",
+      "identity": "独自乘车找妈妈的小男孩，总在玩一块缺角的怀表",
+      "personality": ["童言无忌", "常问让人后背发凉的问题"],
+      "goal": "找到妈妈",
+      "secret": "他是当年第一个消失的孩子；怀表是车长的",
+      "speech": "稚气、跳跃、偶尔冒出冰冷的话",
+      "voice_sample": "“叔叔，你为什么能看见我呀？别人都看不见我。”"
+    }
+  ],
+  "relationships": [
+    {"from": "pc", "to": "lin", "type": "合作", "initial": 40},
+    {"from": "pc", "to": "aunt", "type": "可疑", "initial": 20},
+    {"from": "pc", "to": "boy", "type": "同情", "initial": 50}
+  ],
+  "beats": [
+    {"id": "b1", "kind": "fixed", "order": 1, "cast": [],
+     "must_happen": "主角醒来，发现车厢安静得异常，钟停在0:47",
+     "constraints": "不得揭示超自然真相", "grants": []},
+    {"id": "b2", "kind": "fixed", "order": 2, "cast": ["lin"],
+     "must_happen": "第一次停站，一名乘客消失，除主角与林sir外无人记得",
+     "fact_hints": [{"fact": "f_ledger_seen", "hint": "主角看到名册残页时授予（林sir展示或翻行李发现）"}],
+     "grants": []},
+    {"id": "b3", "kind": "conditional", "order": 3, "cast": ["lin"],
+     "when": {"all": [{"fact": "f_ledger_seen"}, {"any": [{"stat": {"trust_lin": {"gte": 50}}}]}]},
+     "must_happen": "林sir向主角透露名册的存在",
+     "grants": ["f_ledger_confirmed"]},
+    {"id": "b4", "kind": "fixed", "order": 4, "cast": ["boy"],
+     "must_happen": "车厢断电的黑暗中，主角面临救小满还是自保的抉择（价值观分叉点）",
+     "fact_hints": [{"fact": "f_got_watch", "hint": "主角救下小满并获得怀表时授予；若主角选择自保，则close_fact此ID"}],
+     "grants": []},
+    {"id": "b5", "kind": "conditional", "order": 5, "cast": ["boy"],
+     "when": {"fact": "f_got_watch"},
+     "must_happen": "主角意识到小满不是活人，怀表是关键",
+     "grants": ["f_boy_truth"]},
+    {"id": "b7", "kind": "optional", "order": 5, "cast": ["aunt"],
+     "unlock": {"tendency": {"empathy": {"gte": 0.5}}},
+     "must_happen": "安抚葛姨，从她口中得到当年事故的细节",
+     "grants": ["f_ge_detail"]},
+    {"id": "b6", "kind": "fixed", "order": 6, "cast": ["lin", "boy"],
+     "must_happen": "终点站前夜，真相揭开：三年前的事故与主角的身份",
+     "fact_hints": [{"fact": "f_escaped", "hint": "主角选择用怀表独自下车时授予"},
+                    {"fact": "f_refused_truth", "hint": "主角拒绝相信真相时授予"}],
+     "grants": ["f_truth_revealed"]}
+  ],
+  "endings": [
+    {"id": "end_truth", "name": "真相大白", "type": "good",
+     "conditions": {"facts": ["f_truth_revealed"], "stats": {"trust_lin": {"gte": 70}, "sanity": {"gte": 40}}}},
+    {"id": "end_escape", "name": "独自生还", "type": "neutral",
+     "conditions": {"facts": ["f_got_watch", "f_escaped"], "stats": {"trust_lin": {"lt": 40}}}},
+    {"id": "end_passenger", "name": "成为乘客", "type": "bad",
+     "conditions": {"stats": {"sanity": {"lte": 20}}}},
+    {"id": "end_conductor", "name": "接替车长", "type": "secret",
+     "conditions": {"facts": ["f_got_watch", "f_refused_truth"]}},
+    {"id": "end_drift", "name": "长夜未尽", "type": "neutral",
+     "conditions": {"facts": ["f_truth_revealed"]}}
+  ],
+  "stats": {
+    "characters": {"trust_lin": {"label": "林sir的信任", "min": 0, "max": 100, "initial": 40}},
+    "global": {"sanity": {"label": "理智值", "min": 0, "max": 100, "initial": 80}},
+    "tendencies": ["caution", "empathy", "order", "curiosity", "trust"]
+  },
+  "chapter_plan": {"target_chapters": 6, "words_per_scene_min": 300, "words_per_scene_max": 600}
+}

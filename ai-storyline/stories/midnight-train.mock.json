@@ -1,0 +1,110 @@
+{
+  "scenes": {
+    "b1": {
+      "narrative": "你从摇晃中惊醒，喉咙干得像塞了砂纸。车厢里坐满了人，却安静得可怕——没有打鼾，没有小孩哭闹，只有车轮碾过铁轨的单调节拍。你抬头看了眼行李架上的电子钟：0:47。它已经三分钟没跳过了。",
+      "scene_meta": {"beat_id": "b1", "characters_present": ["pc"], "location": "3号车厢"},
+      "choices": [
+        {"text": "起身走到窗边，看看外面", "tendency": {"curiosity": 1}, "effects": []},
+        {"text": "先不动，观察车厢里的乘客", "tendency": {"caution": 1}, "effects": []},
+        {"text": "喊醒邻座的人问问情况", "tendency": {"trust": 1}, "effects": []}
+      ],
+      "world_updates": []
+    },
+    "b2": {
+      "narrative": "广播沙沙响了两声：“前方到站，泗水站。”列车缓缓停稳。你无意间望向过道尽头——那个一直靠着椅背睡觉的男人，不见了。你问邻座，邻座头也不抬：“那座位本来就是空的。”",
+      "scene_meta": {"beat_id": "b2", "characters_present": ["pc", "lin"], "location": "3号车厢"},
+      "choices": [
+        {"text": "去找林sir求证，把疑问摊开说", "tendency": {"trust": 1},
+         "effects": [
+           {"type": "stat", "target": "trust_lin", "delta": 10, "reason": "你主动分享信息"},
+           {"type": "fact", "id": "f_ledger_seen", "text": "林sir给你看了名册残页"}
+         ]},
+        {"text": "独自把车厢人数清点一遍", "tendency": {"caution": 1},
+         "effects": [
+           {"type": "stat", "target": "sanity", "delta": -10, "reason": "数来数去，人数都对不上"}
+         ]},
+        {"text": "趁乱翻查失踪乘客的行李", "tendency": {"curiosity": 1, "order": -0.5},
+         "effects": [
+           {"type": "stat", "target": "trust_lin", "delta": -5, "reason": "林sir注意到你的小动作"},
+           {"type": "stat", "target": "sanity", "delta": -5, "reason": "行李里只有一张空白车票"},
+           {"type": "fact", "id": "f_ledger_seen", "text": "你在行李里翻到了名册残页"}
+         ]}
+      ],
+      "world_updates": [
+        {"type": "stat", "target": "sanity", "delta": -5, "reason": "目睹乘客凭空消失"}
+      ]
+    },
+    "b3": {
+      "narrative": "林sir压低声音：“你不是第一个发现的人。”他从大衣内袋里抽出一张发黄的纸——乘客名册，其中几行名字被红笔圈起，像是早被谁‘登记’过。",
+      "scene_meta": {"beat_id": "b3", "characters_present": ["pc", "lin"], "location": "餐车"},
+      "choices": [
+        {"text": "把自己见过名册残页的事也告诉他，一起研究", "tendency": {"trust": 1},
+         "effects": [{"type": "stat", "target": "trust_lin", "delta": 15, "reason": "开诚布公"}]},
+        {"text": "隐瞒自己翻到过名册，先听他怎么说", "tendency": {"caution": 1},
+         "effects": [{"type": "stat", "target": "trust_lin", "delta": -10, "reason": "被看穿了有所保留"}]}
+      ],
+      "world_updates": [
+        {"type": "fact", "id": "f_ledger_confirmed", "text": "林sir掌握着乘客名册"}
+      ]
+    },
+    "b4": {
+      "narrative": "灯在毫无预兆中灭了。车厢陷入浓稠的黑暗，只有远处传来孩子的哭喊：“叔叔——救救我！”有什么东西抓住了你的衣角，而你身后三步就是半开的车门。",
+      "scene_meta": {"beat_id": "b4", "characters_present": ["pc", "boy"], "location": "3号车厢（断电中）"},
+      "choices": [
+        {"text": "先蹲下确认周围安全，再作打算", "tendency": {"caution": 1, "empathy": -0.5},
+         "effects": [
+           {"type": "stat", "target": "sanity", "delta": -20, "reason": "黑暗中小满的哭声戛然而止"},
+           {"type": "close_fact", "id": "f_got_watch"}
+         ]},
+        {"text": "朝呼救声冲过去，先救那个孩子", "tendency": {"empathy": 0.8},
+         "effects": [
+           {"type": "stat", "target": "trust_lin", "delta": 10, "reason": "你的勇气赢得了林sir的敬重"},
+           {"type": "stat", "target": "sanity", "delta": -10, "reason": "你在黑暗中抱起了冰凉的小满"},
+           {"type": "fact", "id": "f_got_watch", "text": "小满把一块缺角的怀表塞进你手心"}
+         ]}
+      ],
+      "world_updates": []
+    },
+    "b5": {
+      "narrative": "小满蹲在座位上摆弄那块怀表，指针永远停在0:47。你突然意识到一件事：从上车站到现在，他的脚从没沾过地面。窗外的黑暗中，有无数张脸正贴着玻璃，安静地看着你们。",
+      "scene_meta": {"beat_id": "b5", "characters_present": ["pc", "boy"], "location": "3号车厢"},
+      "choices": [
+        {"text": "追问小满：怀表是谁的？", "tendency": {"curiosity": 1},
+         "effects": [{"type": "stat", "target": "sanity", "delta": -10,
+                      "reason": "小满说：车长的呀。车长已经睡了三年了"}]},
+        {"text": "安抚小满，把怀表还给他", "tendency": {"empathy": 0.5}, "effects": []}
+      ],
+      "world_updates": [
+        {"type": "fact", "id": "f_boy_truth", "text": "小满不是活人，怀表是关键"}
+      ]
+    },
+    "b7": {
+      "narrative": "葛姨塞给你一枚温热的茶叶蛋：“小伙子，趁热吃。凉了，人就认不得路喽。”她的絮叨里，三年前那场事故的细节一点一点漏了出来——脱轨、夜雨、没有一个乘客被找到。",
+      "scene_meta": {"beat_id": "b7", "characters_present": ["pc", "aunt"], "location": "餐车"},
+      "choices": [
+        {"text": "认真听她说完，追问更多", "tendency": {"empathy": 0.5, "curiosity": 0.5}, "effects": []},
+        {"text": "打断她，觉得她在装神弄鬼", "tendency": {"order": -0.5}, "effects": []}
+      ],
+      "world_updates": [
+        {"type": "fact", "id": "f_ge_detail", "text": "葛姨讲述了当年事故的细节"}
+      ]
+    },
+    "b6": {
+      "narrative": "终点站前夜，林sir把名册摊开。红笔圈起的名字、缺角的怀表、葛姨的絮叨，还有你越来越清晰的记忆拼成了真相：三年前这趟车脱轨，无人生还——除了你。你当年提前下了车。这列车，是他们的执念。",
+      "scene_meta": {"beat_id": "b6", "characters_present": ["pc", "lin", "boy"], "location": "车尾（终点站前夜）"},
+      "choices": [
+        {"text": "接受真相，帮他们找到归宿", "tendency": {"empathy": 1}, "effects": []},
+        {"text": "拒绝相信这一切", "tendency": {"order": -0.5},
+         "effects": [{"type": "fact", "id": "f_refused_truth"}]},
+        {"text": "精神崩溃", "tendency": {"caution": -0.5},
+         "effects": [{"type": "stat", "target": "sanity", "delta": -30, "reason": "真相压垮了理智"}]},
+        {"text": "趁乱用怀表独自下车", "tendency": {"caution": 1},
+         "visible_condition": {"fact": "f_got_watch"},
+         "effects": [{"type": "fact", "id": "f_escaped"}]}
+      ],
+      "world_updates": [
+        {"type": "fact", "id": "f_truth_revealed", "text": "三年前的事故真相与主角身份揭晓"}
+      ]
+    }
+  }
+}

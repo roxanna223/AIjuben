@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>点点穿书·同类产品全景调研报告（竞品篇）</title>
+<style>
+@font-face { font-family: 'ArsenalSC'; src: url('./_shared/fonts/ArsenalSC-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'IBMPlexSerif'; src: url('./_shared/fonts/IBMPlexSerif-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'IBMPlexSerif'; src: url('./_shared/fonts/IBMPlexSerif-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'IBMPlexSerif'; src: url('./_shared/fonts/IBMPlexSerif-Italic.ttf') format('truetype'); font-style: italic; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'IBMPlexMono'; src: url('./_shared/fonts/IBMPlexMono-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+
+:root {
+  --bg: #faf8f5;
+  --bg2: #f3efe7;
+  --ink: #2a2622;
+  --muted: #73695c;
+  --rule: #e6dfd2;
+  --accent: #a8432a;
+  --accent2: #3d5a4c;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'ArsenalSC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+/* ---------- Masthead ---------- */
+.masthead { border-bottom: 1px solid var(--rule); padding: 64px 0 44px; }
+.kicker { font-family: 'IBMPlexMono', monospace; font-size: 13px; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; margin-bottom: 18px; }
+h1 { font-family: 'IBMPlexSerif', 'ArsenalSC', serif; font-size: clamp(32px, 5vw, 48px); font-weight: 700; line-height: 1.28; letter-spacing: 0.02em; }
+.subtitle { font-size: 17px; color: var(--muted); margin-top: 16px; max-width: 760px; }
+.meta-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.chip { font-family: 'IBMPlexMono', monospace; font-size: 12px; color: var(--accent2); background: var(--bg2); border: 1px solid var(--rule); border-radius: 999px; padding: 5px 14px; }
+
+/* ---------- Stat grid ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 34px 0 8px; }
+.stat { background: var(--bg2); border: 1px solid var(--rule); border-radius: 10px; padding: 18px 18px 14px; }
+.stat .num { font-family: 'IBMPlexSerif', serif; font-size: 28px; font-weight: 700; color: var(--accent); line-height: 1.15; }
+.stat .num small { font-size: 14px; color: var(--muted); font-weight: 400; }
+.stat .label { font-size: 12.5px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+/* ---------- TOC ---------- */
+.toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin: 30px 0; }
+.toc a { display: block; text-decoration: none; color: var(--ink); background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; font-size: 14px; transition: border-color .15s; }
+.toc a:hover { border-color: var(--accent); }
+.toc a .no { font-family: 'IBMPlexMono', monospace; color: var(--accent); font-size: 12px; margin-right: 8px; }
+
+/* ---------- Chapters ---------- */
+section.chapter { padding: 58px 0 26px; border-top: 1px solid var(--rule); margin-top: 34px; }
+.ch-no { font-family: 'IBMPlexSerif', serif; font-size: 15px; font-style: italic; color: var(--accent); letter-spacing: 0.1em; }
+h2 { font-family: 'IBMPlexSerif', 'ArsenalSC', serif; font-size: clamp(24px, 3.4vw, 32px); font-weight: 700; margin: 6px 0 4px; }
+.ch-desc { color: var(--muted); font-size: 15px; margin-bottom: 26px; max-width: 780px; }
+h3 { font-size: 19px; font-weight: 700; margin: 38px 0 12px; padding-left: 14px; border-left: 3px solid var(--accent); line-height: 1.4; }
+h4 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: var(--accent2); }
+p { margin: 10px 0; }
+strong { font-weight: 700; }
+ul.list, ol.list { padding-left: 22px; margin: 10px 0; }
+ul.list li, ol.list li { margin: 6px 0; }
+
+/* ---------- Product card ---------- */
+.product { background: #fff; border: 1px solid var(--rule); border-radius: 12px; padding: 22px 24px; margin: 18px 0; }
+.product-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+.product-head .p-name { font-family: 'IBMPlexSerif', 'ArsenalSC', serif; font-size: 21px; font-weight: 700; }
+.product-head .p-tag { font-family: 'IBMPlexMono', monospace; font-size: 11.5px; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.tag-dead { background: #f5e3de; color: var(--accent); }
+.tag-live { background: #e7efe9; color: var(--accent2); }
+.tag-new { background: #ede7f4; color: #5b4a8a; }
+.product-head .p-sub { width: 100%; font-size: 13px; color: var(--muted); font-family: 'IBMPlexMono', monospace; }
+.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin: 14px 0; }
+.kv .cell { background: var(--bg2); border-radius: 8px; padding: 10px 13px; font-size: 13.5px; }
+.kv .cell b { display: block; font-family: 'IBMPlexMono', monospace; font-size: 11px; color: var(--accent2); letter-spacing: 0.06em; margin-bottom: 3px; font-weight: 700; }
+
+/* ---------- Callout / gap ---------- */
+.callout { background: var(--bg2); border-left: 4px solid var(--accent2); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 18px 0; font-size: 15px; }
+.callout.warn { border-left-color: var(--accent); }
+.callout .ct { font-weight: 700; display: block; margin-bottom: 6px; }
+.gap-box { background: #fff; border: 1px dashed var(--accent); border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-size: 14.5px; }
+.gap-box .gt { font-family: 'IBMPlexMono', monospace; color: var(--accent); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; display: block; margin-bottom: 4px; }
+
+/* ---------- Table ---------- */
+.table-wrap { overflow-x: auto; margin: 18px 0; border: 1px solid var(--rule); border-radius: 8px; background: #fff; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th { text-align: left; background: var(--bg2); color: var(--ink); font-weight: 700; padding: 10px 14px; border-bottom: 2px solid var(--rule); }
+td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+th.num, td.num { text-align: right; font-family: 'IBMPlexMono', monospace; font-size: 12.5px; white-space: nowrap; }
+
+/* ---------- Timeline ---------- */
+.timeline { margin: 22px 0; padding-left: 22px; border-left: 2px solid var(--rule); }
+.tl-item { position: relative; margin-bottom: 16px; }
+.tl-item::before { content: ''; position: absolute; left: -28px; top: 7px; width: 10px; height: 10px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); }
+.tl-item .tl-date { font-family: 'IBMPlexMono', monospace; font-size: 13px; color: var(--accent); font-weight: 700; }
+.tl-item .tl-body { font-size: 14.5px; margin-top: 2px; }
+
+/* ---------- Figures ---------- */
+figure.chart-figure { margin: 26px 0; }
+figure.chart-figure figcaption { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+figure.chart-figure .chart-note { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+figure.diagram { margin: 22px 0; }
+figure.diagram figcaption { font-size: 13px; color: var(--muted); margin-top: 10px; text-align: center; }
+.mermaid { background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 18px; }
+
+blockquote.userquote { background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 14.5px; color: var(--ink); }
+blockquote.userquote .q-meta { display: block; font-size: 12.5px; color: var(--muted); margin-top: 8px; font-family: 'IBMPlexMono', monospace; }
+
+/* ---------- Credibility ---------- */
+.cred { font-family: 'IBMPlexMono', monospace; font-size: 11px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+.cred.h { background: #e7efe9; color: var(--accent2); }
+.cred.m { background: #f0ead9; color: #8a6d1a; }
+.cred.l { background: #f5e3de; color: var(--accent); }
+
+/* ---------- Footer ---------- */
+footer { border-top: 1px solid var(--rule); margin-top: 60px; padding: 40px 0 64px; }
+footer h2 { font-size: 22px; }
+footer .sources ol { padding-left: 1.2rem; font-size: 0.85rem; color: var(--muted); }
+footer .sources li { margin: 6px 0; }
+footer .sources .src-title { color: var(--ink); word-break: normal; }
+footer .sources .src-url { display: block; margin-top: 0.15rem; font-size: 0.82rem; color: var(--accent); word-break: break-all; }
+sup a { color: var(--accent); text-decoration: none; font-size: 0.72em; font-weight: 600; }
+
+@media (max-width: 640px) {
+  .kv { grid-template-columns: 1fr; }
+  .stat .num { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<!-- ================= MASTHEAD ================= -->
+<header class="masthead">
+  <div class="kicker">Competitor Landscape Research · 2026-08</div>
+  <h1>点点穿书·同类产品全景调研报告</h1>
+  <p class="subtitle">互动小说 · 互动图文 · 互动影视 · AI 互动叙事：与《点点穿书》同赛道或相邻赛道的 30+ 产品全景拆解。作为《点点穿书·全方位调研报告》的姊妹篇，本报告延续同一调研标准：所有数据可溯源，查不到的明确标注。</p>
+  <div class="meta-chips">
+    <span class="chip">调研截止 2026-08-26</span>
+    <span class="chip">覆盖产品 30+</span>
+    <span class="chip">参考来源 60 条</span>
+    <span class="chip">四大阵营 · 七种形态</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num">8000<small> 万+</small></div><div class="label">橙光 2017 年官方披露活跃用户<sup><a href="#cite-5">[5]</a></sup></div></div>
+    <div class="stat"><div class="num">3.25<small> 亿+</small></div><div class="label">Episode 累计下载（官方口径）<sup><a href="#cite-22">[22]</a></sup></div></div>
+    <div class="stat"><div class="num">500<small> 万套</small></div><div class="label">《盛世天下》系列累计销量（真人互动影游纪录）<sup><a href="#cite-39">[39]</a></sup></div></div>
+    <div class="stat"><div class="num">2005<small> 万</small></div><div class="label">星野/Talkie 月活（MiniMax 招股书口径）<sup><a href="#cite-44">[44]</a></sup></div></div>
+  </div>
+
+  <nav class="toc">
+    <a href="#ch1"><span class="no">01</span>总览：互动叙事生态地图</a>
+    <a href="#ch2"><span class="no">02</span>国内互动小说平台</a>
+    <a href="#ch3"><span class="no">03</span>海外互动小说 App</a>
+    <a href="#ch4"><span class="no">04</span>真人互动影游（买断制）</a>
+    <a href="#ch5"><span class="no">05</span>流媒体互动剧兴衰</a>
+    <a href="#ch6"><span class="no">06</span>AI 互动叙事新品类</a>
+    <a href="#ch7"><span class="no">07</span>相邻品类参考</a>
+    <a href="#ch8"><span class="no">08</span>横向对比与启示</a>
+    <a href="#ch9"><span class="no">09</span>查不到清单与数据可信度</a>
+  </nav>
+</header>
+
+<!-- ================= CH1 ================= -->
+<section class="chapter" id="ch1">
+  <div class="ch-no">Chapter 01</div>
+  <h2>总览：互动叙事生态地图</h2>
+  <p class="ch-desc">"互动叙事"不是单一赛道，而是由四大阵营构成的连续光谱：从纯文字选项（互动小说）到真人视频（互动影游/互动剧），再到 AI 驱动的自由对话（AI 陪伴/AI 文游）。《点点穿书》位于光谱左端——图文互动小说，它的竞争对手横跨全部四个阵营。</p>
+
+  <figure class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  subgraph A["阵营一 · 国内互动小说平台（图文选项）"]
+    A1["橙光游戏<br/>2005/2012 · 老牌霸主"]
+    A2["易次元（网易）<br/>2018"]
+    A3["闪艺 · 2017"]
+    A4["话本小说 · 2016"]
+    A5["一零零一（腾讯）<br/>2023 停运 ✝"]
+  end
+  subgraph B["阵营二 · 海外互动小说 App"]
+    B1["Chapters（枫叶互动）<br/>2017 · 全球流水第一"]
+    B2["Episode（腾讯系）<br/>2013 · 3.25亿下载"]
+    B3["Choices（Pixelberry）<br/>2016"]
+    B4["MeChat · 2020"]
+    B5["Netflix Stories"]
+  end
+  subgraph C["阵营三 · 真人互动影视"]
+    C1["互动影游（买断制）<br/>隐形守护者/完蛋/盛世天下"]
+    C2["流媒体互动剧<br/>潘达斯奈基/他的微笑"]
+    C3["小程序互动短剧<br/>盛世天下小程序版"]
+  end
+  subgraph D["阵营四 · AI 互动叙事（新势力）"]
+    D1["星野/Talkie（MiniMax）"]
+    D2["筑梦岛→戏格（阅文系）"]
+    D3["Storvia/AI Dungeon"]
+    D4["AI互动剧（芒果/番茄/拼多多）"]
+  end
+  X(("点点穿书<br/>2023"))
+  X -.->|"同形态直接竞争"| A
+  X -.->|"模式同源（出海版）"| B
+  X -.->|"内容IP改编上下游"| C
+  X -.->|"技术代际竞争"| D
+    </pre>
+    <figcaption>图 1：互动叙事产品生态地图与《点点穿书》的相对位置</figcaption>
+  </figure>
+
+  <h3>1.1 四大阵营一句话概括</h3>
+  <ul class="list">
+    <li><strong>阵营一（国内互动小说平台）</strong>：橙光一家独大但元气大伤（iOS 下架 6 年）；易次元背靠网易稳定运营；闪艺、话本小说小而美；腾讯一零零一已停运——<strong>这个阵营整体处于"存量萎缩 + AI 化转型"阶段</strong><sup><a href="#cite-3">[3]</a></sup><sup><a href="#cite-50">[50]</a></sup>。</li>
+    <li><strong>阵营二（海外互动小说 App）</strong>：由中国出海团队 Chapters 登顶全球流水第一；美国市场进入存量竞争、付费通胀（单本完整体验成本 10 年涨 10 倍至 100-200 美金）；品类公认的未来变量是 AI<sup><a href="#cite-29">[29]</a></sup><sup><a href="#cite-20">[20]</a></sup>。</li>
+    <li><strong>阵营三（真人互动影视）</strong>：冰火两重天——流媒体互动剧已死（Netflix 2024 年底下架几乎全部互动剧）；但买断制互动影游反而爆发（《盛世天下》系列 500 万套刷新纪录），且与橙光存在 IP 改编上下游关系<sup><a href="#cite-59">[59]</a></sup><sup><a href="#cite-39">[39]</a></sup>。</li>
+    <li><strong>阵营四（AI 互动叙事）</strong>：2023-2026 年最强增量。星野/Talkie 月活 2005 万；筑梦岛从阅文孵化、整改、切割再到推出戏格；芒果/番茄/拼多多 2026 年集体试水 AI 互动剧——<strong>这是点点穿书面临的最大技术代际威胁</strong><sup><a href="#cite-44">[44]</a></sup><sup><a href="#cite-41">[41]</a></sup>。</li>
+  </ul>
+
+  <div class="callout">
+    <span class="ct">与上一份报告的衔接</span>
+    <p>本报告中"点点穿书"自身数据（vivo 6270 万下载、能量经济、两次监管通报等）均引自姊妹篇《点点穿书·全方位调研报告》，此处不再重复展开；两份报告配合阅读。</p>
+  </div>
+</section>
+
+<!-- ================= CH2 ================= -->
+<section class="chapter" id="ch2">
+  <div class="ch-no">Chapter 02</div>
+  <h2>国内互动小说平台：点点穿书的直接竞品</h2>
+  <p class="ch-desc">橙光是品类开创者与曾经绝对霸主，却因监管下架元气大伤；易次元是当前最稳定的在营竞品；闪艺、话本小说是小体量玩家；腾讯一零零一 2023 年停运证明巨头也曾折戟。整个阵营正在集体 AI 化。</p>
+
+  <!-- 橙光 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">橙光游戏（橙光阅读器）</span>
+      <span class="p-tag tag-live">在营 · iOS 下架中</span>
+      <span class="p-sub">北京六趣网络科技有限公司 · 2012 年成立 · 品类开创者</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>渊源</b>前身是柳晓宇 2005 年在清华大学期间创建的 RM（RPG Maker）游戏交流社区 66rpg 论坛；2012 年公司化并上线官网，2014 年 App 上线，2015 年 H5 版登 iOS<sup><a href="#cite-3">[3]</a></sup></div>
+      <div class="cell"><b>融资</b>2017 年 C 轮约 1000 万元（红点中国）；2018 年 D 轮约 1 亿元（知春资本、景林投资、国金投资）<sup><a href="#cite-2">[2]</a></sup></div>
+      <div class="cell"><b>巅峰数据（2017 官方）</b>注册用户 5100 万+，活跃用户 8000 万+，签约作者近 6000 人，过审作品近 8 万部<sup><a href="#cite-5">[5]</a></sup></div>
+      <div class="cell"><b>现状</b>安卓端持续更新（v3.32.0，2026-08），官网仍发公告；iOS 自 2020-09 下架至今未恢复<sup><a href="#cite-4">[4]</a></sup><sup><a href="#cite-3">[3]</a></sup></div>
+    </div>
+    <h4>商业化（与点点穿书"能量"对照）</h4>
+    <ul class="list">
+      <li><strong>付费道具</strong>：鲜花 1 元/朵（首充双倍）、花篮 18 元/月（每日领 3 朵鲜花）、彩虹币 1 元/个<sup><a href="#cite-3">[3]</a></sup>——付费墙结构与点点穿书"能量内购+VIP 包月"高度同构。</li>
+      <li><strong>作者分成</strong>：站内月收入 4 万元以下六四分成、4 万元以上部分七三分成<sup><a href="#cite-5">[5]</a></sup>——比点点穿书"能量不达标就烂尾"的强淘汰机制温和得多。</li>
+      <li><strong>用户付费深度</strong>：2020 年报道中有用户单部作品充值鲜花 4268 朵+彩虹币 460 个，合计约 5000 元<sup><a href="#cite-3">[3]</a></sup>——与点点穿书重度投诉案例（单案最高 5037 元）惊人一致。</li>
+    </ul>
+    <h4>监管危机与 AI 转型</h4>
+    <ul class="list">
+      <li><strong>2020 年 9 月 iOS 下架</strong>：国家网信办通报其存在低俗色情信息、渲染未成年人开房、拜金主义等导向不良内容<sup><a href="#cite-3">[3]</a></sup>——点点穿书 2025/2026 两次被通报，走的几乎是同一条路。</li>
+      <li><strong>长期风险</strong>：素材侵权（含明星肖像素材）问题长期存在，高光期在《隐形守护者》之后明显回落<sup><a href="#cite-50">[50]</a></sup>。</li>
+      <li><strong>2026 年 AI 化</strong>：推出"橙戏 Agent"AI 制作工具，可自动生成场景、立绘、配音与剧情分支<sup><a href="#cite-50">[50]</a></sup>。</li>
+    </ul>
+    <h4>与点点穿书的直接交集</h4>
+    <p>2024 年 10 月，橙光就站内作者作品被抄袭向点点穿书平台投诉：点点穿书作者"鲜于狗子"的《养娃模拟器：妈妈的好大儿》涉嫌抄袭橙光作者"夏日的果子"的《我家儿子初长成》，点点穿书发布致歉声明并下架处理<sup><a href="#cite-6">[6]</a></sup>。此外橙光运营方 2024 年存在起诉著作权侵权的司法记录（企查查口径，被诉对象未公开确认是否为点点穿书）。<span class="cred m">多方印证</span></p>
+  </div>
+
+  <!-- 易次元 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">易次元</span>
+      <span class="p-tag tag-live">在营 · 网易系</span>
+      <span class="p-sub">杭州网易元气科技有限公司 · 2018-10-16 上架 · 当前最稳定竞品</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>用户规模</b>2019 年官方称活跃用户超 1000 万<sup><a href="#cite-7">[7]</a></sup>；2026 年第三方称 DAU 超 50 万<sup><a href="#cite-9">[9]</a></sup><span class="cred m">单一来源</span></div>
+      <div class="cell"><b>内容规模</b>第三方称累计上线超 1.8 万部互动作品、日均更新 20 部<sup><a href="#cite-9">[9]</a></sup><span class="cred m">单一来源</span></div>
+      <div class="cell"><b>口碑</b>App Store 4.0 分（1.9 万评分）；iOS 近月下载约 7 万次（Sensor Tower）<sup><a href="#cite-8">[8]</a></sup></div>
+      <div class="cell"><b>更新状态</b>v4.23.17（2026 年 8 月仍更新），2026 年举办第三届短篇大赛<sup><a href="#cite-8">[8]</a></sup></div>
+    </div>
+    <h4>形态与商业化</h4>
+    <p>题材覆盖乙女、耽美、奇幻、宫斗、悬疑推理、同人二创等；玩法为多支线多结局+养成<sup><a href="#cite-10">[10]</a></sup>。商业化用次元币（10 币=1 元）购买道具，叠加送糖、角色表白、广告分成等创作者收入通道，App Store 内购 1-50 元礼包<sup><a href="#cite-10">[10]</a></sup><sup><a href="#cite-8">[8]</a></sup>——付费颗粒度比点点穿书（¥2=200 能量起）更细，创作者激励工具更丰富。</p>
+  </div>
+
+  <!-- 闪艺 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">闪艺互动阅读</span>
+      <span class="p-tag tag-live">在营 · 小体量</span>
+      <span class="p-sub">厦门礼之家网络科技有限公司 · 2017 年上线 · 团队仅约 10 人</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>公司</b>2016-10 成立，注册资本 410 万元，2025 年参保 10 人，未融资<sup><a href="#cite-11">[11]</a></sup></div>
+      <div class="cell"><b>数据</b>360 商店 9.6 分（14 万人）、4399 评分 8.7；安卓累计下载"百万级"（第三方口径）<sup><a href="#cite-12">[12]</a></sup></div>
+      <div class="cell"><b>商业化</b>闪币（永久有效）+赠币（30 天有效期）+闪卡（30/365 天特权）<sup><a href="#cite-13">[13]</a></sup></div>
+      <div class="cell"><b>痛点</b>黑猫投诉存在作者断更烂尾、"虚拟产品不退不换"投诉<sup><a href="#cite-14">[14]</a></sup>——与点点穿书同款痛点</div>
+    </div>
+    <p>代表作品《我在古代当公主》《炮灰厨娘》等；2026 年 7 月办"萤火奇妙夜·闪艺 9 周年"活动，仍在运营但存在感弱<sup><a href="#cite-11">[11]</a></sup>。</p>
+  </div>
+
+  <!-- 话本小说 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">话本小说</span>
+      <span class="p-tag tag-live">在营 · 社区型</span>
+      <span class="p-sub">天津量子时代网络科技有限公司 · 2016 年 · 腾讯双百投资</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>投资者</b>天使轮（中文在线、极客帮）、Pre-A（梅花创投、东霖资本）、2018 年腾讯双百<sup><a href="#cite-15">[15]</a></sup><sup><a href="#cite-16">[16]</a></sup></div>
+      <div class="cell"><b>数据</b>企查查口径：DAU 超 100 万、200 万+ 本原创作品、日均 2 万人创作<sup><a href="#cite-15">[15]</a></sup><span class="cred m">单一来源</span></div>
+    </div>
+    <p><strong>形态差异</strong>：话本不是"选项推进"型互动小说，而是气泡对话+角色扮演+弹幕+读者投票影响剧情的<strong>对话体小说社区</strong><sup><a href="#cite-62">[62]</a></sup>——与点点穿书的竞争更多在"互动阅读"概念层与年轻女性用户层。</p>
+  </div>
+
+  <!-- 一零零一 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">一零零一（腾讯）</span>
+      <span class="p-tag tag-dead">已停运</span>
+      <span class="p-sub">腾讯互动阅读产品 · 2023-02-08 停运</span>
+    </div>
+    <p>腾讯曾于 2020 年上线互动阅读产品"一零零一"，与橙光、易次元直接竞争，但于 2023 年 2 月 8 日正式停运<sup><a href="#cite-17">[17]</a></sup>——<strong>巨头也未能把这个品类做活，是赛道天花板的重要信号</strong>。</p>
+  </div>
+
+  <figure class="chart-figure">
+    <figcaption>图 2：国内互动小说平台规模数据对比（不同年份口径，仅作量级参考）</figcaption>
+    <div id="chart-cn" style="width:100%;min-height:360px"></div>
+    <p class="chart-note">数据来源：橙光 2017 官方披露<sup><a href="#cite-5">[5]</a></sup>、易次元 2019 官方+2026 第三方<sup><a href="#cite-7">[7]</a></sup><sup><a href="#cite-9">[9]</a></sup>、话本小说企查查口径<sup><a href="#cite-15">[15]</a></sup>、点点穿书 vivo 渠道下载（姊妹篇报告）。注意各产品统计口径（注册/活跃/下载）与年份不同，不可直接横比。</p>
+  </figure>
+</section>
+
+<!-- ================= CH3 ================= -->
+<section class="chapter" id="ch3">
+  <div class="ch-no">Chapter 03</div>
+  <h2>海外互动小说 App：点点穿书模式的"出海镜像"</h2>
+  <p class="ch-desc">Chapters、Episode、Choices、MeChat 构成欧美市场第一梯队——形态、付费墙与点点穿书几乎完全同构（钻石解锁选项+服装定制+VIP）。值得警惕的结论：这个模式在欧美已是存量市场，付费通胀严重，品类公认的下一次增长要靠 AI。</p>
+
+  <!-- Chapters -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">Chapters: Interactive Stories</span>
+      <span class="p-tag tag-live">在营 · 全球流水第一</span>
+      <span class="p-sub">枫叶互动 Crazy Maple Studio（中文在线背景，2016 年成立，总部旧金山） · 2017-09 上线</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>巅峰</b>上线第四年创下月收入 1300 万+ 美元峰值；近期 30 天仍有约 270 万美元收入（36氪/点点数据口径）<sup><a href="#cite-18">[18]</a></sup></div>
+      <div class="cell"><b>近期（2026-05）</b>Sensor Tower 两口径：月收入约 40 万-70 万美元、月下载 10 万-20 万<sup><a href="#cite-19">[19]</a></sup><span class="cred m">口径分歧</span></div>
+      <div class="cell"><b>口碑</b>4.4 分（65.6 万+ 评论）<sup><a href="#cite-19">[19]</a></sup></div>
+      <div class="cell"><b>关键背景</b>同门产品 ReelShort 是北美头部短剧平台（2025 Q1 双端收入约 4575 万美元）——同一家公司同时押注互动小说与短剧<sup><a href="#cite-19">[19]</a></sup></div>
+    </div>
+    <h4>超越美国对手的路径</h4>
+    <p>2018 年时头部还是 Choices 和 Episode，Chapters 通过深耕小语种市场实现反超：2020 年 7 月德国超越英国成为其第二大营收市场、法国升至第三；此后美国营收占比仅约 50%（Episode/Choices 为 70%+），凭全球盘子登顶品类流水第一<sup><a href="#cite-29">[29]</a></sup>。<strong>对点点穿书的启示：国内买量见顶后，非英语市场是被验证过的第二曲线。</strong></p>
+    <h4>商业化</h4>
+    <p>钻石内购（$0.99-39.99 档位）+VIP 月卡（€10.99/月）；视觉 UGC 版块有 4000+ UGC 故事作为社区护城河<sup><a href="#cite-19">[19]</a></sup><sup><a href="#cite-29">[29]</a></sup>。提供 30+ 题材选项<sup><a href="#cite-29">[29]</a></sup>。</p>
+  </div>
+
+  <!-- Episode -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">Episode - Choose Your Story</span>
+      <span class="p-tag tag-live">在营 · 品类元老</span>
+      <span class="p-sub">Episode Interactive / Pocket Gems（2009 年旧金山） · 2013-12 上线 · 腾讯两轮投资共约 1.5 亿美元</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>累计规模</b>总下载 3.25 亿+（官方口径）、平台累计浏览量 9 亿+、15 万+ 部发表故事<sup><a href="#cite-22">[22]</a></sup></div>
+      <div class="cell"><b>近期（2026-05）</b>月收入约 90 万美元、月下载约 20 万（Sensor Tower）；英国 MAU 850 万<sup><a href="#cite-23">[23]</a></sup><sup><a href="#cite-22">[22]</a></sup></div>
+      <div class="cell"><b>口碑</b>4.7 分（280 万+ 评论）<sup><a href="#cite-22">[22]</a></sup></div>
+      <div class="cell"><b>粘性</b>平均单次会话时长约 47 分钟<sup><a href="#cite-22">[22]</a></sup></div>
+    </div>
+    <h4>创作者生态（点点穿书的镜像参照）</h4>
+    <p>顶级创作者月收入可达 15,000+ 英镑（广告+内购分成）<sup><a href="#cite-22">[22]</a></sup>；官方论坛设有"闲聊"与"小游戏"专区承接内容耗尽后的用户——社区运营深度远超国内同行<sup><a href="#cite-29">[29]</a></sup>。</p>
+    <blockquote class="userquote">"早几年解锁一部互动小说的全部付费选项只花了不到 10 美金，但如今单本互动小说的均价已经来到了 100-200 美金，价格涨了 10 多倍。"
+      <span class="q-meta">Episode 玩家 @ Reddit，转引自白鲸出海<sup><a href="#cite-29">[29]</a></sup></span>
+    </blockquote>
+    <p><strong>付费通胀是品类通病</strong>：付费选项出现频率更密集、单价更高，完整体验一部作品的成本 10 年间涨了 10 倍以上——点点穿书"能量不达标就烂尾"的强变现机制与之殊途同归<sup><a href="#cite-29">[29]</a></sup>。</p>
+  </div>
+
+  <!-- Choices -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">Choices: Stories You Play</span>
+      <span class="p-tag tag-live">在营 · 两度易主</span>
+      <span class="p-sub">Pixelberry Studios · 2016-08 上线 · Nexon 2017 年约 1 亿美元收购 → 2024 年 Series Entertainment 收购</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>巅峰</b>GameLook 中文报道口径：峰值月流水约 9000 万元人民币<sup><a href="#cite-20">[20]</a></sup><span class="cred l">单一中文来源</span></div>
+      <div class="cell"><b>近期</b>同口径称月流水降至约 600 万元人民币<sup><a href="#cite-20">[20]</a></sup><span class="cred l">单一中文来源</span></div>
+      <div class="cell"><b>内购区间</b>$0.99-$164.99<sup><a href="#cite-24">[24]</a></sup></div>
+      <div class="cell"><b>用户反馈</b>认可叙事与角色发展，集中批评钻石成本过高<sup><a href="#cite-24">[24]</a></sup></div>
+    </div>
+    <p>核心玩法为选项叙事+角色/服装定制；被 Nexon 收购七年后于 2024 年转手 Series Entertainment<sup><a href="#cite-25">[25]</a></sup>——头部产品两度易主，侧面说明品类估值逻辑已从"增长"切换到"现金流"。</p>
+  </div>
+
+  <!-- MeChat -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">MeChat - Interactive Stories</span>
+      <span class="p-tag tag-live">在营 · 融合形态</span>
+      <span class="p-sub">PlayMe Studio（2020 年成立，塞浦路斯注册/乌克兰团队背景） · 2020-12 上线</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>用户</b>35M+ 用户（官方招聘页口径）<sup><a href="#cite-27">[27]</a></sup></div>
+      <div class="cell"><b>近期</b>2026 年月收入约 40 万美元、月下载约 10 万（Sensor Tower）<sup><a href="#cite-26">[26]</a></sup></div>
+    </div>
+    <p>差异化定位"互动约会模拟器"：数百条恋爱路线，形态更接近"互动叙事+虚拟约会"融合，被类比"互动小说界的 Tinder"<sup><a href="#cite-27">[27]</a></sup>——验证了互动小说与陪伴类产品的边界正被打破。</p>
+  </div>
+
+  <!-- Netflix -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">Netflix Stories &amp; Storyteller</span>
+      <span class="p-tag tag-live">订阅免费制</span>
+      <span class="p-sub">Netflix · 综艺/剧集 IP 改编互动小说 + 独立游戏发行</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>Netflix Stories</b>改编 Love Is Blind、Too Hot to Handle 2、Virgin River 等自有 IP，同期的两款改编作累计下载各 200-300 万<sup><a href="#cite-29">[29]</a></sup></div>
+      <div class="cell"><b>Storyteller</b>阿根廷独立开发者作品（"狗血故事编辑器"，漫画面板拼贴玩法），2023-09 由 Netflix 发手游版，3 个月全球下载 350 万+，超多数大 IP 互动小说<sup><a href="#cite-29">[29]</a></sup></div>
+    </div>
+    <p>Netflix 以订阅免费+无广告无内购切入，理论上冲击"付费解锁"模式，但实际搅动有限——原因在于传统头部产品的护城河是多年培育的玩家社区与 UGC，而非单纯内容<sup><a href="#cite-29">[29]</a></sup>。具体运营数据（收入/MAU）Netflix 不披露，<strong>查不到</strong>。</p>
+  </div>
+
+  <h3>3.6 市场格局与趋势判断</h3>
+  <figure class="chart-figure">
+    <figcaption>图 3：海外头部互动小说近期月收入对比（Sensor Tower 2026-05 各页面口径）</figcaption>
+    <div id="chart-overseas" style="width:100%;min-height:340px"></div>
+    <p class="chart-note">Chapters 存在 40 万/70 万美元两种页面口径<sup><a href="#cite-19">[19]</a></sup>，图中取区间中值并标注；Episode 约 90 万<sup><a href="#cite-23">[23]</a></sup>；MeChat 约 40 万<sup><a href="#cite-26">[26]</a></sup>。历史峰值（Chapters 1300 万美元/月<sup><a href="#cite-18">[18]</a></sup>）远高于当前水平，反映品类进入成熟衰退期。</p>
+  </figure>
+  <ul class="list">
+    <li><strong>市场规模</strong>：第三方报告对"互动小说 App 市场"2025 年规模的估计从 42 亿美元到 78 亿美元不等（口径差异大，仅供参考）；美国约占 8.11 亿美元<sup><a href="#cite-28">[28]</a></sup><span class="cred l">第三方报告口径分歧</span>。</li>
+    <li><strong>存量竞争</strong>：美国头部互动小说营收曾出现 30-50% 下滑（疫情红利消退），日活阴跌，厂商靠拉高 ARPDAU 维持营收<sup><a href="#cite-29">[29]</a></sup>。</li>
+    <li><strong>突围困难</strong>：白鲸出海判断，恋爱互动小说"每月几百万美金的流水看似美好，但早已进入存量竞争，从内容创作到推广宣传卷得不行，突围很难"<sup><a href="#cite-29">[29]</a></sup>。</li>
+    <li><strong>公认变量是 AI</strong>：行业观察认为"除非 AI 带来互动体验的升级，比较难想象大盘会有大的增长或新产品突围"<sup><a href="#cite-29">[29]</a></sup>。</li>
+  </ul>
+</section>
+
+<!-- ================= CH4 ================= -->
+<section class="chapter" id="ch4">
+  <div class="ch-no">Chapter 04</div>
+  <h2>真人互动影游（单机买断制）：内容最硬、爆款最密</h2>
+  <p class="ch-desc">这个阵营与点点穿书有奇妙的上下游关系：橙光 IP 被改编成《隐形守护者》《飞越13号房》等爆款影游；点点穿书内部也一度传言"平台要改短剧了"。2023-2026 年买断制互动影游连续出爆款，但行业约 90% 项目亏损。</p>
+
+  <!-- 盛世天下 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">《盛世天下》系列（媚娘篇 / 女帝篇）</span>
+      <span class="p-tag tag-live">当前品类之王</span>
+      <span class="p-sub">New One Studio（《隐形守护者》原班团队）× 知竹导演 · 腾讯视频生态宣发 · 2025-09 起</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>媚娘篇 2025-09-09</b>首发价 39 元；12 天销量超 100 万套，首周全网播放热度超 10 亿<sup><a href="#cite-38">[38]</a></sup><sup><a href="#cite-39">[39]</a></sup></div>
+      <div class="cell"><b>女帝篇 2026-06-09</b>59 元（老用户 49 元）；5 天破 100 万套、12 天超 200 万套<sup><a href="#cite-39">[39]</a></sup></div>
+      <div class="cell"><b>全系列</b>2026-06-30 累计销量突破 500 万套，创真人实拍互动影视全球销量纪录<sup><a href="#cite-39">[39]</a></sup></div>
+      <div class="cell"><b>营收估算</b>第三方（雪球）预估全系列约 1.6 亿元——非官方口径<sup><a href="#cite-40">[40]</a></sup><span class="cred l">单一来源估算</span></div>
+    </div>
+    <h4>产品形态（对点点穿书最有参照价值）</h4>
+    <ul class="list">
+      <li><strong>体量</strong>：约 1000-1200 分钟真人演绎、4K 画质、100 余种选择导向不同结局；剧本 30 余万字，制作人+4 名编剧+导演花约一年完成，成本千万级<sup><a href="#cite-38">[38]</a></sup><sup><a href="#cite-41">[41]</a></sup>。</li>
+      <li><strong>玩法</strong>：批奏折、颁圣旨等深度交互；微信小程序端玩家超 30 万、微信游戏圈吸引 25 万+"古装后宫体验官"——<strong>小程序是其重要分发载体</strong><sup><a href="#cite-38">[38]</a></sup>。</li>
+      <li><strong>用户重合</strong>：女性向+宫斗+选择分支——与点点穿书核心用户画像高度重合；主演刘晓庆、官鸿等，登顶港澳台/新加坡 App Store 付费榜<sup><a href="#cite-38">[38]</a></sup>。</li>
+    </ul>
+  </div>
+
+  <!-- 完蛋系列 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">《完蛋！我被美女包围了！》及续作</span>
+      <span class="p-tag tag-live">现象级爆款</span>
+      <span class="p-sub">2023 秋初代 · 2025-07-17 续作 · 男性向真人恋爱互动影游</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>初代</b>42 元买断；累计销量约 190 万套、销售额约 8000 万元；Steam 在线峰值 6 万+，好评率 83-88%<sup><a href="#cite-41">[41]</a></sup></div>
+      <div class="cell"><b>续作《完蛋2》</b>2025-07-17 上线（PC+移动端），10 个月全平台销量破 100 万套（欢瑞世纪 2026Q1 财报）<sup><a href="#cite-33">[33]</a></sup></div>
+      <div class="cell"><b>续作口碑</b>Steam 好评率 86%、总评价 4393 条、平均游玩 6.5 小时（二柄口径）<sup><a href="#cite-35">[35]</a></sup></div>
+      <div class="cell"><b>热度对比</b>续作首日在线约 4000 人，未达初代首日 6800 人水平——IP 热度衰减明显<sup><a href="#cite-34">[34]</a></sup></div>
+    </div>
+    <p>初代开创"真人恋爱模拟"题材，带火整个互动影游赛道并带动影视公司入局（万维猫、百纳千成、优映文化等均推出项目）<sup><a href="#cite-41">[41]</a></sup>。欢瑞世纪投资了《完蛋2》并同步推出自家互动影游《江山北望》<sup><a href="#cite-41">[41]</a></sup>。</p>
+  </div>
+
+  <!-- 捞女游戏 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">《捞女游戏》→《情感反诈模拟器》</span>
+      <span class="p-tag tag-live">争议爆款</span>
+      <span class="p-sub">2025-06-19 发售 · 广州取景实拍 · 因争议改名后销量反升</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>销量</b>Steam 销量约 180 万套、收入约 780 万美元（Gamalytic 2026 口径）<sup><a href="#cite-41">[41]</a></sup>；早期口径 100 万套/430 万美元<sup><a href="#cite-36">[36]</a></sup></div>
+      <div class="cell"><b>粘性</b>平均游玩时长 9.3 小时<sup><a href="#cite-36">[36]</a></sup></div>
+      <div class="cell"><b>营销</b>上线后连续多日 Steam 热销榜首（一度超越《黑神话》霸榜国区），改名争议反而推高销量，初步估计销售额超 2000 万元<sup><a href="#cite-37">[37]</a></sup></div>
+    </div>
+    <p>题材是"情感反诈"（男性向），证明了<strong>争议性话题+短周期制作+低价买断</strong>的互动影游爆款公式——与点点穿书靠"病娇/囚禁"等猎奇题材买量的逻辑暗合。</p>
+  </div>
+
+  <!-- 隐形守护者 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">《隐形守护者》</span>
+      <span class="p-tag tag-live">品类开创者</span>
+      <span class="p-sub">New One Studio · 2019-02-27 · 改编自橙光作品《潜伏之赤途》</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>销量</b>Steam 约 140 万套（2019 国产单机年榜）→ 后续口径累计破 200 万份<sup><a href="#cite-31">[31]</a></sup><sup><a href="#cite-41">[41]</a></sup></div>
+      <div class="cell"><b>营收</b>流水破亿元级；成本约千万级<sup><a href="#cite-32">[32]</a></sup><sup><a href="#cite-41">[41]</a></sup></div>
+      <div class="cell"><b>口碑</b>Steam 好评率 97%；TapTap 83 万安装<sup><a href="#cite-32">[32]</a></sup></div>
+    </div>
+    <p><strong>与点点穿书生态的关联</strong>：它是橙光 IP 改编成功的最强证明——橙光由此进入"IP 授权"阶段；而橙光的高光期恰在此后回落<sup><a href="#cite-50">[50]</a></sup>。谍战题材 AB 选项推进，为后来所有国产互动影游树立了范式。</p>
+  </div>
+
+  <!-- 其他影游 -->
+  <h3>4.5 其他重要互动影游</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>作品</th><th>出品方 / 时间</th><th>关键数据</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr><td>《江山北望》</td><td>欢瑞世纪·北京凤麟互娱<br/>2025-11-20</td><td>Steam 预估销量约 13 万套、销售额约 120 万美元、93% 好评；峰值在线 1 万+；上线 3 小时进国区畅销榜前十</td><td>带动欢瑞世纪连收 4 个涨停板——互动影游的"资本故事"属性<sup><a href="#cite-41">[41]</a></sup></td></tr>
+        <tr><td>《飞越13号房》</td><td>ALT Lab<br/>2023-01</td><td>Steam 约 50 万份；全网热度一度破 3 亿；戛纳 NYX 最佳叙事+最佳剧情奖</td><td>改编自橙光《篱笆庄秘闻》；下半部 32 元<sup><a href="#cite-30">[30]</a></sup></td></tr>
+        <tr><td>《记忆重构》</td><td>追风互动 / 腾讯极光计划<br/>2019</td><td>免费下载+首充 12 元；总营收查不到</td><td>悬疑密室解谜向，更偏游戏化<sup><a href="#cite-30">[30]</a></sup></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure class="chart-figure">
+    <figcaption>图 4：真人互动影游代表作品销量对比（万套，最新可得口径）</figcaption>
+    <div id="chart-fmg" style="width:100%;min-height:360px"></div>
+    <p class="chart-note">数据来源：<sup><a href="#cite-39">[39]</a></sup><sup><a href="#cite-41">[41]</a></sup><sup><a href="#cite-31">[31]</a></sup><sup><a href="#cite-33">[33]</a></sup><sup><a href="#cite-36">[36]</a></sup>。各作品统计时点与平台口径（Steam/全平台/小程序）不同，仅作量级参考。</p>
+  </figure>
+
+  <div class="callout warn">
+    <span class="ct">行业冷数据：爆款光环下的高死亡率</span>
+    <p>2025 年有 100+ 款互动影游推出，但行业约 <strong>90% 项目亏损</strong>；多数团队从传统影视转型而来，100-200 万元可启动、拍摄 2-3 周、整体制作约半年<sup><a href="#cite-41">[41]</a></sup>。AI 工具正在把制作成本进一步压到"每分钟几百元"——2026 年 2 月上线的 AI 互动剧《诡舍》从启动到上线仅两个半月<sup><a href="#cite-41">[41]</a></sup>。</p>
+  </div>
+</section>
+
+<!-- ================= CH5 ================= -->
+<section class="chapter" id="ch5">
+  <div class="ch-no">Chapter 05</div>
+  <h2>流媒体互动剧：一段已基本结束的实验</h2>
+  <p class="ch-desc">2018-2020 年 Netflix、爱奇艺、腾讯视频集体押注互动剧；2024 年底 Netflix 下架几乎全部互动内容，国内平台互动剧也基本停更。这一章是"反面教材"——记录这个形态为什么没跑通。</p>
+
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-date">2018-12-28</span><div class="tl-body"><strong>Netflix《黑镜：潘达斯奈基》上线</strong>——全球互动影视标杆，5 种大结局，IMDb 7.3 分<sup><a href="#cite-60">[60]</a></sup></div></div>
+    <div class="tl-item"><span class="tl-date">2019</span><div class="tl-body">国内平台集体跟进：爱奇艺发布互动视频标准 IVG 并上线《他的微笑》（21 个选择节点、17 种结局、时长 260 分钟，17 个结局 4 天内全部被用户解锁）<sup><a href="#cite-61">[61]</a></sup><sup><a href="#cite-58">[58]</a></sup>；腾讯视频宣布共建互动视频生态；B 站上线互动视频功能<sup><a href="#cite-58">[58]</a></sup></div></div>
+    <div class="tl-item"><span class="tl-date">2020-2022</span><div class="tl-body">疫情放缓出品节奏，期间诞生《飞越13号房》等经典，但平台级互动剧战略整体降温<sup><a href="#cite-60">[60]</a></sup></div></div>
+    <div class="tl-item"><span class="tl-date">2024-12-01</span><div class="tl-body"><strong>Netflix 下架几乎所有互动电影/电视剧</strong>，仅保留 4 部；发言人称"这项技术达到了它的目的，现在我们专注于其他领域"<sup><a href="#cite-59">[59]</a></sup>。同年，抖音内嵌运营的三款互动剧小程序（泡泡心选、爪爪心选、果冻心选）集体停止运营<sup><a href="#cite-59">[59]</a></sup></div></div>
+    <div class="tl-item"><span class="tl-date">2025-05-12</span><div class="tl-body">《黑镜：潘达斯奈基》最终也离开 Netflix——流媒体互动剧实验基本落幕<sup><a href="#cite-59">[59]</a></sup></div></div>
+  </div>
+
+  <h3>5.2 为什么流媒体互动剧失败，而买断制影游成功了？</h3>
+  <ul class="list">
+    <li><strong>投入产出错配</strong>：对视频平台而言互动内容投入高、产出低，逐渐成为被削减的内容形态<sup><a href="#cite-59">[59]</a></sup>；而买断制影游单点付费意愿强、长尾效应好<sup><a href="#cite-41">[41]</a></sup>。</li>
+    <li><strong>订阅制杀死了付费动机</strong>：Netflix 互动剧对订阅用户免费，无法形成"解锁付费"的正循环；Steam/小程序买断制每份收入可归因。</li>
+    <li><strong>形态进化方向</strong>：互动剧的遗产被两个方向继承——AI 互动剧（免费+轻付费，见第六章）与互动影游（买断制，见第四章）。</li>
+  </ul>
+  <div class="callout">
+    <span class="ct">对点点穿书的镜鉴</span>
+    <p>点点穿书 2024 年 4 月曾传闻"平台要改短剧了"（官方辟谣）——从行业视角看，"互动小说 → 互动短剧/影游"的融合正是 2025-2026 年的主流方向，《盛世天下》小程序版就是样板：同一内容多端分发（App+小程序+Steam）。</p>
+  </div>
+</section>
+
+<!-- ================= CH6 ================= -->
+<section class="chapter" id="ch6">
+  <div class="ch-no">Chapter 06</div>
+  <h2>AI 互动叙事新品类：点点穿书最大的代际威胁</h2>
+  <p class="ch-desc">传统互动小说的"固定选项"正在被 AI 的"自由对话"降维打击。这一章的产品形态各异——AI 陪伴（星野/Talkie、筑梦岛）、AI 文游（戏格、Storvia、AI Dungeon）、AI 互动剧（芒果/番茄/拼多多）——但共同点是把"内容生产成本"压缩到接近零，把"互动自由度"提升到无限。</p>
+
+  <!-- 星野 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">星野 / Talkie（MiniMax）</span>
+      <span class="p-tag tag-new">AI 陪伴 · 量级最大</span>
+      <span class="p-sub">MiniMax（2025 年底递交港股招股书） · 国内版星野 + 海外版 Talkie</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>规模（2025 年 1-9 月，招股书）</b>累计用户 1.47 亿、月活 2005 万、付费用户 139 万、前三季度总收入 1875 万美元<sup><a href="#cite-44">[44]</a></sup><sup><a href="#cite-45">[45]</a></sup></div>
+      <div class="cell"><b>粘性</b>人均每日使用时长超 70 分钟，全球大模型应用中日均时长前五<sup><a href="#cite-63">[63]</a></sup></div>
+      <div class="cell"><b>活跃</b>DAU 约 96 万（长期横盘）；苹果端月下载从 1 月 486 万跌至 5 月 93 万（-81%）<sup><a href="#cite-44">[44]</a></sup></div>
+      <div class="cell"><b>监管</b>2025 年 10 月起大规模下架智能体调整，一度被用户怀疑"跑路"，官方辟谣<sup><a href="#cite-47">[47]</a></sup></div>
+    </div>
+    <p><strong>与点点穿书的关系</strong>：星野的"剧情卡+角色扮演"玩法与点点穿书的"剧情+选项"高度同源，但 AI 让用户可以脱离固定选项自由输入——<strong>这直接冲击点点穿书"选项即付费墙"的商业根基</strong>。早期行业观察已把星野/Talkie（百万日活）视为互动小说赛道的"新机会"<sup><a href="#cite-29">[29]</a></sup>。</p>
+  </div>
+
+  <!-- 筑梦岛 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">筑梦岛 → 戏格</span>
+      <span class="p-tag tag-new">阅文系 · 整改后切割</span>
+      <span class="p-sub">上海筑梦岛人工智能科技有限公司（阅文+商汤联合投资孵化） · 2023-08 测试 → 2025-06 整改 → 2025-12 推出戏格</span>
+    </div>
+    <div class="timeline">
+      <div class="tl-item"><span class="tl-date">2023-08-11</span><div class="tl-body">阅文旗下潇湘书院 App 内测"筑梦岛"功能：读者创建专属"梦中人"进行 AI 陪伴式互动；当年底剥离为独立 App<sup><a href="#cite-48">[48]</a></sup></div></div>
+      <div class="tl-item"><span class="tl-date">2024</span><div class="tl-body">上海筑梦岛人工智能科技有限公司成立，阅文与商汤联合投资孵化；自称"女性情感陪伴领域唯一日消耗 token 过百亿的产品"<sup><a href="#cite-49">[49]</a></sup></div></div>
+      <div class="tl-item"><span class="tl-date">2025-01</span><div class="tl-body">注册用户接近 500 万，其中 80% 为年轻用户<sup><a href="#cite-42">[42]</a></sup></div></div>
+      <div class="tl-item"><span class="tl-date">2025-06-19</span><div class="tl-body"><strong>上海网信办约谈</strong>：央视曝光其 AI 智能体存在低俗擦边内容、危害未成年人身心健康（含"诱导 10 岁女孩自残"性质案例的报道），平台批量下架语聊智能体、补上实名认证<sup><a href="#cite-46">[46]</a></sup><sup><a href="#cite-47">[47]</a></sup></div></div>
+      <div class="tl-item"><span class="tl-date">2025-12</span><div class="tl-body">整改数月后推出新应用<strong>"戏格"</strong>：高自由度长文本 AI 互动剧场，支持自定义人设世界观、单人剧情与多角色群像，2026-04 成立全资子公司"上海心动戏格"<sup><a href="#cite-42">[42]</a></sup><sup><a href="#cite-54">[54]</a></sup>。同期筑梦岛与腾讯阅文完成股权切割（现为自然人持股）<sup><a href="#cite-42">[42]</a></sup></div></div>
+    </div>
+    <p><strong>这个案例对点点穿书的双重意义</strong>：① 监管风险路径完全同构（筑梦岛被约谈 ↔ 点点穿书两次被通报，问题都指向未成年人）；② "网文 IP 存量 + AI 互动化"是阅文系验证过的方向，潇湘书院的网文读者可以直接转化为 AI 互动用户——点点穿书的书库同样具备这个改造潜力。</p>
+  </div>
+
+  <!-- AI文游 -->
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">AI 文游平台群：Storvia / AI Dungeon / 上头蛙</span>
+      <span class="p-tag tag-new">AI 原生互动叙事</span>
+      <span class="p-sub">2025-2026 年集中冒头的新形态</span>
+    </div>
+    <ul class="list">
+      <li><strong>Storvia</strong>：AI 文游平台，主打"提示词库+智能续写"，内置超万条中英双语模板与签约写手剧本，集成掷骰、身份牌等跑团工具；被评测认为"AI 演技惊艳，沉浸感远超传统选择游戏"<sup><a href="#cite-50">[50]</a></sup>。</li>
+      <li><strong>AI Dungeon</strong>（海外，2019 年）：AI 叙事鼻祖，LLM 扮演"地下城主"实时生成故事；现采取免费层（内容受限）+付费层（Dragon 模型解锁成人内容）的分级模式<sup><a href="#cite-53">[53]</a></sup>。</li>
+      <li><strong>上头蛙</strong>（腾讯，2026-01）：微信小程序 AI 互动剧情创作平台，分支式叙事+热门 IP 二创+自由/世界/CP 三种创作模式，借助微信生态传播；用户规模与营收<strong>查不到</strong>（早期测试阶段）<sup><a href="#cite-51">[51]</a></sup>。</li>
+      <li><strong>戏格</strong>（见上）与这些产品共同构成"AI 文游"新品类：截至 2026 年 6 月，中文文游生态已形成"易次元、橙光代表的传统平台 + Storvia 等新兴 AI 平台"并存格局<sup><a href="#cite-50">[50]</a></sup>。</li>
+    </ul>
+  </div>
+
+  <!-- AI互动剧 -->
+  <h3>6.4 AI 互动剧：2026 年的集体押注</h3>
+  <p>2026 年 3 月起，芒果、番茄（字节）、拼多多几乎同时落子 AI 互动剧，被行业称为"AI 漫剧之后的下一个风口"<sup><a href="#cite-41">[41]</a></sup>：</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>产品</th><th>平台/出品方</th><th>形态与数据</th><th>商业逻辑</th></tr></thead>
+      <tbody>
+        <tr><td>《公主请自重》</td><td>芒果TV · 2025 年底</td><td>古风女性向 AI 仿真人互动影游</td><td>会员制——用优势内容拉新会员<sup><a href="#cite-41">[41]</a></sup></td></tr>
+        <tr><td>《马上来财》</td><td>中南传媒×芒果TV · 2026 春节档</td><td>迎财神"电子祈福"；初五单日独立访客峰值超 33 万，数日总播放量破 1500 万</td><td>1 元解锁专属结局+图鉴、红包封面<sup><a href="#cite-41">[41]</a></sup></td></tr>
+        <tr><td>《诡舍》</td><td>番茄小说×万年影业 · 2026-02 内测</td><td>无限流+规则怪谈+实时选项分支；答对解锁、答错关键角色死亡需回溯重选；制作仅两个半月</td><td>番茄小说平台内嵌，字节系生态整合<sup><a href="#cite-41">[41]</a></sup></td></tr>
+        <tr><td>《全球冰封：我打造了末日安全屋》</td><td>番茄小说×小云雀AI</td><td>AI 真人互动短剧，改编自番茄作者 IP</td><td>文字版权→AI 制作→抖音分发的闭环<sup><a href="#cite-41">[41]</a></sup></td></tr>
+        <tr><td>《重生归来，我把后宫嫔妃踩脚下》</td><td>拼多多 · 多多果园灰度测试</td><td>宫斗题材 AI 互动剧，关键节点暂停弹选项，通关赢果园游戏道具</td><td>不为内容付费，为电商停留时长与转化<sup><a href="#cite-41">[41]</a></sup></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>配套数据：阅文财报披露其 AI 漫剧半年收入已破亿<sup><a href="#cite-41">[41]</a></sup>；巨量引擎数据称 2026 年漫剧市场规模有望突破 220 亿元、贡献短剧行业 50% 增量<sup><a href="#cite-52">[52]</a></sup>；但 AI 漫剧小游戏品类"爆款率仅 0.12%"，短期爆红、快速衰退是常态（如《别崩人设啊》冲上抖音小游戏热榜 TOP2 后两月即跌出 TOP100）<sup><a href="#cite-52">[52]</a></sup>。</p>
+
+  <figure class="chart-figure">
+    <figcaption>图 5：AI 互动叙事产品规模数据对比（各产品最新可得口径）</figcaption>
+    <div id="chart-ai" style="width:100%;min-height:380px"></div>
+    <p class="chart-note">数据来源：星野/Talkie 招股书口径（月活 2005 万<sup><a href="#cite-44">[44]</a></sup>）、筑梦岛注册用户近 500 万<sup><a href="#cite-42">[42]</a></sup>、Netflix Storyteller 3 个月下载 350 万<sup><a href="#cite-29">[29]</a></sup>、芒果《马上来财》峰值单日访客 33 万<sup><a href="#cite-41">[41]</a></sup>。口径（月活/注册/下载/访客）互不可比，仅示意量级。</p>
+  </figure>
+</section>
+
+<!-- ================= CH7 ================= -->
+<section class="chapter" id="ch7">
+  <div class="ch-no">Chapter 07</div>
+  <h2>相邻品类参考：游戏化更重的形态</h2>
+  <p class="ch-desc">用户说"这种产品其实是变相的游戏"——顺着这个视角，乙女游戏、剧本杀、聊天式互动叙事是互动小说向"重游戏"方向的延伸，它们分走了同一批年轻女性/年轻玩家的时长。</p>
+
+  <h3>7.1 乙女游戏（重剧情选择的商业化天花板）</h3>
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">恋与深空（叠纸）/ 世界之外（网易）等</span>
+      <span class="p-tag tag-live">3D 乙女手游</span>
+      <span class="p-sub">恋爱叙事 + 卡牌养成的重形态</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>恋与深空收入</b>上线至今收入超 5 亿美元（AppMagic 口径，仅含双应用商店），约 57% 来自中国大陆；下载量超 2000 万次<sup><a href="#cite-55">[55]</a></sup></div>
+      <div class="cell"><b>世界之外</b>网易无限流言情手游；TapTap 用户评价"完全可以当做互动式小说来游戏"——主线剧情全可补，卡面/CV/音乐是核心卖点<sup><a href="#cite-56">[56]</a></sup></div>
+    </div>
+    <p><strong>与点点穿书的关系</strong>：乙女游戏用 3D 演出+卡池付费把"剧情选择"的 ARPU 做到了互动小说的几十倍；2026 年行业出现反思（恋与深空取消新男主引发争议），但商业模式依然碾压图文互动小说。点点穿书用户"看剧情+换装+抽卡"的需求，在乙女游戏里全部被满足且工业化程度更高。</p>
+  </div>
+
+  <h3>7.2 线上剧本杀（互动叙事的多人形态）</h3>
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">百变大侦探 / 我是谜</span>
+      <span class="p-tag tag-live">语音连麦推理</span>
+      <span class="p-sub">北京久幺幺科技 · 2018 年推出 · 《明星大侦探》官方合作</span>
+    </div>
+    <div class="kv">
+      <div class="cell"><b>百变大侦探</b>2020 年获微派网络 3000 万元投资；全网注册用户 3200 万+；剧本库 3000+ 部（含《庆余年》IP 改编本），每周更新<sup><a href="#cite-57">[57]</a></sup></div>
+      <div class="cell"><b>活跃度</b>第三方报告口径：MAU 约 420 万、DAU 约 110 万（2024）；用户 82% 为 18-35 岁<sup><a href="#cite-57">[57]</a></sup><span class="cred l">报告数据互相矛盾</span></div>
+    </div>
+    <p><strong>警示</strong>：不同第三方报告对百变大侦探的营收数字说法相差 100 倍以上（3210 万元/年 vs 42.8 亿元/年），此类"报告工厂"数据不可信，本报告仅采用其工商与投资等可交叉验证的信息。形态上它是"多人语音+剧本"的互动叙事，与点点穿书争夺同一批年轻用户的社交娱乐时长。</p>
+  </div>
+
+  <h3>7.3 聊天式互动叙事（手机界面拟真）</h3>
+  <div class="product">
+    <div class="product-head">
+      <span class="p-name">流言侦探 / Duskwood</span>
+      <span class="p-tag tag-live">拟真聊天破案</span>
+      <span class="p-sub">WoodenWolf Studio（国内）/ Everbyte（德国）</span>
+    </div>
+    <p><strong>《流言侦探》</strong>：玩法是"用聊天软件破案"——玩家通过与 NPC 的微信式对话、观察语气、结合邮件照片线索找凶手，每个选择导向不同结局；开发初衷即"陪聊游戏"<sup><a href="#cite-64">[64]</a></sup>。<strong>Duskwood</strong>（德国）：拟真手机界面（聊天/通话/资料/商店分区），每次对话三选一，通过短信、语音、视频推进悬疑剧情<sup><a href="#cite-64">[64]</a></sup>。两者具体营收数据<strong>查不到</strong>。这类产品验证了"拟真社交界面"的沉浸感红利——点点穿书的"句评"生态某种程度上也在模拟这种陪伴感。</p>
+  </div>
+</section>
+
+<!-- ================= CH8 ================= -->
+<section class="chapter" id="ch8">
+  <div class="ch-no">Chapter 08</div>
+  <h2>横向对比与对点点穿书的启示</h2>
+  <p class="ch-desc">把 30+ 产品放到一张表里，逐维度对照点点穿书的位置。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>点点穿书</th><th>国内平台（橙光/易次元）</th><th>海外 App（Chapters/Episode）</th><th>互动影游（盛世天下等）</th><th>AI 叙事（星野等）</th></tr></thead>
+      <tbody>
+        <tr><td><strong>形态</strong></td><td>图文互动小说</td><td>图文互动小说</td><td>图文互动小说（欧美画风）</td><td>真人实拍视频</td><td>自由对话/文生内容</td></tr>
+        <tr><td><strong>核心货币</strong></td><td>能量（¥2=200）</td><td>鲜花 1 元/朵、次元币 10 币=1 元</td><td>钻石（$0.99-39.99）</td><td>买断 39-59 元/部</td><td>订阅+token 成本</td></tr>
+        <tr><td><strong>付费墙</strong></td><td>章节 100-200 能量、单节点 12-50 能量</td><td>作品内道具解锁</td><td>关键选择+服装锁定；单本完整体验 100-200 美金</td><td>一次性买断、无内购墙</td><td>对话次数/高级模型</td></tr>
+        <tr><td><strong>内容供给</strong></td><td>数百至上千部（推断），月上新 5-15 部</td><td>橙光 8 万部（2017）；易次元 1.8 万部</td><td>Episode 15 万+ 故事（UGC）</td><td>头部作品 1000+ 分钟、30 万字剧本</td><td>用户/AI 无限生成</td></tr>
+        <tr><td><strong>创作者激励</strong></td><td>能量不达标即烂尾（强淘汰）</td><td>橙光六四/七三分成</td><td>Episode 顶级创作者月入 1.5 万英镑</td><td>专业编剧团队</td><td>UGC 智能体/提示词</td></tr>
+        <tr><td><strong>监管风险</strong></td><td>两次国家级通报+未成年人投诉</td><td>橙光 iOS 下架 6 年；筑梦岛被约谈</td><td>海外宽松（成人内容分级制）</td><td>题材审查（捞女游戏改名）</td><td>星野/筑梦岛均大规模下架整改</td></tr>
+        <tr><td><strong>生命周期信号</strong></td><td>仍在买量扩张（2026 暑期 +243%）</td><td>存量萎缩+AI 化转型</td><td>存量竞争、付费通胀 10 倍</td><td>爆发期（90% 亏损但爆款迭出）</td><td>高速增长（下载暴跌但收入稳）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>8.2 六条启示</h3>
+  <ol class="list">
+    <li><strong>监管是这个品类最大的系统性风险，且有成熟"死亡路径"</strong>：橙光 iOS 下架 6 年未恢复、筑梦岛被约谈后与阅文切割、星野大规模下架智能体、Netflix 干脆放弃互动剧——点点穿书两次被通报，正走在这条路上最危险的一段。</li>
+    <li><strong>付费通胀终有天花板</strong>：海外验证了"单本完整体验成本 10 年涨 10 倍"的路径，代价是日活阴跌、靠 ARPDAU 硬撑；点点穿书"一章一两百能量"的强度已在应用宝 3.1 分差评中显现反噬。</li>
+    <li><strong>出海是被验证过的第二曲线</strong>：Chapters 靠德法等小语种市场反超美国本土对手登顶全球；点点穿书的女性向题材（病娇/团宠/宫斗）与 Chapters/ReelShort 的欧美言情/短剧用户存在天然重叠，且同门竞品枫叶互动已同时跑通"互动小说+短剧"双引擎。</li>
+    <li><strong>小程序+多端分发是互动影游的新解法</strong>：《盛世天下》App+微信小程序+Steam 三端分发，小程序端 30 万+玩家；点点穿书本身就从抖音小程序生态获客，向微信生态延伸有现成样板。</li>
+    <li><strong>AI 化不是选择题而是时间表</strong>：橙光已推"橙戏 Agent"，阅文系已验证"网文 IP→AI 陪伴"，番茄/芒果/拼多多已集体押注 AI 互动剧；点点穿书若不跟进，其"固定选项"体验将被 AI 自由对话降维打击。</li>
+    <li><strong>爆款公式可以跨形态复用</strong>：《捞女游戏》（争议话题+低价买断）、《盛世天下》（女频宫斗+选择分支）、《完蛋》（男性向恋爱+真人）——点点穿书擅长的"病娇/宫斗/逆袭"题材公式，正是这些爆款的同一套配方，存在 IP 影游化的可能路径（橙光→隐形守护者已经跑通了一次）。</li>
+  </ol>
+</section>
+
+<!-- ================= CH9 ================= -->
+<section class="chapter" id="ch9">
+  <div class="ch-no">Chapter 09</div>
+  <h2>查不到清单与数据可信度</h2>
+
+  <h3>9.1 明确查不到的数据</h3>
+  <div class="gap-box">
+    <span class="gt">查不到（已尽力检索）</span>
+    <p>① 橙光当前（2026 年）的 DAU/MAU 与收入——官方 2017 年后再未披露；② 易次元官方口径的当前用户数据——仅有第三方口径；③ Chapters/Episode/Choices 的官方累计收入与留存率——Sensor Tower 完整数据需付费；④ Netflix Stories 的下载/收入/MAU——Netflix 不单独披露；⑤ 《盛世天下》官方精确营收——仅第三方估算 1.6 亿元；⑥ 百变大侦探等剧本杀平台的可信营收——第三方报告数据自相矛盾（相差百倍），弃用；⑦ 星野/Talkie 之外的 AI 文游产品（Storvia、上头蛙、戏格）的用户与收入数据——产品太新无披露；⑧ 各产品的留存曲线（次留/7留/30留）——全行业无公开数据；⑨ Duskwood、流言侦探等聊天式互动游戏的具体营收。</p>
+  </div>
+
+  <h3>9.2 数据可信度分级说明</h3>
+  <ul class="list">
+    <li><span class="cred h">高可信 · 一手</span>：MiniMax 招股书（星野/Talkie 数据）、欢瑞世纪财报（完蛋2 销量）、企查查/工商信息、Netflix 官方表态、橙光 2017 官方披露、《盛世天下》官方战报。</li>
+    <li><span class="cred m">多方印证</span>：橙光 iOS 下架与网信办通报、筑梦岛约谈事件、互动影游各作品销量（媒体+数据平台交叉）、点点穿书-橙光抄袭投诉事件（法治日报）。</li>
+    <li><span class="cred l">单一来源 · 谨慎采用</span>：Choices 峰值月流水 9000 万（GameLook 中文口径）、《盛世天下》营收 1.6 亿（雪球估算）、话本小说 DAU（企查查）、易次元 DAU（第三方下载站）、剧本杀营收报告（数据矛盾已弃用）。</li>
+  </ul>
+
+  <h3>9.3 调研方法与局限</h3>
+  <p>调研于 2026-08-26 完成：四条并行调研线（国内平台 / 海外 App / 互动影视 / AI 叙事）+ 主线交叉验证，共 100+ 次检索与原文抓取。局限：① 无法登录 Sensor Tower/data.ai 等付费数据平台，海外收入为公开页面口径（存在页面间口径分歧，已标注）；② 部分"第三方下载站"数据可信度有限，仅在无更优来源时采用并标注；③ 各产品统计口径（注册/活跃/下载/销量）与统计时点不同，横向对比仅供量级参考。</p>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="sources">
+    <h2>参考来源</h2>
+    <ol>
+      <li id="cite-1"><span class="src-title">企查查：北京六趣网络科技有限公司（橙光运营主体）</span><a class="src-url" href="https://m.qcc.com/firm/ae9f33d4eaf1aab01c9d0cbb860825b3.html">https://m.qcc.com/firm/ae9f33d4eaf1aab01c9d0cbb860825b3.html</a></li>
+      <li id="cite-2"><span class="src-title">投资界：橙光游戏融资历史（C轮/D轮）</span><a class="src-url" href="https://m.pedaily.cn/data/company/28011">https://m.pedaily.cn/data/company/28011</a></li>
+      <li id="cite-3"><span class="src-title">中国网财经（转载）：橙光 iOS 下架与网信办通报、商业化与用户消费案例</span><a class="src-url" href="http://m.toutiao.com/group/7041474705194222111/">http://m.toutiao.com/group/7041474705194222111/</a></li>
+      <li id="cite-4"><span class="src-title">小米应用商店：橙光互动（v3.32.0，2026-08 更新）</span><a class="src-url" href="https://app.mi.com/details?id=com.avgorange.hudong">https://app.mi.com/details?id=com.avgorange.hudong</a></li>
+      <li id="cite-5"><span class="src-title">橙光官网：签约作者的级别与待遇（2017 年用户/作者/作品/分成数据）</span><a class="src-url" href="https://m.66rpg.com/monthly/xbjc1006">https://m.66rpg.com/monthly/xbjc1006</a></li>
+      <li id="cite-6"><span class="src-title">法治日报：点点穿书就抄袭橙光作品发布致歉声明（2024-10）</span><a class="src-url" href="http://epaper.legaldaily.com.cn/fzrb/content/20241015/Articel12012GN.htm">http://epaper.legaldaily.com.cn/fzrb/content/20241015/Articel12012GN.htm</a></li>
+      <li id="cite-7"><span class="src-title">新浪游戏：易次元平台活跃用户超 1000 万（2019）</span><a class="src-url" href="http://games.sina.cn/cyfw/cyxw/2019-05-21/detail-ihvhiews3503426.d.html">http://games.sina.cn/cyfw/cyxw/2019-05-21/detail-ihvhiews3503426.d.html</a></li>
+      <li id="cite-8"><span class="src-title">App Store：易次元（评分、内购、版本）</span><a class="src-url" href="https://apps.apple.com/cn/app/%E6%98%93%E6%AC%A1%E5%85%83/id1375893671">https://apps.apple.com/cn/app/易次元/id1375893671</a></li>
+      <li id="cite-9"><span class="src-title">91手游网：易次元下载页（DAU、1.8 万部作品、日均更新 20 部——第三方口径）</span><a class="src-url" href="https://m.91danji.com/apk/1463685.html">https://m.91danji.com/apk/1463685.html</a></li>
+      <li id="cite-10"><span class="src-title">观察者网：在易次元做"文游"的人们（题材、玩法、创作者收入）</span><a class="src-url" href="https://user.guancha.cn/main/content?id=1181960">https://user.guancha.cn/main/content?id=1181960</a></li>
+      <li id="cite-11"><span class="src-title">企查查：厦门礼之家网络科技有限公司（闪艺运营主体，参保 10 人）</span><a class="src-url" href="https://www.qcc.com/creport/85726f80c5b938e3440d5a42787efc24.html">https://www.qcc.com/creport/85726f80c5b938e3440d5a42787efc24.html</a></li>
+      <li id="cite-12"><span class="src-title">360 应用商店：闪艺（9.6 分、14 万人）</span><a class="src-url" href="http://app.so.com/detail/index?pname=com.lzj.shanyi&amp;id=3866700">http://app.so.com/detail/index?pname=com.lzj.shanyi&amp;id=3866700</a></li>
+      <li id="cite-13"><span class="src-title">闪艺帮助中心：闪卡/闪币/赠币机制</span><a class="src-url" href="https://www.3000.com/help.html">https://www.3000.com/help.html</a></li>
+      <li id="cite-14"><span class="src-title">黑猫投诉：闪艺互动（断更/退款投诉）</span><a class="src-url" href="https://tousu.sina.cn/company/view/?couid=6084380742">https://tousu.sina.cn/company/view/?couid=6084380742</a></li>
+      <li id="cite-15"><span class="src-title">企查查：天津量子时代网络科技有限公司（话本小说，DAU 超 100 万口径）</span><a class="src-url" href="https://www.qcc.com/cfengxian/e5f1cf5b383d6b72b2bf081c443a9200.html">https://www.qcc.com/cfengxian/e5f1cf5b383d6b72b2bf081c443a9200.html</a></li>
+      <li id="cite-16"><span class="src-title">创业邦：话本小说融资史（中文在线/腾讯双百）</span><a class="src-url" href="https://m.cyzone.cn/article/581723">https://m.cyzone.cn/article/581723</a></li>
+      <li id="cite-17"><span class="src-title">百科：一零零一（腾讯互动阅读，2023-02-08 停运）</span><a class="src-url" href="https://m.baike.com/wiki/%E4%B8%80%E9%9B%B6%E9%9B%B6%E4%B8%80/7177027342241715517">https://m.baike.com/wiki/一零零一</a></li>
+      <li id="cite-18"><span class="src-title">36氪：三年前的老游戏海外翻红（Chapters 出自枫叶互动、月收入峰值 1300 万美元）</span><a class="src-url" href="https://36kr.com/p/3381702710671618">https://36kr.com/p/3381702710671618</a></li>
+      <li id="cite-19"><span class="src-title">Sensor Tower：Chapters 概览与发行商页面（2026-05 各口径收入/下载/评分）</span><a class="src-url" href="https://app.sensortower.com/overview/1277029359?country=US">https://app.sensortower.com/overview/1277029359?country=US</a></li>
+      <li id="cite-20"><span class="src-title">GameLook：互动小说市场报道（Chapters/Choices 峰值与现流水中文口径）</span><a class="src-url" href="http://www.gamelook.com.cn/2026/04/590772/">http://www.gamelook.com.cn/2026/04/590772/</a></li>
+      <li id="cite-21"><span class="src-title">Pocket Gems 官网：公司介绍与腾讯投资</span><a class="src-url" href="https://www.pocketgems.com/about/">https://www.pocketgems.com/about/</a></li>
+      <li id="cite-22"><span class="src-title">Episode 官方资料页：累计下载 3.25 亿+、15 万+ 故事、创作者收入、会话时长</span><a class="src-url" href="https://www.playepisodegame.com/eposide/">https://www.playepisodegame.com/eposide/</a></li>
+      <li id="cite-23"><span class="src-title">Sensor Tower：Episode 发行商页面（2026-05 约 90 万美元/月）</span><a class="src-url" href="https://app.sensortower.com/publisher/ios/761807761/?category=7014&amp;country=US&amp;date=2026-05-31">https://app.sensortower.com/publisher/ios/761807761/</a></li>
+      <li id="cite-24"><span class="src-title">Sensor Tower：Choices 概览页（内购区间、趋势）</span><a class="src-url" href="https://app.sensortower.com/overview/com.pixelberrystudios.choices">https://app.sensortower.com/overview/com.pixelberrystudios.choices</a></li>
+      <li id="cite-25"><span class="src-title">GeekChamp：Series Entertainment 收购 Pixelberry Studios（2024-07）</span><a class="src-url" href="https://geekchamp.com/series-entertainment-acquires-mobile-studio-pixelberry/">https://geekchamp.com/series-entertainment-acquires-mobile-studio-pixelberry/</a></li>
+      <li id="cite-26"><span class="src-title">Sensor Tower：MeChat 概览页（2026 年收入/下载）</span><a class="src-url" href="https://app.sensortower.com/overview/1536157979?country=US">https://app.sensortower.com/overview/1536157979?country=US</a></li>
+      <li id="cite-27"><span class="src-title">BuiltIn：PlayMe Studio 招聘页（35M+ 用户、dating simulator 定位）</span><a class="src-url" href="https://builtin.com/job/junior-narrative-designer-visual-novels/9223741">https://builtin.com/job/junior-narrative-designer-visual-novels/9223741</a></li>
+      <li id="cite-28"><span class="src-title">DataIntelo/MarketIntelo：互动小说 App 市场规模报告（口径分歧已标注）</span><a class="src-url" href="https://dataintelo.com/report/interactive-story-apps-market">https://dataintelo.com/report/interactive-story-apps-market</a></li>
+      <li id="cite-29"><span class="src-title">白鲸出海（人人都是产品经理授权）：《Storyteller》冲击美榜，互动小说又变了？（市场格局、付费通胀 10 倍、小语种策略、社区护城河）</span><a class="src-url" href="https://www.woshipm.com/pd/5960359.html">https://www.woshipm.com/pd/5960359.html</a></li>
+      <li id="cite-30"><span class="src-title">界面新闻/百科：《飞越13号房》《记忆重构》条目与报道</span><a class="src-url" href="https://m.jiemian.com/article/3852088.html">https://m.jiemian.com/article/3852088.html</a></li>
+      <li id="cite-31"><span class="src-title">游民星空：2019 国产单机销量年榜（隐形守护者 140 万套）</span><a class="src-url" href="https://www.gamersky.com/news/202001/1256217.shtml">https://www.gamersky.com/news/202001/1256217.shtml</a></li>
+      <li id="cite-32"><span class="src-title">新浪游戏：隐形守护者销售与成本报道</span><a class="src-url" href="https://games.sina.cn/cyfw/cyxw/2019-12-26/detail-iihnzahk0135611.d.html">https://games.sina.cn/cyfw/cyxw/2019-12-26/detail-iihnzahk0135611.d.html</a></li>
+      <li id="cite-33"><span class="src-title">什么值得买：《完蛋2》销量破百万（欢瑞世纪 2026Q1 财报口径）</span><a class="src-url" href="https://post.m.smzdm.com/p/ad769nop/">https://post.m.smzdm.com/p/ad769nop/</a></li>
+      <li id="cite-34"><span class="src-title">游民星空：《完蛋2》Steam 首日在线与好评（热度不及前作）</span><a class="src-url" href="https://www.gamersky.com/news/202507/1962597.shtml">https://www.gamersky.com/news/202507/1962597.shtml</a></li>
+      <li id="cite-35"><span class="src-title">二柄游戏数据库：《完蛋2》Steam 数据（好评率 86%、平均 6.5 小时）</span><a class="src-url" href="https://diershoubing.com/game/261163/%E5%AE%8C%E8%9B%8B%E6%88%91%E8%A2%AB%E7%BE%8E%E5%A5%B3%E5%8C%85%E5%9B%B4%E4%BA%862/">https://diershoubing.com/game/完蛋2</a></li>
+      <li id="cite-36"><span class="src-title">3DM：《捞女游戏》Steam 销量破 100 万套、平均游玩 9.3 小时（Gamalytic）</span><a class="src-url" href="https://m.3dmgame.com/news/202506/3922530.html">https://m.3dmgame.com/news/202506/3922530.html</a></li>
+      <li id="cite-37"><span class="src-title">南方都市报：《捞女游戏》改名《情感反诈模拟器》与销量攀升</span><a class="src-url" href="https://ipaper.oeeee.com/ipaper/A/html/2025-06/28/content_6676.htm">https://ipaper.oeeee.com/ipaper/A/html/2025-06/28/content_6676.htm</a></li>
+      <li id="cite-38"><span class="src-title">腾讯新闻/新黄河：《盛世天下》系列销量与小程序数据（12 天 100 万套、小程序玩家 30 万+）</span><a class="src-url" href="https://view.inews.qq.com/a/20250929A042XT00">https://view.inews.qq.com/a/20250929A042XT00</a></li>
+      <li id="cite-39"><span class="src-title">36氪/《盛世天下》官方战报：全系列 500 万套全球纪录、女帝篇数据</span><a class="src-url" href="https://m.36kr.com/p/3893388669549319">https://m.36kr.com/p/3893388669549319</a></li>
+      <li id="cite-40"><span class="src-title">雪球：《盛世天下》全系列营收约 1.6 亿元（非官方估算）</span><a class="src-url" href="https://xueqiu.com/2858867921/395804760">https://xueqiu.com/2858867921/395804760</a></li>
+      <li id="cite-41"><span class="src-title">娱乐独角兽（36氪授权）：芒果、番茄、拼多多押注"AI 互动剧"（含完蛋/捞女/盛世天下/江山北望数据与行业成本结构）</span><a class="src-url" href="https://36kr.com/p/3737051828781059">https://36kr.com/p/3737051828781059</a></li>
+      <li id="cite-42"><span class="src-title">界面新闻：筑梦岛遭整改数月后，内测 AI 聊天新应用"戏格"（500 万用户、与阅文切割）</span><a class="src-url" href="https://m.jiemian.com/article/13734256.html">https://m.jiemian.com/article/13734256.html</a></li>
+      <li id="cite-43"><span class="src-title">百科：筑梦岛（潇湘书院 AI 聊天软件沿革）</span><a class="src-url" href="https://m.baike.com/wiki/%E7%AD%91%E6%A2%A6%E5%B2%9B/7518308286745362451">https://m.baike.com/wiki/筑梦岛</a></li>
+      <li id="cite-44"><span class="src-title">36氪：拿什么养活 AI 伴侣？（星野/Talkie 月活 2005 万、付费 139 万、收入 1875 万美元、下载暴跌 81%）</span><a class="src-url" href="https://m.36kr.com/p/3883853181956098">https://m.36kr.com/p/3883853181956098</a></li>
+      <li id="cite-45"><span class="src-title">观察者网：MiniMax 招股书披露 Talkie/星野累计用户 1.47 亿</span><a class="src-url" href="https://user.guancha.cn/main/content?id=1650666">https://user.guancha.cn/main/content?id=1650666</a></li>
+      <li id="cite-46"><span class="src-title">羊城晚报：诱导未成年人聊色情猎奇话题 AI 聊天 App 筑梦岛被勒令整改</span><a class="src-url" href="https://ep.ycwb.com/epaper/xkb/resfile/2025-06-25/A16/xkb20250625A16.pdf">https://ep.ycwb.com/epaper/xkb/resfile/2025-06-25/A16/xkb20250625A16.pdf</a></li>
+      <li id="cite-47"><span class="src-title">钛媒体：当虚拟恋人"失语"，AI 陪伴生意的合规困局（筑梦岛约谈、星野下架智能体）</span><a class="src-url" href="http://m.toutiao.com/group/7563993209785909798/">http://m.toutiao.com/group/7563993209785909798/</a></li>
+      <li id="cite-48"><span class="src-title">新浪财经/扬子晚报：潇湘书院上线"筑梦岛"（2023-08 测试）</span><a class="src-url" href="https://finance.sina.com.cn/jjxw/2025-12-08/doc-inhaarpa3573640.shtml">https://finance.sina.com.cn/jjxw/2025-12-08/doc-inhaarpa3573640.shtml</a></li>
+      <li id="cite-49"><span class="src-title">BOSS直聘：筑梦岛公司介绍（阅文与商汤联合投资孵化、日耗 token 百亿）</span><a class="src-url" href="https://m.zhipin.com/gongsi/8f6d69844dbcecf91Hdz3tq8GVE~.html">https://m.zhipin.com/gongsi/筑梦岛</a></li>
+      <li id="cite-50"><span class="src-title">什么值得买：文游大对决——传统平台 VS AI 生成（橙戏 Agent、Storvia、橙光高光期回落）</span><a class="src-url" href="https://post.m.smzdm.com/p/a95dzl9o/">https://post.m.smzdm.com/p/a95dzl9o/</a></li>
+      <li id="cite-51"><span class="src-title">Watcha：上头蛙——腾讯沉浸式 AI 互动剧情创作平台</span><a class="src-url" href="https://watcha.cn/products/1295">https://watcha.cn/products/1295</a></li>
+      <li id="cite-52"><span class="src-title">36氪：AI 漫剧小游戏风口起落（爆款率 0.12%、220 亿市场规模）</span><a class="src-url" href="https://36kr.com/p/3919195917080199">https://36kr.com/p/3919195917080199</a></li>
+      <li id="cite-53"><span class="src-title">GenFindr：AI Dungeon Review 2026（免费/付费分级模式）</span><a class="src-url" href="https://genfindr.com/review/ai-dungeon">https://genfindr.com/review/ai-dungeon</a></li>
+      <li id="cite-54"><span class="src-title">pc6 下载站：戏格 APP（上海筑梦岛人工智能科技出品，v1.1.40，2026-08 更新）</span><a class="src-url" href="https://mip.pc6.com/s/170/1706786.html">https://mip.pc6.com/s/170/1706786.html</a></li>
+      <li id="cite-55"><span class="src-title">搜信源：恋与深空收入超 5 亿美元（AppMagic 口径）</span><a class="src-url" href="https://souxinyuan.com.cn/2026/07/06/%E6%81%8B%E4%B8%8E%E6%B7%B1%E7%A9%BA/">https://souxinyuan.com.cn/2026/07/06/恋与深空/</a></li>
+      <li id="cite-56"><span class="src-title">TapTap：世界之外评价（"完全可以当做互动式小说来游戏"）</span><a class="src-url" href="https://www.taptap.cn/app/364144/review">https://www.taptap.cn/app/364144/review</a></li>
+      <li id="cite-57"><span class="src-title">华军软件园/PP助手：百变大侦探（微派投资 3000 万、注册 3200 万+、剧本 3000+）</span><a class="src-url" href="https://m.onlinedown.net/soft/10019628.htm">https://m.onlinedown.net/soft/10019628.htm</a></li>
+      <li id="cite-58"><span class="src-title">人人都是产品经理：互动视频的模糊元年（2019 国内平台互动视频布局）</span><a class="src-url" href="http://www.woshipm.com/it/2590275.html">http://www.woshipm.com/it/2590275.html</a></li>
+      <li id="cite-59"><span class="src-title">TechNode/IT之家/澎湃：Netflix 下架互动内容（2024-12 保留 4 部；2025-05 潘达斯奈基下架；抖音互动剧小程序停运）</span><a class="src-url" href="https://cn.technode.com/post/2024-11-05/netflix-removing-interactive-titles-games/">https://cn.technode.com/post/2024-11-05/netflix-removing-interactive-titles-games/</a></li>
+      <li id="cite-60"><span class="src-title">界面新闻/网易订阅：《黑镜：潘达斯奈基》与互动影游行业回顾</span><a class="src-url" href="https://m.jiemian.com/article/10515505.html">https://m.jiemian.com/article/10515505.html</a></li>
+      <li id="cite-61"><span class="src-title">人民网娱乐：《他的微笑》17 个结局均被解锁（2019-07）</span><a class="src-url" href="http://ent.people.com.cn/n1/2019/0715/c1012-31233720.html">http://ent.people.com.cn/n1/2019/0715/c1012-31233720.html</a></li>
+      <li id="cite-62"><span class="src-title">话本小说官网：弹幕文-互动剧情流频道</span><a class="src-url" href="https://www.ihuaben.com/category/danmuwen/">https://www.ihuaben.com/category/danmuwen/</a></li>
+      <li id="cite-63"><span class="src-title">未来智库：MiniMax 研报精读（Talkie/星野日均时长 70 分钟、全球前五）</span><a class="src-url" href="https://www.vzkoo.com/read/4623964466659201024.html">https://www.vzkoo.com/read/4623964466659201024.html</a></li>
+      <li id="cite-64"><span class="src-title">TapTap/Malavida：流言侦探与 Duskwood（拟真聊天破案玩法）</span><a class="src-url" href="https://www.malavida.com/en/soft/duskwood/android/">https://www.malavida.com/en/soft/duskwood/android/</a></li>
+      <li id="cite-65"><span class="src-title">Sensor Tower 博客：2025 Q4 美国互动小说 Top5 表现（Episode/MeChat 等周收入）</span><a class="src-url" href="https://sensortower.com/blog/2025-q4-unified-top-5-interactive-story-games-revenue-us-6019ed6a241bc16eb869f511">https://sensortower.com/blog/2025-q4-unified-top-5-interactive-story-games-revenue-us</a></li>
+    </ol>
+  </div>
+  <p style="margin-top:30px;color:var(--muted);font-size:13px;">本报告为《点点穿书·全方位调研报告》姊妹篇 · 调研完成于 2026-08-26 · 所有查不到的数据均已如实标注，无任何编造。</p>
+</footer>
+
+</div>
+
+<script src="./_shared/js/echarts.min.js"></script>
+<script src="./_shared/js/mermaid.min.js"></script>
+<script>mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });</script>
+<script src="assets/competitors-charts.js"></script>
+</body>
+</html>

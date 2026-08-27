@@ -1,0 +1,169 @@
+"""Phase 0 验收测试：引擎逻辑 + 三条金标准走查（三个不同结局）。
+
+运行： python3 -m unittest discover -s tests -v
+"""
+import os
+import sys
+import unittest
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from engine.constitution import Constitution, ConstitutionError
+from engine.state import WorldState
+from engine.pipeline import Pipeline
+from engine.llm import MockProvider
+from engine import conditions
+
+STORY = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                     "stories", "midnight-train.json")
+MOCK = STORY.replace(".json", ".mock.json")
+
+
+def build(story_path=STORY):
+    c = Constitution.load(story_path)
+    state = WorldState(c.story_id, c.char_defs(), c.global_defs(), c.ten_dims())
+    p = Pipeline(c, MockProvider(MockProvider.load_script(MOCK)), state)
+    return c, state, p
+
+
+def run_walk(choice_script):
+    """按预定选择序列跑完一局，返回 state。"""
+    c, state, p = build()
+    p.start()
+    steps = 0
+    for idx in choice_script:
+        if state.finished:
+            break
+        p.turn(choice_index=idx)
+        steps += 1
+        assert steps < 50, "走查超过50步未收敛"
+    return state
+
+
+class TestConditions(unittest.TestCase):
+    def test_fact(self):
+        self.assertTrue(conditions.check_condition({"fact": "f_x"}, {"f_x"}, {}, {}))
+        self.assertFalse(conditions.check_condition({"fact": "f_x"}, set(), {}, {}))
+
+    def test_stat_gte(self):
+        self.assertTrue(conditions.check_condition(
+            {"stat": {"s": {"gte": 50}}}, set(), {"s": 60}, {}))
+
+    def test_stat_from_tendency_pool(self):
+        self.assertTrue(conditions.check_condition(
+            {"stat": {"empathy": {"gte": 0.5}}}, set(), {}, {"empathy": 0.8}))
+
+    def test_all_any(self):
+        cond = {"all": [{"fact": "f_x"}, {"any": [{"stat": {"s": {"gte": 50}}}]}]}
+        self.assertTrue(conditions.check_condition(cond, {"f_x"}, {"s": 60}, {}))
+        self.assertFalse(conditions.check_condition(cond, {"f_x"}, {"s": 40}, {}))
+
+    def test_reachability(self):
+        cond = {"stats": {"trust_lin": {"gte": 70}}}
+        self.assertTrue(conditions.stat_threshold_reachable(
+            cond, {"trust_lin": {"min": 0, "max": 100}}, {}, []))
+        self.assertFalse(conditions.stat_threshold_reachable(
+            cond, {"trust_lin": {"min": 0, "max": 60}}, {}, []))
+
+
+class TestConstitution(unittest.TestCase):
+    def test_load_valid(self):
+        c = Constitution.load(STORY)
+        self.assertEqual(c.story_id, "midnight-train")
+        self.assertIn("f_truth_revealed", c.facts_catalog)
+
+    def test_missing_field_rejected(self):
+        raw = {"story_id": "x"}  # 缺title/world/beats...
+        with self.assertRaises(ConstitutionError):
+            Constitution.validate(raw)
+
+    def test_unknown_stat_in_ending_rejected(self):
+        import json
+        with open(STORY, encoding="utf-8") as f:
+            raw = json.load(f)
+        raw["endings"][0]["conditions"]["stats"]["nonexist_stat"] = {"gte": 1}
+        with self.assertRaises(ConstitutionError):
+            Constitution.validate(raw)
+
+
+class TestDirector(unittest.TestCase):
+    def test_fixed_beats_in_order(self):
+        c, state, p = build()
+        self.assertEqual(p.director.next_instruction().beat_id, "b1")
+
+    def test_optional_unlock_by_tendency(self):
+        c, state, p = build()
+        state.tendencies["empathy"] = 0.8
+        # 直接构造：把 b7 之前的节拍标记为终态，验证 unlock 判定
+        self.assertTrue(p.director._unlock_satisfied(c.beat_index["b7"]))
+
+    def test_skip_closes_grants(self):
+        c, state, p = build()
+        state.facts.add("f_ledger_seen")
+        state.stats["trust_lin"] = 10  # 条件不满足
+        p.director.mark_done("b1")
+        p.director.mark_done("b2")
+        instr = p.director.next_instruction()
+        # b3 被跳过，grants 关闭
+        self.assertEqual(state.beat_status["b3"]["status"], "skipped")
+        self.assertIn("f_ledger_confirmed", state.closed_facts)
+        self.assertEqual(instr.beat_id, "b4")
+
+
+class TestLedger(unittest.TestCase):
+    def test_stat_clamped_to_bounds(self):
+        c, state, p = build()
+        state.stats["sanity"] = 10
+        p.ledger._apply_update(state, {"type": "stat", "target": "sanity", "delta": -50})
+        self.assertEqual(state.stats["sanity"], 0)
+
+    def test_unknown_stat_rejected(self):
+        c, state, p = build()
+        with self.assertRaises(Exception):
+            p.ledger._apply_update(state, {"type": "stat", "target": "nope", "delta": 1})
+
+    def test_tendency_clamped(self):
+        c, state, p = build()
+        state.apply_tendency("curiosity", 5)
+        self.assertEqual(state.tendencies["curiosity"], 1.0)
+
+
+class TestGoldenWalkthroughs(unittest.TestCase):
+    """三条预定选择序列 → 三个不同结局（Phase 0 验收核心）。"""
+
+    def run_walk_and_assert_healthy(self, script):
+        state = run_walk(script)
+        self.assertTrue(state.finished, "走查未达成结局")
+        # 无生成降级、无结局兜底
+        self.assertEqual(state.fallback_flags, [], "存在降级标记: %s" % state.fallback_flags)
+        # 数值都在定义域内
+        for k, v in state.stats.items():
+            self.assertTrue(0 <= v <= 100, "%s=%s 越界" % (k, v))
+        for k, v in state.tendencies.items():
+            self.assertTrue(-1 <= v <= 1, "%s=%s 越界" % (k, v))
+        # 记忆与账本
+        self.assertLessEqual(len(state.memory["recent"]), 10)
+        self.assertTrue(state.event_log)
+        return state
+
+    def test_path_A_cautious_selfish_end_passenger(self):
+        state = self.run_walk_and_assert_healthy([2, 2, 1, 3])
+        self.assertEqual(state.ending["id"], "end_passenger")
+
+    def test_path_B_empathetic_trusting_end_truth(self):
+        state = self.run_walk_and_assert_healthy([1, 1, 1, 2, 1, 1, 1])
+        self.assertEqual(state.ending["id"], "end_truth")
+
+    def test_path_C_curious_distrustful_end_conductor(self):
+        state = self.run_walk_and_assert_healthy([2, 3, 2, 1, 2, 2])
+        self.assertEqual(state.ending["id"], "end_conductor")
+
+    def test_three_paths_three_endings(self):
+        endings = {run_walk([2, 2, 1, 3]).ending["id"],
+                   run_walk([1, 1, 1, 2, 1, 1, 1]).ending["id"],
+                   run_walk([2, 3, 2, 1, 2, 2]).ending["id"]}
+        self.assertEqual(len(endings), 3, "三条路线未分化出三个结局: %s" % endings)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
