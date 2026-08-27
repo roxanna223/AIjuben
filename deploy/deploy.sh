@@ -27,9 +27,9 @@ PKG=/tmp/qilu_pkg
 rm -rf "$PKG" && mkdir -p "$PKG"
 tar czf "$PKG/ai-storyline.tar.gz" \
   --exclude='.venv' --exclude='.env' --exclude='data' \
-  --exclude='__pycache__' --exclude='.DS_Store' ai-storyline
+  --exclude='__pycache__' --exclude='.DS_Store' --exclude='._*' ai-storyline
 tar czf "$PKG/deploy.tar.gz" \
-  --exclude='ssh_keys' --exclude='env.server' --exclude='run_remote.exp' deploy
+  --exclude='ssh_keys' --exclude='env.server' --exclude='run_remote.exp' --exclude='._*' deploy
 scp $SSH_OPTS -i "$KEY" "$PKG/ai-storyline.tar.gz" "$PKG/deploy.tar.gz" root@$HOST:/tmp/
 scp $SSH_OPTS -i "$KEY" deploy/env.server root@$HOST:/tmp/env.server
 $KEY_SSH 'mkdir -p /opt/qilu \

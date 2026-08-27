@@ -49,7 +49,8 @@ echo "==> [6/6] 每日备份（凌晨 3:15，保留 30 天）"
 mkdir -p /opt/qilu/backups
 cp /opt/qilu/deploy/backup.sh /opt/qilu/backup.sh
 chmod +x /opt/qilu/backup.sh
-(crontab -l 2>/dev/null | grep -v 'qilu/backup.sh'; echo '15 3 * * * /opt/qilu/backup.sh >> /opt/qilu/backups/backup.log 2>&1') | crontab -
+printf '15 3 * * * root /opt/qilu/backup.sh >> /opt/qilu/backups/backup.log 2>&1\n' > /etc/cron.d/qilu-backup
+chmod 644 /etc/cron.d/qilu-backup
 
 echo ""
 echo "===== 安装完成 ====="
