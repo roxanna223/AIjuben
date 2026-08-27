@@ -12,6 +12,7 @@ import os
 import queue
 import threading
 import uuid
+from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -33,9 +34,27 @@ MODE = os.environ.get("STORY_MODE", "mock")
 
 app = FastAPI(title="歧路 · AI互动叙事引擎")
 
-SESSIONS: Dict[str, Pipeline] = {}   # sid -> 运行中的流水线
+# 内存驻留上限：超出后淘汰最久未使用的会话（状态已落盘，可随时读回），
+# 避免长文本 + 大量历史会话把小内存机器吃爆。可用 MAX_MEM_SESSIONS 环境变量调整。
+MAX_MEM_SESSIONS = int(os.environ.get("MAX_MEM_SESSIONS", "256"))
+SESSIONS: "OrderedDict[str, Pipeline]" = OrderedDict()
 _cache_c: Dict[str, Constitution] = {}
 _cache_p: Dict[Any, Any] = {}
+
+
+def _remember(p: Pipeline) -> None:
+    """把会话放进内存并维持上限：最新访问挪到末尾，超限时从最旧开始淘汰。"""
+    sid = p.state.session_id
+    if sid in SESSIONS:
+        SESSIONS.move_to_end(sid)
+        return
+    SESSIONS[sid] = p
+    while len(SESSIONS) > MAX_MEM_SESSIONS:
+        _old_sid, old = SESSIONS.popitem(last=False)
+        try:
+            _persist(old.state)  # 淘汰前确保落盘
+        except Exception:  # noqa: BLE001
+            pass
 
 # 启动时扫描剧本注册表（剧本宪法文件，排除 mock 脚本）
 STORY_REGISTRY: Dict[str, Path] = {}
@@ -92,6 +111,7 @@ def _new_session(story_id: str) -> Pipeline:
 
 def _get_pipeline(sid: str) -> Pipeline:
     if sid in SESSIONS:
+        SESSIONS.move_to_end(sid)  # 刷新最近使用，避免被淘汰
         return SESSIONS[sid]
     f = DATA_DIR / ("%s.json" % sid)
     if f.exists():
@@ -99,7 +119,7 @@ def _get_pipeline(sid: str) -> Pipeline:
         c = _load_constitution(d.get("story_id") or DEFAULT_STORY)
         state = WorldState.from_dict(d)
         p = Pipeline(c, _load_provider(state.story_id), state)
-        SESSIONS[sid] = p
+        _remember(p)  # 从磁盘读回并纳入LRU管理
         return p
     raise HTTPException(status_code=404, detail="会话不存在: %s" % sid)
 
@@ -187,7 +207,7 @@ def create_session(body: Optional[CreateIn] = None):
     story_id = body.story_id if body else DEFAULT_STORY
     p = _new_session(story_id)
     scene = p.start()
-    SESSIONS[p.state.session_id] = p
+    _remember(p)
     _persist(p.state)
     return _session_view(p.state, scene)
 

@@ -1,0 +1,14 @@
+[Unit]
+Description=Qilu AI Interactive Storytelling (FastAPI/uvicorn)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/qilu/ai-storyline
+EnvironmentFile=/opt/qilu/ai-storyline/.env
+ExecStart=/opt/qilu/ai-storyline/.venv/bin/uvicorn server.app:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

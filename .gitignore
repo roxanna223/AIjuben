@@ -10,6 +10,7 @@ venv/
 # 敏感配置(含 API Key,勿提交)
 .env
 .env.*
+deploy/env.server
 
 # 运行时数据(会话记录 / 用量日志)
 ai-storyline/data/

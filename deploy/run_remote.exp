@@ -1,0 +1,30 @@
+#!/usr/bin/expect -f
+# 通用远端执行助手（仅部署期临时用，配好密钥后不再需要）
+# 用法：
+#   expect run_remote.exp ssh  <主机IP> <密码> "<远端命令>"
+#   expect run_remote.exp scp  <主机IP> <密码> "<本地路径>" "<远端路径>"
+set timeout 600
+set mode [lindex $argv 0]
+set host [lindex $argv 1]
+set pass [lindex $argv 2]
+set a    [lindex $argv 3]
+set b    [lindex $argv 4]
+set opts "-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/tmp/qilu_known_hosts -o ConnectTimeout=15"
+
+if {$mode eq "ssh"} {
+    spawn ssh {*}$opts root@$host $a
+} elseif {$mode eq "scp"} {
+    spawn scp {*}$opts -r $a root@$host:$b
+} else {
+    puts stderr "mode 必须是 ssh 或 scp"
+    exit 3
+}
+
+expect {
+    -re "(yes/no)"        { send "yes\r"; exp_continue }
+    -re "\[Pp\]assword:"  { send "$pass\r" }
+    timeout               { puts "TIMEOUT"; exit 2 }
+}
+expect eof
+catch wait result
+exit [lindex $result 3]
