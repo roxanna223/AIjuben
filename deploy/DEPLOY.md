@@ -44,3 +44,15 @@
 - **API Key 成本**:DeepSeek 按 token 计费,定期看 `data/usage.jsonl` 和 DeepSeek 平台余额;
 - **安全组**:入方向需放行 22/80/443;若加域名且走 443,需备案并补 HTTPS 证书(Let's Encrypt);
 - **到期提醒**:0 元练手实例 1 年到期,续费前先确认备份完整。
+
+## 上线检查单(部署完成后照做)
+
+1. **放行 80 端口**(不放开公网访问不到):
+   ECS 控制台 → 实例 → 点实例名进详情 → **安全组** 页签 → 点安全组ID →
+   **入方向 → 手动添加**:
+   - 授权策略:允许 / 优先级:1 / 协议:TCP / 端口范围:80/80 / 授权对象:0.0.0.0/0
+   - 如需 HTTPS 再加一条 443/443
+2. **浏览器验证**:访问 `http://公网IP/` → 看到「歧路」页面;
+3. **玩一局验证**:开一局点几下 → 服务器 `ls /opt/qilu/ai-storyline/data/sessions/` 能看到新会话 JSON;
+4. **跑一次备份**:`/opt/qilu/backup.sh`,确认 `/opt/qilu/backups/` 出现 tar.gz;
+5. **改 root 密码**(可选):`passwd root`,换成只自己知道的密码,并删除本机 `deploy/ssh_keys/askpass.sh` 里的旧密码。
