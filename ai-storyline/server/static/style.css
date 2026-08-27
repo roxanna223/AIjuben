@@ -114,6 +114,16 @@ body {
 .hint { color: var(--muted); font-size: 12px; margin-top: 14px; }
 .ending-type { color: var(--accent); letter-spacing: 4px; margin-bottom: 18px; }
 
+/* 开局加载过渡页(点击剧本后:反馈加载中,防止重复开局) */
+.loading-card { display: flex; flex-direction: column; align-items: center; }
+.loading-card h1 { font-size: 24px; letter-spacing: 4px; }
+.spinner {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 3px solid var(--line); border-top-color: var(--accent);
+  animation: spin 1s linear infinite; margin: 6px auto 24px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* 剧本选择卡片 */
 #story-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
 .story-card {

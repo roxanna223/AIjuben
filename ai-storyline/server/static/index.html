@@ -21,6 +21,16 @@
     </div>
   </div>
 
+  <!-- 开局加载中:点击剧本后的过渡页,按钮随页面隐藏,防止重复开局 -->
+  <div id="loading" class="overlay hidden">
+    <div class="start-card loading-card">
+      <div class="spinner"></div>
+      <h1 id="loading-title">正在进入故事</h1>
+      <p class="start-desc">AI 编剧正在生成开场剧情,请稍候…<br/>首次进入约需 10~30 秒,期间请不要刷新页面</p>
+      <p class="hint">剧情由 AI 实时创作,每一次开局都是独一无二的</p>
+    </div>
+  </div>
+
   <!-- 结局 -->
   <div id="ending" class="overlay hidden">
     <div class="ending-card">

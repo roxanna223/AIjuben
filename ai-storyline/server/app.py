@@ -50,6 +50,7 @@ _cache_p: Dict[Any, Any] = {}
 ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")            # 管理接口令牌；空=管理接口关闭
 RATE_LIMIT_PER_MIN = int(os.environ.get("RATE_LIMIT_PER_MIN", "60"))   # API 每IP每分钟
 RATE_TURN_PER_MIN = int(os.environ.get("RATE_TURN_PER_MIN", "20"))     # 回合接口从严
+RATE_CREATE_PER_MIN = int(os.environ.get("RATE_CREATE_PER_MIN", "20")) # 开局接口从严(防连点刷开局烧token)
 _rate_hits: Dict[str, List[float]] = {}
 _rate_lock = threading.Lock()
 
@@ -116,8 +117,12 @@ async def security_and_analytics(request: Request, call_next):
     ip = _client_ip(request)
     path = request.url.path
     if path.startswith("/api"):
-        limit = RATE_TURN_PER_MIN if path.rstrip("/").endswith("/turn") \
-            else RATE_LIMIT_PER_MIN
+        if path.rstrip("/") == "/api/sessions":
+            limit = RATE_CREATE_PER_MIN     # 开局接口独立从严:防止连点重复开局
+        elif path.rstrip("/").endswith("/turn"):
+            limit = RATE_TURN_PER_MIN
+        else:
+            limit = RATE_LIMIT_PER_MIN
         if not _rate_ok(ip, limit):
             return JSONResponse(status_code=429,
                                 content={"detail": "请求过于频繁，请稍后再试"})

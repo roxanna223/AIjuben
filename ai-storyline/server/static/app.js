@@ -4,6 +4,7 @@
 const $ = (id) => document.getElementById(id);
 let SID = localStorage.getItem("qilu_sid") || null;
 let busy = false;
+let creatingSession = false;   // 开局防抖:同一时间只允许一次开局请求
 
 /* ---------- 基础请求 ---------- */
 async function api(path, opts = {}) {
@@ -379,7 +380,7 @@ async function loadStories() {
         '<div class="story-card-desc">' + s.desc + "</div>" +
         '<div class="story-card-foot">' + genre +
         '<button class="btn primary story-card-btn">开始</button></div>';
-      card.querySelector("button").onclick = () => startNew(s.id);
+      card.querySelector("button").onclick = () => startNew(s.id, s.title);
       box.appendChild(card);
     }
   } catch (e) {
@@ -387,8 +388,13 @@ async function loadStories() {
   }
 }
 
-async function startNew(storyId) {
-  setBusy(true);
+async function startNew(storyId, title) {
+  if (creatingSession) return;          // 双保险:防连点触发多次开局
+  creatingSession = true;
+  // 立即切到"加载中"过渡页:选择按钮随页面隐藏,用户无法再点
+  $("start").classList.add("hidden");
+  $("loading").classList.remove("hidden");
+  $("loading-title").textContent = "正在进入《" + (title || storyId) + "》";
   try {
     const view = await api("/api/sessions", {
       method: "POST",
@@ -396,14 +402,17 @@ async function startNew(storyId) {
     });
     SID = view.sid;
     localStorage.setItem("qilu_sid", SID);
-    $("start").classList.add("hidden");
+    $("loading").classList.add("hidden");
     $("ending").classList.add("hidden");
     $("chat").innerHTML = "";
     addSystem("你走进了这个故事");
     renderScene(view);
+    creatingSession = false;
   } catch (e) {
-    alert("开局失败: " + e.message);
-    setBusy(false);
+    creatingSession = false;
+    $("loading").classList.add("hidden");
+    $("start").classList.remove("hidden");
+    alert("开局失败: " + e.message + "\n已返回首页,可重新进入。");
   }
 }
 

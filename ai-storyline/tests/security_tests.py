@@ -16,6 +16,7 @@ os.environ["QILU_EVENTS_FILE"] = os.path.join(_TMP, "events.jsonl")
 os.environ["EVENT_SALT"] = "test-salt"
 os.environ["ADMIN_TOKEN"] = "test-admin-token"
 os.environ["RATE_LIMIT_PER_MIN"] = "5"
+os.environ["RATE_CREATE_PER_MIN"] = "3"
 os.environ["RATE_TURN_PER_MIN"] = "3"
 os.environ["MAX_MEM_SESSIONS"] = "8"
 
@@ -85,6 +86,13 @@ class TestSecurity(unittest.TestCase):
                        params={"action": "page_view"})
         rows = r.json()["events"]
         self.assertTrue(all(x["action"] == "page_view" for x in rows))
+
+    def test_05_create_rate_limit(self):
+        # 开局接口独立限流(3次/分):连点刷开局会被429拦截,防止重复烧token
+        codes = [client.post("/api/sessions").status_code for _ in range(4)]
+        self.assertEqual(codes[0], 200)
+        self.assertIn(429, codes)
+        self.assertEqual(codes[-1], 429)
 
 
 if __name__ == "__main__":
