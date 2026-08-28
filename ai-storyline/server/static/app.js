@@ -209,10 +209,11 @@ const Player = {
     this._updateHint();
   },
 
-  /* 开始播放一个场景（清空旧队列与定时器） */
+  /* 开始播放一个场景（清空旧队列与定时器；交互点未到，收起输入区） */
   play(container, lines, choices) {
     this._stopTimer();
     this.mountHint();
+    showFreeRow(false);
     this.container = container;
     this.queue = (lines || []).slice();
     this.pendingChoices = (choices && choices.length) ? choices : null;
@@ -362,11 +363,10 @@ const Player = {
   },
 };
 
-function addChoice(text) {
-  const msg = document.createElement("div");
-  msg.className = "msg msg-choice";
-  msg.textContent = "» " + text;
-  $("chat").appendChild(msg);
+/* 玩家动作（选择的选项/自由输入）：渲染为带头像的"你"气泡，与对话对齐 */
+function appendPcAction(text, isChoice) {
+  const el = buildLineEl("pc", (isChoice ? "» " : "") + text);
+  $("chat").appendChild(el);
   scrollBottom();
 }
 
@@ -374,12 +374,19 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 function scrollBottom() { $("chat").scrollTop = $("chat").scrollHeight; }
 
 /* ---------- 交互 ---------- */
+let LAST_CHOICES = null;   // 最近一次交互点的选项（生成失败时恢复交互点用）
+
 function setBusy(b) {
   busy = b;
   $("thinking").classList.toggle("hidden", !b);
   $("choices").querySelectorAll("button").forEach((x) => (x.disabled = b));
   $("btn-send").disabled = b;
   $("free-input").disabled = b;
+  if (b) showFreeRow(false);   // 生成期间无交互点：收起输入区
+}
+
+function showFreeRow(v) {
+  $("free-row").classList.toggle("hidden", !v);
 }
 
 function renderScene(view) {
@@ -400,6 +407,8 @@ function renderChoiceButtons(choices) {
     btn.onclick = () => choose(i + 1, ch.text);
     box.appendChild(btn);
   }
+  LAST_CHOICES = choices;
+  showFreeRow(true);   // 交互点：选项 + 自由输入同时可用
   setBusy(false);
 }
 
@@ -407,14 +416,15 @@ async function choose(index, text) {
   if (busy) return;
   setBusy(true);
   $("choices").innerHTML = "";
-  addChoice(text);
+  appendPcAction(text, true);   // 所选选项以"你"的气泡呈现
   const box = beginStream();
   try {
     const view = await streamTurn(SID, { choice_index: index }, box);
     afterTurn(view, box);
   } catch (e) {
     addSystem("（生成失败: " + e.message + "）");
-    setBusy(false);
+    if (LAST_CHOICES) renderChoiceButtons(LAST_CHOICES);   // 恢复交互点
+    else setBusy(false);
   }
 }
 
@@ -424,14 +434,15 @@ async function freeAct() {
   setBusy(true);
   $("free-input").value = "";
   $("choices").innerHTML = "";
-  addChoice(text);
+  appendPcAction(text, false);   // 自由输入同样以"你"的气泡呈现
   const box = beginStream();
   try {
     const view = await streamTurn(SID, { free_text: text }, box);
     afterTurn(view, box);
   } catch (e) {
     addSystem("（生成失败: " + e.message + "）");
-    setBusy(false);
+    if (LAST_CHOICES) renderChoiceButtons(LAST_CHOICES);   // 恢复交互点
+    else setBusy(false);
   }
 }
 
@@ -730,7 +741,7 @@ async function resume() {
       if (h.kind === "line") {
         appendLineInstant(h.speaker, h.text);
       } else {
-        addChoice(h.text);
+        appendPcAction(h.text, true);
       }
     }
     renderState(view);

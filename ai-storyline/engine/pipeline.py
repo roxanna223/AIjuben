@@ -53,6 +53,10 @@ class Critic:
                 if ln["speaker"] not in known:
                     issues.append("dialogue 出现未定义说话人 %r（可用: %s）"
                                   % (ln["speaker"], ", ".join(sorted(known))))
+            # 交互节奏：对白行(非旁白)每场 5~6 行，超过 8 行驳回（给AI留弹性但压住频率）
+            dialogue_rows = sum(1 for ln in lines if ln["speaker"] != NARRATOR)
+            if dialogue_rows > 8:
+                issues.append("对白行过多: %d行（要求5~6行，上限8行，旁白不计）" % dialogue_rows)
         # 禁忌短语检查（内容安全 + 设定边界）
         for kw in (self.c.world.get("taboos_content") or []) + (self.c.world.get("taboos_story") or []):
             if kw and kw in text:
@@ -127,7 +131,7 @@ class Pipeline:
                 raise ValueError("选项序号越界: %d (共%d个)" % (choice_index, len(choices)))
             chosen = choices[choice_index - 1]
         elif free_text.strip():
-            chosen = {"text": free_text, "tendency": {}, "effects": []}
+            chosen = {"text": free_text, "tendency": {}, "effects": [], "_free": True}
         else:
             raise ValueError("必须提供选项序号或自由输入")
         self.state.turn += 1
@@ -379,8 +383,10 @@ class Pipeline:
             "speaker 只能是：narrator（旁白/环境叙述）或人物ID %s；"
             "narrator 行用于动作、环境、氛围等非台词叙述，每行不超过60字；pc 是主角，"
             "其台词只表现玩家所选行动的即时反应，不必替玩家长篇发言；同一行只放一句台词；\n"
-            "3. 全文长度控制：dialogue 总行数 6~10 行，全部 text 合计 250~450 字（含 narrator 行），"
-            "超长会被审查器驳回重写；\n"
+            "3. 交互节奏（最重要）：每场的人物对白（除 narrator 外的行）严格 5~6 行——"
+            "玩家每 5~6 句对话就会遇到一次选项，对白超过 6 行会被审查器驳回重写；"
+            "narrator 旁白行不计入该限制（环境描写可以穿插），但每行≤60字、总数也不宜过多；"
+            "全部 text 合计 250~450 字；\n"
             "4. 禁止泄露任何NPC的secret；节拍未到不得剧透；\n"
             "5. 选项必须真实分化——至少一个选项会显著改变后续走向；"
             "每场输出 3~4 个选项（文字游戏节奏：选项出现频率要高，确实做不到才减少）；\n"
@@ -427,7 +433,11 @@ class Pipeline:
         if s.memory["chapter_summary"]:
             lines.append("【章节摘要】%s" % "; ".join(s.memory["chapter_summary"][-3:]))
         if chosen:
-            lines.append("【玩家上一选择】%s" % chosen.get("text"))
+            if chosen.get("_free"):
+                lines.append("【玩家刚刚的自主行动/发言（必须让在场人物明确回应或受影响，剧情要直接接住它）】%s"
+                             % chosen.get("text"))
+            else:
+                lines.append("【玩家上一选择】%s" % chosen.get("text"))
         else:
             lines.append("【本场为开场】")
         lines.append("\n[META]%s[/META]" % json.dumps(

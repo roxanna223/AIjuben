@@ -207,6 +207,27 @@ class TestDialogueFormat(unittest.TestCase):
         })
         self.assertTrue(any("dialogue 为空" in i for i in issues))
 
+    def test_critic_rejects_too_many_dialogue_rows_strict(self):
+        """交互节奏：对白行(非旁白)超过8行驳回，旁白不计入。"""
+        c, state, p = build()
+        p.critic.strict = True
+        lines = [{"speaker": "lin", "text": "台词%d" % i} for i in range(9)]
+        issues = p.critic.review({
+            "dialogue": lines,
+            "choices": [{"text": "继续", "tendency": {}}],
+            "world_updates": [],
+        })
+        self.assertTrue(any("对白行过多" in i for i in issues))
+        # 旁白行不计入对白行数：9行里3行旁白+6行对白 → 不触发该驳回
+        lines2 = ([{"speaker": "narrator", "text": "环境描写"}] * 3
+                  + [{"speaker": "lin", "text": "台词%d" % i} for i in range(6)])
+        issues2 = p.critic.review({
+            "dialogue": lines2,
+            "choices": [{"text": "继续", "tendency": {}}],
+            "world_updates": [],
+        })
+        self.assertFalse(any("对白行过多" in i for i in issues2))
+
     def test_state_memory_stores_dialogue(self):
         c, state, p = build()
         p.start()
