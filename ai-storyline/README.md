@@ -19,6 +19,7 @@ ai-storyline/
 │   ├── conditions.py          # 条件表达式求值（节拍触发/结局判定共用）
 │   ├── state.py               # 世界状态：数值/倾向/事实/三层记忆/事件账本/序列化
 │   ├── director.py            # 导演规划器：节拍调度/结局池筛选/人物调度/章节推进
+│   ├── graph.py               # 故事导图：渐进解锁的路线节点/选择分叉边/玩家自创剧情节点
 │   ├── ledger.py              # 结算器：AI的world_updates审核落账
 │   ├── llm.py                 # LLM Provider（Mock确定性 / OpenAI兼容）
 │   └── pipeline.py            # 流水线：导演→编剧→审查器→结算
@@ -65,6 +66,7 @@ python3 play_cli.py
 | 世界状态 | 数值/倾向向量/事实/三层记忆/事件账本 | 确定性代码 |
 | AI编剧 | 正文+选项+world_updates草案 | LLM（规划器→编剧→审查器流水线） |
 | 导演规划器 | 节拍调度/结局池筛选/人物调度/收束模式 | 确定性代码 |
+| 故事导图 | 路线节点渐进解锁/选择分叉边/玩家自创剧情节点 | 确定性代码（零AI参与） |
 
 **铁律：AI只负责写，确定性代码负责管。**
 
@@ -75,6 +77,7 @@ GET  /api/stories                      剧本列表（前端选择）
 POST /api/sessions                     开局 {story_id} → {sid, scene, history, ...}
 POST /api/sessions/{sid}/turn          回合 {choice_index | free_text} → 下一场景/结局
 GET  /api/sessions/{sid}               断线续玩（从 data/sessions/*.json 恢复，含历史时间线）
+GET  /api/sessions/{sid}/map           故事导图（渐进解锁的路线节点/选择分叉边）
 GET  /api/sessions/{sid}/recap         结局复盘（路线/倾向/选择/数据足迹）
 GET  /api/admin/metrics                体验基线指标（?story_id= 可过滤）
 GET  /api/health                       健康检查
@@ -127,6 +130,7 @@ curl http://127.0.0.1:8000/api/admin/metrics   # API（含逐项PASS/FAIL）
 | 单场景成本与延迟 | ✅ 实测：55次调用/10.4万tok/¥0.15；流式后首字节约4s（此前整场约7s干等） |
 | SSE/NDJSON流式输出 | ✅ 对话行增量实时推送（JSON元数据不外泄），失败自动回退非流式重写 |
 | 路线复盘可视化 | ✅ 结局页SVG节点图：完成/跳过/未达节拍 + 选项分叉标签 + 结局节点（含图例） |
+| 故事导图（渐进解锁路线图） | ✅ 顶栏「🗺 故事导图」：只点亮到达过的节点；每次选择画一条分叉边；自由输入的玩家自创剧情生成专属节点；未走上的岔路以空心占位呈现（不剧透）；随会话存档持久化 |
 | 生成质量（文风/一致性/惊喜度） | ✅ LLM-as-judge抽检：双剧本四维 4.4-5.0/5分；每场自动事实一致性审查 |
 | 调研基线（完读率60%等）与真实用户验证 | ⏳ 等真实玩家数据（/api/admin/metrics 自动统计） |
 

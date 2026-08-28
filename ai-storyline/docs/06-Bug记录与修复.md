@@ -59,9 +59,65 @@
 
 - [ ] 兜底仍需玩家手动点「重试」：可改为失败时**自动重试**同一节拍（带指数退避），仅连续多次失败后才请求玩家介入，体验更顺滑；
 - [ ] 重试上限目前统一为 3 次：可对"网络类错误"与"审查驳回"**分开计数**——网络抖动允许多次重试，审查驳回保持 3 次（避免烧 token）；
-- [ ] `active` 节拍的恢复依赖 `beat_status` 持久化：服务重启后 active 节拍会继续重试（存档恢复路径已覆盖，但未显式测试）；
+- [x] `active` 节拍的恢复依赖 `beat_status` 持久化：服务重启后 active 节拍会继续重试（存档恢复路径已覆盖，但未显式测试）——**2026-08-28 / v0.4.6 已由 BUG-002 的回归测试 `test_resume_after_restart_then_turn` 显式覆盖**；
 - [ ] 更根治的方向：把"行数/字数"等约束从提示词搬到**后处理**（生成后按约束裁剪或压缩），减少对模型自觉性的依赖；
 - [ ] 兜底前已流式推送的部分行，重试成功后前端整体重绘（当前依赖 linesMatch 对比处理）：可评估是否值得保留失败前的行、减少闪烁。
+
+---
+
+## BUG-002 服务重启后恢复存档的回合崩溃（前端无限卡"编剧正在书写"）
+
+- **状态**：已修复
+- **发现时间 / 版本**：2026-08-28 / v0.4.5（本地部署 v0.4.5 故事导图功能时暴露）
+- **修复时间 / 版本 / 提交**：2026-08-28 / v0.4.6 / 提交见 git log（本次推送）
+- **关联迭代记录**：`docs/05-迭代文档.md` v0.4.6
+
+### 现象
+
+用户报告：点击选项后前端一直显示"编剧正在书写……"，没有任何文案生成，也没有报错。
+
+服务端日志（uvicorn stderr）中每个失败的回合对应一条线程崩溃：
+
+```
+Exception in thread Thread-1:
+  File "server/app.py", line 346, in work
+    scene = p.turn(choice_index=body.choice_index, ...)
+  File "engine/pipeline.py", line 158, in turn
+    cur_beat = self._active_beat
+AttributeError: 'Pipeline' object has no attribute '_active_beat'
+```
+
+### 复现路径
+
+1. 启动服务，玩家开局并玩若干回合（会话落盘 `data/sessions/s_*.json`）；
+2. **重启服务**（或会话因 LRU 淘汰被逐出内存）；
+3. 玩家刷新页面恢复存档，点击任一选项；
+4. 观察：前端永久卡在"编剧正在书写……"，服务端日志出现上述 `AttributeError`。
+
+### 根因分析
+
+1. **【主因 · 恢复路径属性缺失】** `Pipeline._active_beat` 只在 `_generate()` 里赋值，`__init__` 从未初始化。内存中新建的会话总是先 `start()` 再 `turn()`，属性被隐式补上，所以正常流程永不报错；但**从磁盘恢复的会话**直接进入 `turn()`，属性不存在 → `AttributeError`；
+2. **【放大器 · 异常被线程吞掉】** NDJSON 流式回合跑在独立 worker 线程里，`work()` 只捕获 `ValueError/RuntimeError`——`AttributeError` 直接杀死线程，`queue.Queue` 永远收不到 `done`/`error` 事件，`StreamingResponse` 生成器永久阻塞在 `q.get()`，HTTP 连接悬空、前端无限等待；
+3. **【诱因 · 触发条件罕见】** 生产服务长期运行、重启极少，会话几乎总在内存中，因此该 bug 长期潜伏——本地部署新版本需要重启服务时才暴露。
+
+### 修复方式（当前方案 · v0.4.6）
+
+1. **补初始化 + 恢复推导**（`engine/pipeline.py`）：
+   - `__init__` 显式初始化 `_active_beat = None`；
+   - 恢复的会话从 `beat_status` 推导当前 `active` 节拍，保证第一回合正确结算并推进；唯一例外：存档停在生成失败兜底场景（`current_scene._fallback`）时保持 `None`，重试仍重生成同一节拍（与 BUG-001 的"失败不吞剧情"语义一致）；
+2. **流式 worker 兜底**（`server/app.py`）：`work()` 追加 `except Exception` 兜底——打印完整堆栈并回传 error 事件，前端显示"生成异常，请重试"并恢复上一交互点，任何未预期异常都不再导致流挂起；
+3. **旧存档导图回填**（`engine/graph.py`，本次一并处理）：无导图字段的旧存档恢复时，从 `beat_status`+事件账本重建已完成节拍的节点与选项边，老玩家继续玩时故事导图不缺历史路线。
+
+### 验证
+
+- 回归测试：`tests/test_api.py::test_resume_after_restart_then_turn`（重启恢复 → 回合正常返回并推进到下一节拍）；`tests/test_graph.py::test_old_save_without_graph_fields_backfilled`（旧存档回填 b1→b2 + 选项边）；主套件 61 项全绿；
+- 真实 LLM 实测：用户卡死会话 `s_a85db3cf` 恢复后，`POST /turn` 正常返回 8 个流式 line 事件 + done，节拍推进、场景生成正常；导图回填出 `b1 →(选项文案)→ b2`。
+
+### 遗留风险 / 后续可改进（当前方案不一定最优，欢迎迭代）
+
+- [ ] `_active_beat` 是内存态属性，本质是"恢复时从 `beat_status` 推导"的补丁：更根治的方向是**删除该属性**，`turn()` 一律以 `beat_status` 中 `active` 节拍为准（需同步梳理 BUG-001 的重试语义，确保兜底重试仍不吞节拍）；
+- [ ] 流式 worker 的异常兜底只回传了消息，未携带结构化错误码：可扩展 error 事件为 `{type:"error", code, detail}`，前端按错误码区分"重试/换剧本/已结算"等处置；
+- [ ] BUG-001 遗留风险中"重启后 active 节拍恢复未显式测试"一项，已由本次回归测试覆盖，可划掉。
 
 ---
 

@@ -31,6 +31,24 @@
     </div>
   </div>
 
+  <!-- 故事导图：渐进解锁的路线思维导图 -->
+  <div id="map-overlay" class="overlay hidden">
+    <div class="map-card">
+      <div class="map-head">
+        <div>
+          <div class="start-kicker">你的故事导图</div>
+          <h2 id="map-title">故事路线</h2>
+        </div>
+        <button id="btn-map-close" class="btn ghost small">✕ 收起</button>
+      </div>
+      <p class="map-sub">
+        走过的节点才会点亮——你在节点上的每次选择，都是这条路上的一道分叉；<br/>
+        你自己写下的剧情也会长成新的节点。
+      </p>
+      <div id="map-svg-wrap" class="map-wrap"></div>
+    </div>
+  </div>
+
   <!-- 结局 -->
   <div id="ending" class="overlay hidden">
     <div class="ending-card">
@@ -67,6 +85,7 @@
       <header class="topbar">
         <div class="story-title" id="story-title">《午夜列车》<span id="chapter-chip" class="chip">第1章</span></div>
         <div class="topbar-actions">
+          <button id="btn-map" class="btn ghost small">🗺 故事导图</button>
           <button id="btn-auto" class="btn ghost small">▶ 自动播放</button>
           <button id="btn-new" class="btn ghost small">换剧本</button>
         </div>

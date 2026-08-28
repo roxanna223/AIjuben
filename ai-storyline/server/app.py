@@ -30,6 +30,7 @@ from engine.scene import NARRATOR, as_dialogue_lines
 from engine.state import WorldState
 from engine.pipeline import Pipeline, build_provider
 from engine.llm import LLMError
+from engine.graph import StoryGraph
 import metrics
 from server import events
 
@@ -267,6 +268,7 @@ def _session_view(state: WorldState, scene: Optional[Dict[str, Any]]) -> Dict[st
         "facts": sorted(state.facts),
         "closed_facts": sorted(state.closed_facts),
         "last_effects": _last_effects(state),
+        "story_map": StoryGraph(state).view(),   # 渐进解锁的故事导图（节点/边/当前节点）
         "beat_path": [b for b, st in sorted(state.beat_status.items(),
                                             key=lambda kv: kv[1].get("turn", 0))
                       if st["status"] == "done"],
@@ -348,6 +350,12 @@ async def play_turn(sid: str, body: TurnIn, request: Request):
                 q.put(("done", _session_view(p.state, scene)))
             except (ValueError, RuntimeError) as e:
                 q.put(("error", str(e)))
+            except Exception as e:  # noqa: BLE001
+                # 兜底：任何未预期异常都必须回传错误事件，
+                # 否则流式响应会永远挂起、前端一直显示"编剧正在书写"。
+                import traceback
+                print("[error] turn worker 异常: %s\n%s" % (e, traceback.format_exc()))
+                q.put(("error", "生成异常，请重试: %s" % e))
 
         threading.Thread(target=work, daemon=True).start()
 
@@ -387,6 +395,21 @@ def get_session(sid: str, request: Request):
                         ua=request.headers.get("user-agent", ""),
                         sid=sid, story=p.state.story_id)
     return _session_view(p.state, p.state.current_scene)
+
+
+@app.get("/api/sessions/{sid}/map")
+def get_story_map(sid: str, request: Request):
+    """故事导图：玩家已解锁的路线节点与选择边（渐进解锁，未到达节点不出现）。"""
+    p = _get_pipeline(sid)
+    events.record_event("map_view", ip=_client_ip(request),
+                        ua=request.headers.get("user-agent", ""),
+                        sid=sid, story=p.state.story_id)
+    return {
+        "sid": p.state.session_id,
+        "story": {"id": p.state.story_id, "title": _load_constitution(p.state.story_id).title},
+        "finished": p.state.finished,
+        "map": StoryGraph(p.state).view(),
+    }
 
 
 @app.get("/api/sessions/{sid}/recap")

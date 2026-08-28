@@ -22,6 +22,7 @@ const AVATAR_IMAGES = {
 
 let CHARS = {};   // 当前剧本的人物表 { id: {name, role} }，由服务端下发
 let STAT_DEFS = {};   // 数值定义（标签），用于"影响"提示
+let STORY_MAP = null;   // 故事导图（渐进解锁的路线节点/边），随每次回合刷新
 
 /* ---------- 基础请求 ---------- */
 async function api(path, opts = {}) {
@@ -40,6 +41,10 @@ async function api(path, opts = {}) {
 function renderState(view) {
   if (view.characters) CHARS = view.characters;
   if (view.stat_defs) STAT_DEFS = view.stat_defs;
+  if (view.story_map) {
+    STORY_MAP = view.story_map;
+    renderMapIfOpen();   // 导图浮层打开时实时刷新
+  }
   $("chapter-chip").textContent = "第" + view.chapter + "章";
   if (view.story) $("story-title").innerHTML =
     "《" + view.story.title + "》<span id=\"chapter-chip\" class=\"chip\">第" + view.chapter + "章</span>";
@@ -675,6 +680,168 @@ function escapeHtml(s) {
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+/* ---------- 故事导图（渐进解锁的路线思维导图） ----------
+   只有玩家到达过的节点才出现：主线节拍(beat)、玩家自创剧情(free)、
+   未走上的岔路(skipped 空心占位)、结局(ending)；
+   每次选择画一条有向边，标签=所选选项文案。 */
+function renderMapIfOpen() {
+  if (!$("map-overlay").classList.contains("hidden")) renderStoryMap();
+}
+
+function openMap() {
+  $("map-overlay").classList.remove("hidden");
+  renderStoryMap();
+}
+
+function closeMap() {
+  $("map-overlay").classList.add("hidden");
+}
+
+/* 分层布局：BFS 从左到右，同层纵向排开（思维导图式） */
+function buildStoryMapLayout(map) {
+  const nodes = (map && map.nodes) || [];
+  const edges = (map && map.edges) || [];
+  const byId = {};
+  nodes.forEach((n) => { byId[n.id] = n; });
+  const inDeg = {}, out = {};
+  nodes.forEach((n) => { inDeg[n.id] = 0; out[n.id] = []; });
+  edges.forEach((e) => {
+    if (byId[e.from] && byId[e.to]) { inDeg[e.to]++; out[e.from].push(e.to); }
+  });
+  const layers = [];
+  const seen = new Set();
+  let cur = nodes.filter((n) => !inDeg[n.id]);
+  while (cur.length) {
+    layers.push(cur);
+    cur.forEach((n) => seen.add(n.id));
+    const next = [];
+    cur.forEach((n) => out[n.id].forEach((t) => {
+      if (!seen.has(t)) { seen.add(t); next.push(byId[t]); }
+    }));
+    cur = next;
+  }
+  nodes.forEach((n) => {   // 兜底：孤立/环节点放最后一层
+    if (!seen.has(n.id)) {
+      seen.add(n.id);
+      if (!layers.length) layers.push([]);
+      layers[layers.length - 1].push(n);
+    }
+  });
+  const NW = 190, NH = 54, GX = 270, GY = 86, MX = 46, MY = 44;
+  const pos = {};
+  layers.forEach((layer, li) => {
+    layer.forEach((n, ri) => { pos[n.id] = { x: MX + li * GX, y: MY + ri * GY }; });
+  });
+  const geoms = edges.filter((e) => pos[e.from] && pos[e.to]).map((e) => {
+    const a = pos[e.from], b = pos[e.to];
+    return {
+      edge: e, x1: a.x + NW, y1: a.y + NH / 2, x2: b.x, y2: b.y + NH / 2,
+      mx: (a.x + NW + b.x) / 2, my: (a.y + b.y + NH) / 2,
+    };
+  });
+  const W = MX + layers.length * GX + NW + MX;
+  const H = Math.max(...layers.map((l) => l.length), 1) * GY + MY * 2;
+  return { pos, geoms, W, H, NW, NH };
+}
+
+function wrapLabel(label, n) {
+  const out = [];
+  let rest = label || "";
+  while (rest.length > n) {
+    out.push(rest.slice(0, n));
+    rest = rest.slice(n).replace(/^[，。、；：,.!?！？;:]+/, "");   // 换行吞掉行首标点
+  }
+  if (rest) out.push(rest);
+  return out.slice(0, 2);
+}
+
+function renderStoryMap() {
+  const el = $("map-svg-wrap");
+  const map = STORY_MAP;
+  if (!map || !map.nodes || !map.nodes.length) {
+    el.innerHTML =
+      '<p class="muted map-empty">尚未启程。你的故事导图会随着你的选择逐渐展开——' +
+      "走过的节点、选过的岔路、你自己写下的剧情，都会点亮在这里。</p>";
+    return;
+  }
+  const L = buildStoryMapLayout(map);
+  const s = [];
+  s.push('<svg viewBox="0 0 ' + L.W + " " + L.H + '" xmlns="http://www.w3.org/2000/svg" class="map-svg">');
+  // ---- 边（先画边再画节点）----
+  L.geoms.forEach((g) => {
+    const e = g.edge;
+    const color = e.kind === "choice" ? "#d4a24e" : (e.kind === "free" ? "#8fa8c0" : "#3d4754");
+    const dash = e.kind === "skip" ? ' stroke-dasharray="5 4"' : "";
+    const ctrl = (g.x1 + g.x2) / 2;
+    s.push('<path d="M ' + g.x1 + " " + g.y1 + " C " + ctrl + " " + g.y1 + ", " + ctrl +
+           " " + g.y2 + ", " + g.x2 + " " + g.y2 + '" fill="none" stroke="' + color +
+           '" stroke-width="1.5"' + dash + "/>");
+    if (e.label) {
+      s.push('<text x="' + g.mx + '" y="' + (g.my - 8) + '" text-anchor="middle" fill="' + color +
+             '" font-size="10.5" font-weight="600">' + escapeHtml(truncate(e.label, 12)) + "</text>");
+    }
+  });
+  // ---- 节点 ----
+  const activeId = map.active_beat ? "beat:" + map.active_beat : null;
+  map.nodes.forEach((n) => {
+    const p = L.pos[n.id];
+    if (!p) return;
+    const cx = p.x + L.NW / 2, cy = p.y + L.NH / 2;
+    if (n.kind === "ending") {
+      const ec = endingColor(map.ending);
+      s.push('<polygon points="' + cx + "," + (p.y + 2) + " " + (p.x + L.NW - 2) + "," + cy + " " +
+             cx + "," + (p.y + L.NH - 2) + " " + (p.x + 2) + "," + cy +
+             '" fill="' + ec + '" stroke="#101418" stroke-width="1.5"/>');
+      s.push('<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" fill="#101418" ' +
+             'font-size="11.5" font-weight="700">' + escapeHtml(truncate(n.label, 10)) + "</text>");
+      return;
+    }
+    let fill = "#1f2833", stroke = "#d4a24e", text = "#d8dee6", extra = "";
+    let label = n.label || "";
+    if (n.kind === "beat") {
+      fill = "#d4a24e"; text = "#181512";
+      if (n.id === activeId) extra = ' class="map-node-active"';
+    } else if (n.kind === "free") {
+      fill = "#8fa8c0"; text = "#101418";
+      label = "✎ " + label;
+    } else if (n.kind === "skipped") {
+      fill = "none"; stroke = "#4a5568"; text = "#55606e";
+      extra = ' stroke-dasharray="4 3"';
+    }
+    s.push('<rect x="' + p.x + '" y="' + p.y + '" width="' + L.NW + '" height="' + L.NH +
+           '" rx="10" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.5"' +
+           extra + "/>");
+    const lines = wrapLabel(label, 14);
+    if (lines.length === 1) {
+      s.push('<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" fill="' + text +
+             '" font-size="11.5" font-weight="600">' + escapeHtml(lines[0]) + "</text>");
+    } else {
+      s.push('<text x="' + cx + '" y="' + (p.y + 22) + '" text-anchor="middle" fill="' + text +
+             '" font-size="11" font-weight="600">' + escapeHtml(lines[0]) + "</text>");
+      s.push('<text x="' + cx + '" y="' + (p.y + 38) + '" text-anchor="middle" fill="' + text +
+             '" font-size="11" font-weight="600">' + escapeHtml(lines[1]) + "</text>");
+    }
+    if (n.id === activeId) {
+      s.push('<circle cx="' + (p.x + 10) + '" cy="' + (p.y + 10) + '" r="4" fill="#181512"' +
+             ' class="map-node-active"/>');
+    }
+  });
+  s.push("</svg>");
+  const done = map.nodes.filter((n) => n.kind !== "skipped").length;
+  const legend =
+    '<div class="map-legend">' +
+    '<span class="map-count">已解锁 ' + done + " / " + map.nodes.length + " 个节点</span>" +
+    '<span><i class="lg lg-beat"></i>主线剧情</span>' +
+    '<span><i class="lg lg-free"></i>你写下的剧情</span>' +
+    '<span><i class="lg lg-skip"></i>未走上的岔路</span>' +
+    '<span><i class="lg lg-end"></i>结局</span>' +
+    '<span class="lg-line"><i class="el el-choice"></i>选项之路</span>' +
+    '<span class="lg-line"><i class="el el-adv"></i>自然推进</span>' +
+    "</div>";
+  el.innerHTML = '<div class="map-scroll">' + s.join("") + "</div>" + legend;
+}
+
+
 /* ---------- 剧本选择 / 开局 / 续玩 / 换剧本 ---------- */
 async function loadStories() {
   try {
@@ -731,6 +898,7 @@ async function startNew(storyId, title) {
     localStorage.setItem("qilu_sid", SID);
     $("loading").classList.add("hidden");
     $("ending").classList.add("hidden");
+    $("map-overlay").classList.add("hidden");
     $("chat").innerHTML = "";
     addSystem("你走进了这个故事");
     renderScene(view);
@@ -746,8 +914,10 @@ async function startNew(storyId, title) {
 function backToPicker() {
   localStorage.removeItem("qilu_sid");
   SID = null;
+  STORY_MAP = null;
   Player.stop();
   $("ending").classList.add("hidden");
+  $("map-overlay").classList.add("hidden");
   $("chat").innerHTML = "";
   $("start").classList.remove("hidden");
   loadStories();
@@ -802,6 +972,11 @@ $("btn-restart").onclick = backToPicker;
 $("btn-new").onclick = () => {
   if (confirm("换剧本会丢弃当前进度，确定吗？")) backToPicker();
 };
+$("btn-map").onclick = openMap;
+$("btn-map-close").onclick = closeMap;
+$("map-overlay").addEventListener("click", (e) => {
+  if (e.target === $("map-overlay")) closeMap();   // 点浮层空白处收起
+});
 $("btn-auto").onclick = () => Player.setAutoplay(!Player.autoplay);
 $("btn-send").onclick = freeAct;
 $("free-input").addEventListener("keydown", (e) => {

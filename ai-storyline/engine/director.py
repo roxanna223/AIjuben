@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 from . import conditions
 from .state import WorldState
 from .constitution import Constitution
+from .graph import StoryGraph
 
 KIND_PRIORITY = {"fixed": 0, "conditional": 1, "optional": 2}
 
@@ -38,9 +39,11 @@ class DirectorInstruction:
 
 
 class RouteDirector:
-    def __init__(self, constitution: Constitution, state: WorldState):
+    def __init__(self, constitution: Constitution, state: WorldState,
+                 graph: Optional[StoryGraph] = None):
         self.c = constitution
         self.s = state
+        self.graph = graph   # 故事导图账本（可选）：节拍激活/跳过时同步解锁节点
 
     # ---------- 节拍状态 ----------
 
@@ -80,6 +83,8 @@ class RouteDirector:
             self.s.close_fact(f)
         self.s.beat_status[beat_id] = {"status": "skipped", "turn": self.s.turn, "why": why}
         self.s.log("beat_skipped", {"beat_id": beat_id, "why": why})
+        if self.graph:
+            self.graph.on_beat_skipped(b)   # 导图：空心"岔路"占位（不透露剧情）
 
     # ---------- 主入口 ----------
 
@@ -132,6 +137,8 @@ class RouteDirector:
 
     def _activate(self, b: Dict[str, Any]) -> DirectorInstruction:
         self.s.beat_status[b["id"]] = {"status": "active", "turn": self.s.turn}
+        if self.graph:
+            self.graph.on_beat_activated(b)   # 导图：玩家到达 → 解锁节拍节点
         notes = []
         if b.get("constraints"):
             notes.append("硬约束: %s" % b["constraints"])

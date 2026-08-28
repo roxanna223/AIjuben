@@ -84,6 +84,20 @@ class TestApi(unittest.TestCase):
         self.assertEqual(r.json()["sid"], sid)
         self.assertTrue(r.json()["turn"] > 0)
 
+    def test_resume_after_restart_then_turn(self):
+        """恢复存档后继续玩：回合必须正常推进（回归：_active_beat 未初始化导致崩溃）。"""
+        r = client.post("/api/sessions")
+        sid = r.json()["sid"]
+        client.post("/api/sessions/%s/turn" % sid, json={"choice_index": 1})
+        SESSIONS.clear()  # 服务"重启"
+        r = client.post("/api/sessions/%s/turn" % sid, json={"choice_index": 1})
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("dialogue", r.json()["scene"])
+        # 节拍正确推进：b1 已结算完成、b2 完成（不是原地重复 b1）
+        p = server_app._get_pipeline(sid)
+        self.assertEqual(p.state.beat_status["b1"]["status"], "done")
+        self.assertEqual(p.state.beat_status["b2"]["status"], "done")
+
     def test_static_frontend_served(self):
         r = client.get("/")
         self.assertEqual(r.status_code, 200)

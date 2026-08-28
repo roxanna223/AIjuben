@@ -15,6 +15,7 @@ from .state import WorldState
 from .director import RouteDirector, DirectorInstruction
 from .ledger import Ledger, LedgerError
 from .llm import MockProvider, OpenAICompatProvider, LLMError
+from .graph import StoryGraph
 
 JSON_BLOCK_RE = re.compile(r"\{.*\}", re.S)
 # 从部分JSON中逐行提取对话体行（speaker在前、text在后，模型按模板输出时可增量流式）
@@ -112,9 +113,20 @@ class Pipeline:
         self.c = constitution
         self.provider = provider
         self.state = state
-        self.director = RouteDirector(constitution, state)
+        self.graph = StoryGraph(state, constitution)   # 故事导图：选择/自由输入/节拍/结局的渐进解锁账本
+        self.director = RouteDirector(constitution, state, graph=self.graph)
         self.ledger = Ledger(constitution)
         self.critic = Critic(constitution, strict=not getattr(provider, "is_mock", False))
+        # 当前生成中的节拍：_generate 时设置；生成失败兜底时置 None（点"重试"重生成同一节拍）。
+        # 断线续玩恢复的会话：从节拍状态推导当前进行中的节拍——
+        # 否则恢复后第一回合会因 _active_beat 缺失崩溃、节拍无法推进。
+        # （例外：存档停在生成失败兜底场景时保持 None，重试仍重生成同一节拍，不吞剧情）
+        self._active_beat: Optional[str] = None
+        scene = state.current_scene or {}
+        if not scene.get("_fallback"):
+            self._active_beat = next(
+                (b for b, st in state.beat_status.items()
+                 if st.get("status") == "active"), None)
 
     # ---------- 对外接口 ----------
 
@@ -139,6 +151,11 @@ class Pipeline:
         else:
             raise ValueError("必须提供选项序号或自由输入")
         self.state.turn += 1
+        # 故事导图：记录本次行动（选项=待画边的标签；自由输入=玩家自创剧情节点）
+        if chosen.get("_free"):
+            self.graph.on_free(chosen.get("text", ""))
+        else:
+            self.graph.on_choice(chosen.get("text", ""))
         try:
             self.ledger.settle_choice(self.state, chosen)
         except LedgerError as e:
@@ -163,6 +180,7 @@ class Pipeline:
         self.state.ending = ending
         self.state.finished = True
         self.state.log("ending", {"ending_id": ending["id"] if ending else None})
+        self.graph.on_ending(ending)   # 导图：结局节点作为终点
         return {"finished": True, "ending": ending}
 
     # ---------- 生成 ----------

@@ -31,6 +31,10 @@ class WorldState:
         self.finished = False
         self.ending: Optional[Dict[str, Any]] = None
         self.fallback_flags: List[str] = []  # 生成降级标记（评测用）
+        # 故事导图（渐进解锁的路线图，见 engine/graph.py）
+        self.graph_nodes: List[Dict[str, Any]] = []   # 已解锁节点（beat/free/skipped/ending）
+        self.graph_edges: List[Dict[str, Any]] = []   # 有向边（choice/free/advance/skip）
+        self.graph_last: Optional[str] = None          # 导图当前末端节点id
 
     # ---------- 数值 ----------
 
@@ -97,6 +101,9 @@ class WorldState:
             "current_scene": self.current_scene,
             "finished": self.finished, "ending": self.ending,
             "fallback_flags": self.fallback_flags,
+            "graph_nodes": list(self.graph_nodes),
+            "graph_edges": list(self.graph_edges),
+            "graph_last": self.graph_last,
         }
 
     @staticmethod
@@ -121,6 +128,10 @@ class WorldState:
         s.finished = bool(d.get("finished", False))
         s.ending = d.get("ending")
         s.fallback_flags = list(d.get("fallback_flags", []))
+        # 旧存档无导图字段 → 空导图（旧会话继续玩时从当前节点起重新解锁）
+        s.graph_nodes = [dict(n) for n in d.get("graph_nodes", [])]
+        s.graph_edges = [dict(e) for e in d.get("graph_edges", [])]
+        s.graph_last = d.get("graph_last")
         return s
 
     def dumps(self) -> str:
