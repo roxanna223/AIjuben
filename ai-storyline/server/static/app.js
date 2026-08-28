@@ -4,7 +4,7 @@
 const $ = (id) => document.getElementById(id);
 let SID = localStorage.getItem("qilu_sid") || null;
 let busy = false;
-let creatingSession = false;   // 开局防抖:同一时间只允许一次开局请求
+let enteringStory = false;   // 进入故事过渡防抖:同一时间只允许一次开局/恢复请求
 
 /* ---------- 基础请求 ---------- */
 async function api(path, opts = {}) {
@@ -383,14 +383,30 @@ async function loadStories() {
       card.querySelector("button").onclick = () => startNew(s.id, s.title);
       box.appendChild(card);
     }
+    // 有存档时在顶部显示"继续上次的故事"卡片(不自动进入,选故事页始终优先展示)
+    if (SID) {
+      try {
+        const v = await api("/api/sessions/" + SID);
+        const card = document.createElement("div");
+        card.className = "story-card resume-card";
+        card.innerHTML =
+          '<div class="story-card-head"><span class="story-card-title">↻ 继续上次的故事</span>' +
+          '<span class="story-card-meta">第' + v.chapter + "章 · 第" + v.turn + "回合</span></div>" +
+          '<div class="story-card-desc">《' + (v.story && v.story.title) + "》" +
+          (v.finished ? " · 已通关,可查看结局" : " · 从上次的位置继续") + "</div>" +
+          '<div class="story-card-foot"><button class="btn primary story-card-btn">继续</button></div>';
+        card.querySelector("button").onclick = () => resumeStory();
+        box.insertBefore(card, box.firstChild);
+      } catch (e) { /* 存档失效则忽略,只展示剧本列表 */ }
+    }
   } catch (e) {
     $("story-cards").innerHTML = '<p class="muted">剧本加载失败: ' + e.message + "</p>";
   }
 }
 
 async function startNew(storyId, title) {
-  if (creatingSession) return;          // 双保险:防连点触发多次开局
-  creatingSession = true;
+  if (enteringStory) return;          // 双保险:防连点触发多次开局
+  enteringStory = true;
   // 立即切到"加载中"过渡页:选择按钮随页面隐藏,用户无法再点
   $("start").classList.add("hidden");
   $("loading").classList.remove("hidden");
@@ -407,9 +423,9 @@ async function startNew(storyId, title) {
     $("chat").innerHTML = "";
     addSystem("你走进了这个故事");
     renderScene(view);
-    creatingSession = false;
+    enteringStory = false;
   } catch (e) {
-    creatingSession = false;
+    enteringStory = false;
     $("loading").classList.add("hidden");
     $("start").classList.remove("hidden");
     alert("开局失败: " + e.message + "\n已返回首页,可重新进入。");
@@ -426,7 +442,7 @@ function backToPicker() {
 }
 
 async function resume() {
-  if (!SID) return;
+  if (!SID) return false;
   try {
     const view = await api("/api/sessions/" + SID);
     $("start").classList.add("hidden");
@@ -434,7 +450,7 @@ async function resume() {
     if (view.finished) {
       renderState(view);
       showEnding();
-      return;
+      return true;
     }
     addSystem("已为你恢复存档");
     // 回放历史时间线（正文即时渲染，不逐字打字）
@@ -451,9 +467,23 @@ async function resume() {
     }
     renderState(view);
     renderNarrativeThenChoices(view.scene);
+    return true;
   } catch (e) {
-    /* 无存档则停留开局页 */
+    return false;  // 存档失效:留在选故事页
   }
+}
+
+/* 从选故事页"继续"卡片进入:同样走加载页过渡,防连点 */
+async function resumeStory() {
+  if (enteringStory) return;
+  enteringStory = true;
+  $("start").classList.add("hidden");
+  $("loading").classList.remove("hidden");
+  $("loading-title").textContent = "正在恢复你的故事";
+  const ok = await resume();
+  $("loading").classList.add("hidden");
+  enteringStory = false;
+  if (!ok) $("start").classList.remove("hidden");
 }
 
 $("btn-restart").onclick = backToPicker;
@@ -466,4 +496,5 @@ $("free-input").addEventListener("keydown", (e) => {
 });
 
 loadStories();
-resume();
+/* 注意:不再自动 resume()——打开网站始终先展示选故事页,
+   有存档时由"继续上次的故事"卡片显式进入(同样走加载页)。 */
