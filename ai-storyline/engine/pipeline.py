@@ -71,9 +71,9 @@ class Critic:
             hi = (self.c.chapter_plan or {}).get("words_per_scene_max")
             n = dialogue_len(scene)
             if lo and n < lo * 0.5:
-                issues.append("正文过短: %d字 < %d字" % (n, lo))
+                issues.append("正文过短: %d字 < %d字（目标250~450字，可用旁白行补足）" % (n, lo * 0.5))
             if hi and n > hi * 1.5:
-                issues.append("正文过长: %d字 > %d字" % (n, hi))
+                issues.append("正文过长: %d字 > %d字" % (n, hi * 1.5))
         # 选项
         choices = scene.get("choices", [])
         if not 1 <= len(choices) <= 4:
@@ -93,11 +93,15 @@ class Critic:
                 issues.append("world_updates 引用了未定义数值 %s" % u.get("target"))
             if u.get("type") in ("fact", "close_fact") and not u.get("id"):
                 issues.append("world_updates 缺少事实id")
-        # 事实ID必须来自宪法事实清单（AI不得凭空发明内部ID）
+        # 事实ID必须来自宪法事实清单（AI不得凭空发明内部ID）；
+        # 选项effects的stat目标必须是数值ID（倾向变化只能写 tendency 字段）
         for ch in choices:
             for u in (ch.get("effects") or []):
                 if u.get("type") not in ("stat", "fact", "close_fact"):
                     issues.append("选项effects未知更新类型 %r" % u.get("type"))
+                elif u.get("type") == "stat" and u.get("target") not in known:
+                    issues.append("选项effects引用了未定义数值 %s（倾向请写在tendency字段）"
+                                  % u.get("target"))
                 elif u.get("type") in ("fact", "close_fact") and u.get("id") not in self.c.facts_catalog:
                     issues.append("选项effects使用了未声明的事实 %s" % u.get("id"))
         return issues
@@ -172,6 +176,13 @@ class Pipeline:
             scene = self._writer_streaming(system, user, instr, on_line)
         else:
             scene = self._writer_with_retries(system, user, instr)
+        # 生成兜底：不落账、不写入记忆、不消耗节拍——玩家点"重试"后重新生成本节拍
+        if scene.get("_fallback"):
+            self.state.current_scene = scene
+            self.state.last_active_at = time.time()
+            self._active_beat = None   # 关键：节拍保持 active，下一次交互重试同一节拍，绝不吞剧情
+            self.state.log("generation_fallback_shown", {"beat": instr.beat_id})
+            return scene
         # 审查器第二道关：LLM事实一致性检查 + 玩家选择承接检查（仅真实模型模式）
         contradictions = self._consistency_check(scene, instr, chosen)
         if contradictions and not getattr(self.provider, "is_mock", False):
@@ -316,10 +327,11 @@ class Pipeline:
         # 三次失败：降级保守输出并标记（评测可见）
         self.state.fallback_flags.append("generation_fallback: " + last_err[:80])
         self.state.log("generation_fallback", {"beat": instr.beat_id, "reason": last_err})
-        return {"dialogue": [{"speaker": NARRATOR, "text": "（生成异常，请重试或选择：继续）"}],
+        return {"dialogue": [{"speaker": NARRATOR, "text": "（本段剧情生成失败，点击下方按钮重试）"}],
                 "scene_meta": {"beat_id": instr.beat_id},
-                "choices": [{"text": "继续", "tendency": {}, "effects": []}],
-                "world_updates": []}
+                "choices": [{"text": "重试", "tendency": {}, "effects": []}],
+                "world_updates": [],
+                "_fallback": True}
 
     def _writer_with_retries(self, system: str, user: str,
                              instr: DirectorInstruction) -> Dict[str, Any]:
@@ -340,10 +352,11 @@ class Pipeline:
         # 三次失败：降级保守输出并标记（评测可见）
         self.state.fallback_flags.append("generation_fallback: " + last_err[:80])
         self.state.log("generation_fallback", {"beat": instr.beat_id, "reason": last_err})
-        return {"dialogue": [{"speaker": NARRATOR, "text": "（生成异常，请重试或选择：继续）"}],
+        return {"dialogue": [{"speaker": NARRATOR, "text": "（本段剧情生成失败，点击下方按钮重试）"}],
                 "scene_meta": {"beat_id": instr.beat_id},
-                "choices": [{"text": "继续", "tendency": {}, "effects": []}],
-                "world_updates": []}
+                "choices": [{"text": "重试", "tendency": {}, "effects": []}],
+                "world_updates": [],
+                "_fallback": True}
 
     def _record_usage(self, instr: DirectorInstruction) -> None:
         """真实LLM调用的用量埋点（token/延迟），供成本与延迟达标测量。"""
@@ -395,14 +408,17 @@ class Pipeline:
             "speaker 只能是：narrator（旁白/环境叙述）或人物ID %s；"
             "narrator 行用于动作、环境、氛围等非台词叙述，每行不超过60字；pc 是主角，"
             "其台词只表现玩家所选行动的即时反应，不必替玩家长篇发言；同一行只放一句台词；\n"
-            "3. 交互节奏（最重要）：每场的人物对白（除 narrator 外的行）严格 5~6 行——"
-            "玩家每 5~6 句对话就会遇到一次选项，对白超过 6 行会被审查器驳回重写；"
-            "narrator 旁白行不计入该限制（环境描写可以穿插），但每行≤60字、总数也不宜过多；"
-            "全部 text 合计 250~450 字；\n"
+            "3. 交互节奏与篇幅（两者必须同时满足）：每场人物对白（除 narrator 外的行）5~6 行——"
+            "玩家每 5~6 句对话遇到一次选项，对白超过 6 行会被审查器驳回重写；"
+            "narrator 旁白行不计入对白行数（环境描写可以穿插），每行20~60字；"
+            "全文总字数必须 ≥250 字（目标250~450字，低于250字会被审查驳回）："
+            "对白每行15~50字，用2~4行旁白补足篇幅与氛围，把句子写充实，不要写太短；\n"
             "4. 禁止泄露任何NPC的secret；节拍未到不得剧透；\n"
             "5. 选项必须真实分化——至少一个选项会显著改变后续走向；"
             "每场输出 3~4 个选项（文字游戏节奏：选项出现频率要高，确实做不到才减少）；\n"
-            "6. 每个选项必须带tendency标签，如实标注其性格倾向含义；\n"
+            "6. 每个选项必须带tendency标签，如实标注其性格倾向含义；"
+            "注意区分：tendency 是倾向（%s），effects 里的 type=stat 只能使用数值ID（%s），"
+            "绝不允许把倾向名写进 effects 的 target（否则会被驳回）；\n"
             "7. 选项与场景在叙事上真正发生的事实，必须从事实清单中挑选对应ID写入effects/world_updates"
             "——这是剧情机械结算的依据，漏标会让后续剧情无法解锁；\n"
             "8. scene_meta.beat_id 必须与导演指令中的节拍一致；\n"
@@ -417,6 +433,8 @@ class Pipeline:
              c.world.get("tone", ""), c.world.get("style_guide", ""),
              "; ".join(c.world.get("taboos_content", [])), "; ".join(c.world.get("taboos_story", [])),
              chars, facts, ", ".join(speaker_ids),
+             ", ".join(c.ten_dims()),
+             ", ".join(sorted(set(c.char_defs()) | set(c.global_defs()))),
              ", ".join(sorted(set(c.char_defs()) | set(c.global_defs()))),
              ", ".join(c.ten_dims()))
 

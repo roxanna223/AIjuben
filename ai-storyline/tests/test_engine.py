@@ -237,5 +237,39 @@ class TestDialogueFormat(unittest.TestCase):
         self.assertTrue(last["narrative"])  # 纯文本副本仍保留（摘要/提示词用）
 
 
+class TestGenerationFallbackRetry(unittest.TestCase):
+    """生成失败兜底：不吞节拍——点"重试"后重新生成同一节拍，剧情不断裂。"""
+
+    def test_fallback_keeps_beat_and_retries(self):
+        from engine.llm import LLMError
+
+        class FailProvider:
+            is_mock = False
+
+            def generate(self, system, user):
+                raise LLMError("模拟API故障")
+
+        c, state, p = build()
+        p.provider = FailProvider()
+        scene = p.start()
+        # 兜底场景：提示重试，且不把失败节拍标记完成、不写入记忆
+        self.assertTrue(scene.get("_fallback"))
+        self.assertEqual(scene["choices"][0]["text"], "重试")
+        self.assertEqual(state.beat_status["b1"]["status"], "active")
+        self.assertEqual(state.memory["recent"], [])
+
+        # 换回可用Provider后点"重试"：重新生成 b1（而不是跳到 b2）
+        p.provider = MockProvider(MockProvider.load_script(MOCK))
+        scene2 = p.turn(choice_index=1)
+        self.assertFalse(scene2.get("_fallback"))
+        self.assertIn("dialogue", scene2)
+        self.assertEqual(state.beat_status["b1"]["status"], "active")   # 播完才结算
+        self.assertEqual([m["beat"] for m in state.memory["recent"]], ["b1"])
+
+        # 再推进一次：b1 才真正完成，随后正常进入 b2
+        p.turn(choice_index=1)
+        self.assertEqual(state.beat_status["b1"]["status"], "done")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

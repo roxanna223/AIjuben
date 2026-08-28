@@ -92,6 +92,11 @@ class RouteDirector:
         if fixed_done:
             return DirectorInstruction(beat_id=None, ending_mode=True)
 
+        # 有"进行中"的节拍（上一次生成失败、等待重试）→ 优先重试同一节拍，绝不跳过剧情
+        for b in sorted(self.c.beats, key=lambda x: x["order"]):
+            if self._status(b["id"]) == "active":
+                return self._activate(b)
+
         cursor = self._cursor()
         pending = [b for b in self.c.beats if self._status(b["id"]) == "pending"]
         if not pending:
