@@ -20,6 +20,7 @@ ai-storyline/
 │   ├── state.py               # 世界状态：数值/倾向/事实/三层记忆/事件账本/序列化
 │   ├── director.py            # 导演规划器：节拍调度/结局池筛选/人物调度/章节推进
 │   ├── graph.py               # 故事导图：渐进解锁的路线节点/选择分叉边/玩家自创剧情节点
+│   ├── validation.py          # 工程化校验量表：数值/剧情出发点的规则插件+情景化口径(构建/运行/审计三用)
 │   ├── ledger.py              # 结算器：AI的world_updates审核落账
 │   ├── llm.py                 # LLM Provider（Mock确定性 / OpenAI兼容）
 │   └── pipeline.py            # 流水线：导演→编剧→审查器→结算
@@ -29,7 +30,11 @@ ai-storyline/
 ├── stories/                   # 剧本库（引擎零改动即可承载新剧本）
 │   ├── midnight-train.json    # 《午夜列车》剧本宪法 + .mock.json 确定性脚本
 │   └── rule-tower.json        # 《规则楼》剧本宪法 + .mock.json（题材/数值/结局均不同）
-├── tests/                     # 39个测试：引擎单元 + 两个剧本的金标准走查 + Web API
+├── scripts/
+│   ├── validate_content.py    # 工程化校验CLI：构建期校验mock / 审计期扫描历史会话
+│   ├── llm_walkthrough.py     # 真实LLM金标准走查
+│   └── judge_quality.py       # LLM-as-judge 质量抽检
+├── tests/                     # 81个测试：引擎单元 + 校验量表 + 两个剧本金标准走查 + Web API
 ├── play_cli.py                # 命令行试玩器
 ├── metrics.py                 # 体验基线测量（对照调研基线验收）
 └── run_server.sh              # Web服务启动脚本
@@ -67,6 +72,7 @@ python3 play_cli.py
 | AI编剧 | 正文+选项+world_updates草案 | LLM（规划器→编剧→审查器流水线） |
 | 导演规划器 | 节拍调度/结局池筛选/人物调度/收束模式 | 确定性代码 |
 | 故事导图 | 路线节点渐进解锁/选择分叉边/玩家自创剧情节点 | 确定性代码（零AI参与） |
+| 校验量表 | 数值/剧情出发点的工程化校验（规则插件+情景化口径，构建/运行/审计三用） | 确定性代码+LLM判定注入 |
 
 **铁律：AI只负责写，确定性代码负责管。**
 
@@ -105,6 +111,10 @@ curl http://127.0.0.1:8000/api/admin/metrics   # API（含逐项PASS/FAIL）
 ## 质量评测工具
 
 ```bash
+# 工程化校验（构建期/审计期二合一CLI，校验口径见剧本 validation 段与 engine/validation.py）
+.venv/bin/python scripts/validate_content.py --story midnight-train --mock               # 构建期:校验mock全场景
+.venv/bin/python scripts/validate_content.py --story midnight-train --sessions data/sessions  # 审计期:扫描历史会话的数值/剧情出发点违规
+
 # 真实LLM金标准走查（脚本化，打印全文+用量）
 .venv/bin/python scripts/llm_walkthrough.py --story midnight-train --path 1,1,1,2,1,1,1
 # LLM-as-judge 自动抽检（多局随机走查 + 四维打分，报告存 data/quality/）
@@ -131,6 +141,7 @@ curl http://127.0.0.1:8000/api/admin/metrics   # API（含逐项PASS/FAIL）
 | SSE/NDJSON流式输出 | ✅ 对话行增量实时推送（JSON元数据不外泄），失败自动回退非流式重写 |
 | 路线复盘可视化 | ✅ 结局页SVG节点图：完成/跳过/未达节拍 + 选项分叉标签 + 结局节点（含图例） |
 | 故事导图（渐进解锁路线图） | ✅ 顶栏「🗺 故事导图」：只点亮到达过的节点；每次选择画一条分叉边；自由输入的玩家自创剧情生成专属节点；未走上的岔路以空心占位呈现（不剧透）；随会话存档持久化 |
+| 工程化校验量表（数值/剧情出发点） | ✅ `engine/validation.py` 规则插件框架：数值只在声明的剧情点/幅度内变化（理由禁用词硬拦"提前触发"）；节拍保留事实不得提前授予；构建期校验 mock、运行期驳回重写、审计期离线扫描历史会话 |
 | 生成质量（文风/一致性/惊喜度） | ✅ LLM-as-judge抽检：双剧本四维 4.4-5.0/5分；每场自动事实一致性审查 |
 | 调研基线（完读率60%等）与真实用户验证 | ⏳ 等真实玩家数据（/api/admin/metrics 自动统计） |
 

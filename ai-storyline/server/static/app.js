@@ -189,6 +189,7 @@ const Player = {
   state: "idle",        // idle | typing | wait（wait=等点击/空格推进）
   cur: null,            // 当前行 {el, target, text}
   pendingChoices: null, // 场景行播完后要显示的选项
+  pendingFx: null,      // 场景行播完后要显示的剧情影响（world_updates）
   autoplay: false,
   timer: null,
   hint: null,
@@ -224,6 +225,7 @@ const Player = {
     this.container = container;
     this.queue = (lines || []).slice();
     this.pendingChoices = (choices && choices.length) ? choices : null;
+    this.pendingFx = null;
     this.state = "idle";
     this.cur = null;
     this._updateHint();
@@ -242,6 +244,12 @@ const Player = {
     this._kick();
   },
 
+  /* 本场剧情的世界变化：场景行播完、出选项之前显示（数值只在剧情点上变化） */
+  setSceneFx(fx) {
+    this.pendingFx = (fx && fx.length) ? fx : null;
+    this._kick();
+  },
+
   /* 流式与最终剧本不一致时：清空容器按最终剧本重播 */
   reset(container, lines, choices) {
     container.innerHTML = "";
@@ -255,6 +263,10 @@ const Player = {
     } else if (this.pendingChoices) {
       const ch = this.pendingChoices;
       this.pendingChoices = null;
+      if (this.pendingFx) {
+        showEffects(this.pendingFx, this.container, "剧情推进", "bottom");
+        this.pendingFx = null;
+      }
       this._updateHint();
       renderChoiceButtons(ch);
     }
@@ -365,6 +377,7 @@ const Player = {
     this.cur = null;
     this.queue = [];
     this.pendingChoices = null;
+    this.pendingFx = null;
     this.state = "idle";
     this._updateHint();
   },
@@ -537,13 +550,19 @@ function afterTurn(view, box) {
     Player.reset(box ? box.root : $("chat"), final, choices);
   }
   if (box) box.rows = [];
-  // 即时展示本次选择带来的影响（强化"选择→后果"的因果感），插在选项气泡与新场景之间
-  if (box) showEffects(view.last_effects, box.root);
+  // 选择本身的后果立即显示（插在选项气泡与新场景之间）；
+  // 剧情推进带来的变化等本场剧情播完再显示——数值只在剧情点上变化
+  if (box) showEffects((view.last_effects && view.last_effects.choice) || [],
+                       box.root, "你的选择");
+  Player.setSceneFx((view.last_effects && view.last_effects.scene) || []);
   if (!choices.length) setBusy(false);   // 无选项场景兜底（正常由 renderChoiceButtons 复位）
 }
 
-/* "✦ 影响"提示：本次选择的数值/倾向变化与获得的事实 */
-function showEffects(fx, container) {
+/* "✦ 影响"提示：数值/倾向变化与获得的事实。
+   title 区分来源——"你的选择"=选项结算的直接后果（选择气泡之后立即显示）；
+   "剧情推进"=新场景 world_updates（本场剧情播放完、出选项之前显示）。
+   position: top 插到容器开头 / bottom 追加到容器末尾。 */
+function showEffects(fx, container, title, position) {
   if (!fx || !fx.length) return;
   const parts = [];
   for (const f of fx) {
@@ -564,9 +583,10 @@ function showEffects(fx, container) {
   }
   if (!parts.length) return;
   const div = document.createElement("div");
-  div.className = "msg-fx";
-  div.textContent = "✦ " + parts.join(" · ");
-  container.insertBefore(div, container.firstChild);
+  div.className = "msg-fx" + (title === "剧情推进" ? " msg-fx-scene" : "");
+  div.textContent = "✦ " + (title || "影响") + "：" + parts.join(" · ");
+  if (position === "bottom") container.appendChild(div);
+  else container.insertBefore(div, container.firstChild);
   scrollBottom();
 }
 

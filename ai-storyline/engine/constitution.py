@@ -29,6 +29,8 @@ class Constitution:
         self.chapter_plan: Dict[str, Any] = raw.get("chapter_plan", {})
         # 固定剧情锚点：用户不可操作的基础剧情细节在此定稿（跨局一致、省token）
         self.fixed_plot: List[Dict[str, Any]] = raw.get("fixed_plot", [])
+        # 工程化校验口径（可选）：数值/事实的剧情点出发点声明，见 engine/validation.py
+        self.validation: Dict[str, Any] = raw.get("validation", {})
         # 便捷索引
         self.char_index: Dict[str, Dict] = {c["id"]: c for c in self.characters}
         self.beat_index: Dict[str, Dict] = {b["id"]: b for b in self.beats}
@@ -142,6 +144,47 @@ class Constitution:
                     fail("结局 %s 的条件引用了未声明的事实 %s" % (e["id"], f))
             if not e.get("name"):
                 fail("结局 %s 缺少 name" % e["id"])
+
+        # 工程化校验口径（validation 段，可选）：声明必须引用存在的规则/数值/节拍/事实
+        from . import validation as validation_mod
+        valid = raw.get("validation", {}) or {}
+        known_rule_ids = {r["id"] for r in validation_mod.DEFAULT_RULES}
+        for r in valid.get("rules", []):
+            if r.get("id") not in known_rule_ids:
+                fail("validation.rules 引用了未定义规则 %s（可用: %s）"
+                     % (r.get("id"), ", ".join(sorted(known_rule_ids))))
+        for target, spec in (valid.get("plot_points") or {}).items():
+            if target not in known_stats:
+                fail("validation.plot_points 引用了未定义的数值/倾向 %s" % target)
+            if not isinstance(spec, dict):
+                fail("validation.plot_points.%s 必须是对象" % target)
+            for b in spec.get("allow_at", []):
+                if b not in seen:
+                    fail("validation.plot_points.%s.allow_at 引用了不存在的节拍 %s"
+                         % (target, b))
+            if "max_abs_delta" in spec:
+                try:
+                    float(spec["max_abs_delta"])
+                except (TypeError, ValueError):
+                    fail("validation.plot_points.%s.max_abs_delta 必须是数值" % target)
+            for b, hints in (spec.get("forbid_reason_hints") or {}).items():
+                if b not in seen:
+                    fail("validation.plot_points.%s.forbid_reason_hints 引用了不存在的节拍 %s"
+                         % (target, b))
+                if not isinstance(hints, list) or not all(isinstance(h, str) and h for h in hints):
+                    fail("validation.plot_points.%s.forbid_reason_hints.%s 必须是非空字符串数组"
+                         % (target, b))
+        for fid, spec in (valid.get("fact_origins") or {}).items():
+            if fid not in known_facts:
+                fail("validation.fact_origins 引用了未声明的事实 %s" % fid)
+            if not isinstance(spec, dict):
+                fail("validation.fact_origins.%s 必须是对象" % fid)
+            for b in spec.get("beats", []):
+                if b not in seen:
+                    fail("validation.fact_origins.%s.beats 引用了不存在的节拍 %s" % (fid, b))
+            for v in spec.get("via", []):
+                if v not in validation_mod.VALID_SOURCES:
+                    fail("validation.fact_origins.%s.via 含非法来源 %r" % (fid, v))
 
         return Constitution(raw)
 

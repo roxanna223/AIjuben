@@ -225,25 +225,42 @@ def _history(state: WorldState) -> list:
     return out
 
 
-def _last_effects(state: WorldState) -> list:
-    """最近一次玩家行动（选项/自由输入）结算产生的影响：数值/倾向变化与事实授予。
-    供前端在对话流中即时展示"这一选择带来了什么"，强化选择与剧情的因果感。"""
+def _last_effects(state: WorldState) -> dict:
+    """最近一次玩家行动产生的影响，按来源拆分：
+    - choice：选项/自由输入结算直接产生的变化（选择本身的后果）；
+    - scene：随后生成的新场景 world_updates（剧情推进带来的变化）。
+    供前端分时展示——选择后果显示在选择气泡之后，剧情变化显示在新场景播放完之后，
+    保证"数值变化只发生在剧情点上"的观感（避免把下一场景的事算到玩家的选择头上）。
+    """
     turn = state.turn - 1
-    out = []
-    for e in state.event_log:
-        if e.get("turn") != turn or e.get("type") not in ("stat", "tendency", "fact", "close_fact"):
-            continue
+    choice_evs: List[Dict[str, Any]] = []
+    scene_evs: List[Dict[str, Any]] = []
+    evs = [e for e in state.event_log if e.get("turn") == turn]
+    bd = next((i for i, e in enumerate(evs) if e["type"] == "beat_done"), None)
+
+    def _fmt(e: Dict[str, Any]):
         p = e.get("payload") or {}
         if e["type"] == "stat":
-            out.append({"kind": "stat", "target": p.get("target"),
-                        "delta": p.get("delta"), "text": p.get("reason", "")})
-        elif e["type"] == "tendency":
-            out.append({"kind": "tendency", "target": p.get("dim"), "delta": p.get("delta")})
-        elif e["type"] == "fact":
-            out.append({"kind": "fact", "text": p.get("text") or p.get("id", "")})
-        elif e["type"] == "close_fact":
-            out.append({"kind": "close_fact", "text": p.get("id", "")})
-    return out
+            return {"kind": "stat", "target": p.get("target"),
+                    "delta": p.get("delta"), "text": p.get("reason", "")}
+        if e["type"] == "tendency":
+            return {"kind": "tendency", "target": p.get("dim"), "delta": p.get("delta")}
+        if e["type"] == "fact":
+            return {"kind": "fact", "text": p.get("text") or p.get("id", "")}
+        if e["type"] == "close_fact":
+            return {"kind": "close_fact", "text": p.get("id", "")}
+        return None
+
+    for i, e in enumerate(evs):
+        if e["type"] not in ("stat", "tendency", "fact", "close_fact"):
+            continue
+        item = _fmt(e)
+        if not item:
+            continue
+        # beat_done 之前 = 选项结算；之后 = 新场景 world_updates
+        # （无 beat_done：兜底重试/结局回合，全部归为选择后果）
+        (choice_evs if bd is None or i < bd else scene_evs).append(item)
+    return {"choice": choice_evs, "scene": scene_evs}
 
 
 def _session_view(state: WorldState, scene: Optional[Dict[str, Any]]) -> Dict[str, Any]:

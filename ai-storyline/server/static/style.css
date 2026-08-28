@@ -113,6 +113,8 @@ body {
   text-align: center; color: var(--accent2); font-size: 12px;
   letter-spacing: 1px; margin: 4px 0 12px; animation: lineIn .3s ease;
 }
+/* 剧情推进带来的变化（场景播完后显示）：金色，与"你的选择"(蓝)区分来源 */
+.msg-fx-scene { color: var(--accent); }
 
 /* 逐句推进提示（sticky 悬浮于对话区底部） */
 .advance-hint {

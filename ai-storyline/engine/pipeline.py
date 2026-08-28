@@ -16,6 +16,7 @@ from .director import RouteDirector, DirectorInstruction
 from .ledger import Ledger, LedgerError
 from .llm import MockProvider, OpenAICompatProvider, LLMError
 from .graph import StoryGraph
+from .validation import ValidationScale
 
 JSON_BLOCK_RE = re.compile(r"\{.*\}", re.S)
 # 从部分JSON中逐行提取对话体行（speaker在前、text在后，模型按模板输出时可增量流式）
@@ -30,13 +31,19 @@ def _unescape_json_str(s: str) -> str:
 
 
 class Critic:
-    """审查器：禁忌、一致性、格式。发现问题返回意见，由编剧重写。"""
+    """审查器：禁忌、一致性、格式。发现问题返回意见，由编剧重写。
+
+    变化类校验（数值/事实合法性、剧情点出发点绑定）由工程化校验量表
+    ValidationScale 承担（engine/validation.py），本类只做形态类检查。
+    """
 
     SENSITIVE_KEYWORDS = ["自杀", "自残", "性暗示", "性行为", "色情", "血腥"]
 
     def __init__(self, constitution: Constitution, strict: bool = True):
         self.c = constitution
         self.strict = strict
+        self.scale = ValidationScale(constitution)
+        self.last_report = None   # 最近一次 review 的量表报告（供流水线记账）
 
     def review(self, scene: Dict[str, Any]) -> List[str]:
         issues: List[str] = []
@@ -84,27 +91,10 @@ class Critic:
                 issues.append("第%d个选项缺少text" % (i + 1))
             if not isinstance(ch.get("tendency"), dict):
                 issues.append("第%d个选项缺少tendency标签" % (i + 1))
-        # world_updates 引用的数值/类型必须合法
-        known = set(self.c.char_defs()) | set(self.c.global_defs())
-        for u in scene.get("world_updates", []):
-            if u.get("type") not in ("stat", "fact", "close_fact"):
-                issues.append("world_updates 未知更新类型 %r" % u.get("type"))
-                continue
-            if u.get("type") == "stat" and u.get("target") not in known:
-                issues.append("world_updates 引用了未定义数值 %s" % u.get("target"))
-            if u.get("type") in ("fact", "close_fact") and not u.get("id"):
-                issues.append("world_updates 缺少事实id")
-        # 事实ID必须来自宪法事实清单（AI不得凭空发明内部ID）；
-        # 选项effects的stat目标必须是数值ID（倾向变化只能写 tendency 字段）
-        for ch in choices:
-            for u in (ch.get("effects") or []):
-                if u.get("type") not in ("stat", "fact", "close_fact"):
-                    issues.append("选项effects未知更新类型 %r" % u.get("type"))
-                elif u.get("type") == "stat" and u.get("target") not in known:
-                    issues.append("选项effects引用了未定义数值 %s（倾向请写在tendency字段）"
-                                  % u.get("target"))
-                elif u.get("type") in ("fact", "close_fact") and u.get("id") not in self.c.facts_catalog:
-                    issues.append("选项effects使用了未声明的事实 %s" % u.get("id"))
+        # 变化类校验统一交给工程化校验量表（数值/事实合法性 + 剧情点出发点绑定 + 情景化口径）
+        report = self.scale.check_scene(scene)
+        self.last_report = report
+        issues.extend(report.error_messages())
         return issues
 
 
@@ -201,8 +191,8 @@ class Pipeline:
             self._active_beat = None   # 关键：节拍保持 active，下一次交互重试同一节拍，绝不吞剧情
             self.state.log("generation_fallback_shown", {"beat": instr.beat_id})
             return scene
-        # 审查器第二道关：LLM事实一致性检查 + 玩家选择承接检查（仅真实模型模式）
-        contradictions = self._consistency_check(scene, instr, chosen)
+        # 审查器第二道关：LLM事实一致性检查 + 玩家选择承接检查 + 效果-剧情匹配（仅真实模型模式）
+        contradictions, magnitude_issues = self._consistency_check(scene, instr, chosen)
         if contradictions and not getattr(self.provider, "is_mock", False):
             feedback = ("\n\n[一致性审查驳回] 新剧情与既定事实存在以下矛盾，必须修正：\n"
                         + "\n".join("- " + c for c in contradictions)
@@ -213,11 +203,16 @@ class Pipeline:
                            {"beat": instr.beat_id, "contradictions": contradictions})
             scene = self._writer_with_retries(system, user + feedback, instr)
             # 重写后仍矛盾：接受但标记（评测可见，不无限循环）
-            remain = self._consistency_check(scene, instr)
+            remain, _ = self._consistency_check(scene, instr)
             if remain:
                 self.state.fallback_flags.append("consistency_ignored: " + "; ".join(remain)[:80])
                 self.state.log("consistency_ignored",
                                {"beat": instr.beat_id, "contradictions": remain})
+        # 幅度过当（LLM判定）不驳回重写：记录为校验警告（审计可见，防止过度重试烧token）
+        for m in magnitude_issues:
+            self.state.log("validation_warn", {"beat": instr.beat_id,
+                                               "rule": "effect_magnitude",
+                                               "dimension": "数值出发点", "detail": m})
         # AI输出的beat_id与指令不符时记录（不阻断，但不用于状态结算）
         ai_beat = (scene.get("scene_meta") or {}).get("beat_id")
         if ai_beat and ai_beat != instr.beat_id:
@@ -237,6 +232,19 @@ class Pipeline:
             self.ledger.settle_scene(self.state, scene)  # 过滤后必合法
         self.state.current_scene = scene
         self.state.push_scene(scene)
+        # 工程化校验量表报告落账：全量可审计（通过/警告/驳回），警告不阻断但留痕
+        rep = self.critic.last_report
+        if rep is not None:
+            self.state.log("validation_report", {"beat": instr.beat_id,
+                                                 "verdict": rep.verdict(),
+                                                 "score": rep.score(),
+                                                 "errors": len(rep.errors),
+                                                 "warnings": len(rep.warnings)})
+            for f in rep.warnings:
+                self.state.log("validation_warn", {"beat": instr.beat_id,
+                                                   "rule": f.rule_id,
+                                                   "dimension": f.dimension,
+                                                   "detail": f.detail})
         self.state.turn += 1
         self.state.last_active_at = time.time()
         if self.state.turn % 5 == 0:
@@ -253,20 +261,22 @@ class Pipeline:
 
     def _consistency_check(self, scene: Dict[str, Any],
                            instr: DirectorInstruction,
-                           chosen: Optional[Dict[str, Any]] = None) -> List[str]:
-        """LLM事实一致性检查 + 玩家选择承接检查（真实模型模式）：新场景是否与既定事实矛盾、
-        是否明确回应了玩家上一选择。
+                           chosen: Optional[Dict[str, Any]] = None):
+        """LLM事实一致性检查 + 玩家选择承接检查 + 效果-剧情匹配/幅度检查（真实模型模式）。
 
+        返回 (contradictions, magnitude_issues)：
+        - contradictions：事实矛盾/选择未承接/效果无剧情依据（error，驳回重写）；
+        - magnitude_issues：数值变化幅度过当（warn，接受但记账）。
         Mock模式返回空（确定性脚本天然一致）。
         """
         if getattr(self.provider, "is_mock", False):
-            return []
+            return [], []
         s = self.state
         known = "\n".join("- %s: %s" % (fid, self.c.facts_catalog.get(fid, fid))
                           for fid in sorted(s.facts))
         narrative = dialogue_text(scene)[:800]
         if not narrative:
-            return []
+            return [], []
         choice_ask = ""
         if chosen and chosen.get("text"):
             choice_ask = (
@@ -286,22 +296,38 @@ class Pipeline:
                     "若新场景与固定剧情不符，除非既定事实显示玩家已通过行为改变了其依据，"
                     "否则把不符点列为矛盾。"
                 ) % fixed_txt
+        effects_ask = (
+            "\n另外，请检查新场景的 world_updates 与每个选项 effects 中的数值/事实变化："
+            "每一条都必须对应该场剧情中真实发生的事件（选项的effects必须对应该选项的直接后果）。"
+            "若某条变化对应的事件在本场剧情中并未发生（提前触发后续剧情、凭空出现、原因与剧情无关），"
+            "在 contradictions 中加一条：effect_unjustified: 具体说明哪条变化没有剧情依据。"
+        )
+        magnitude_ask = (
+            "\n同时评估数值变化的幅度是否与剧情严重程度匹配（例如：只是氛围诡异就给 -20 的理智值"
+            "就属于过当）。把幅度过当的条目写入 magnitude_issues 数组；"
+            "幅度合理则输出空数组。"
+        )
         prompt = (
             "你是一致性审查员。以下是此前剧情的既定事实，请检查新场景是否与之矛盾"
             "（人物身份/性别/关系、物件归属、时间线、地点、逻辑）。\n"
-            "【既定事实】\n%s\n【新场景】\n%s\n%s%s"
-            "只输出JSON：{\"contradictions\": [\"矛盾描述\", ...]}；无矛盾输出空数组。"
-        ) % (known or "无", narrative, fixed_ask, choice_ask)
+            "【既定事实】\n%s\n【新场景】\n%s\n%s%s%s%s"
+            "只输出JSON：{\"contradictions\": [\"矛盾描述\", ...], \"magnitude_issues\": [...]}；"
+            "无问题输出空数组。"
+        ) % (known or "无", narrative, fixed_ask, choice_ask, effects_ask, magnitude_ask)
         try:
             out = self.provider.generate("你是事实一致性审查员，只输出JSON。", prompt)
             m = JSON_BLOCK_RE.search(out)
             if not m:
-                return []
+                return [], []
             data = json.loads(m.group(0))
-            return [c for c in data.get("contradictions", []) if isinstance(c, str)][:5]
+            contradictions = [c for c in data.get("contradictions", [])
+                              if isinstance(c, str)][:5]
+            magnitude = [c for c in data.get("magnitude_issues", [])
+                         if isinstance(c, str)][:5]
+            return contradictions, magnitude
         except Exception as e:  # noqa: BLE001
             self.state.log("consistency_check_error", {"reason": str(e)})
-            return []
+            return [], []
 
     def _compress_chapter(self, instr: DirectorInstruction) -> None:
         """三层记忆的章节摘要：真实LLM模式下用模型摘要，Mock模式用占位。"""
@@ -449,7 +475,12 @@ class Pipeline:
             "注意区分：tendency 是倾向（%s），effects 里的 type=stat 只能使用数值ID（%s），"
             "绝不允许把倾向名写进 effects 的 target（否则会被驳回）；\n"
             "7. 选项与场景在叙事上真正发生的事实，必须从事实清单中挑选对应ID写入effects/world_updates"
-            "——这是剧情机械结算的依据，漏标会让后续剧情无法解锁；\n"
+            "——这是剧情机械结算的依据，漏标会让后续剧情无法解锁；"
+            "数值与事实的标注必须严格对应本场/本选项**直接发生**的剧情后果：本场没发生的事绝不标注；"
+            "后续节拍才会发生的事件不得提前挂到当前选项或场景上（例：玩家尚未目睹乘客消失，"
+            "就不得标注'目睹乘客凭空消失'的理智值变化）；事实清单中描述带'XX授予'的ID是节拍保留事实，"
+            "由引擎在节拍完成时自动授予，不得提前写入effects/world_updates（提前授予其他节拍的"
+            "保留事实会被审查驳回）；\n"
             "8. scene_meta.beat_id 必须与导演指令中的节拍一致；\n"
             "9. 只输出一个JSON对象，不要输出其他文字。JSON结构：\n"
             '{"dialogue":[{"speaker":"lin","text":"台词"},{"speaker":"narrator","text":"旁白/环境描写"}],'

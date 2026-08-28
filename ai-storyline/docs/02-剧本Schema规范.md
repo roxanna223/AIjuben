@@ -132,9 +132,51 @@
 | `beats[].fact_hints` | 对象[] | 本场可授予事实的提示（`{fact, hint}`），导演会把它注入编剧指令，让AI知道"叙事发生X时应标注事实Y"——真实LLM模式下机械结算可靠性的关键 |
 | `beats[].cast` | string[] | 本场必出场人物ID |
 | `fixed_plot` | 对象[] | **固定剧情锚点（v0.4.4起）**：`{id, beat, fact, basis?, mutable_by?}`。用户不可操作的基础剧情细节在此定稿（如"第一站消失的是谁"），导演按节拍把 `fact`+`basis` 注入编剧指令并标注"不得改写"；一致性审查同步校验（玩家已改变依据的除外）。作用：① 跨局/跨会话一致，故事骨架不漂移；② 基础剧情不再每次现编，省 token；③ 依据（basis）成立则该剧情**必然触发**，只有玩家行为改变了依据（mutable_by 描述的途径）才产生变数 |
+| `validation` | 对象 | **工程化校验口径（v0.4.8起，可选）**：声明本剧本的"数值/剧情出发点"校验规则（见下文专节），由 `engine/validation.py` 量表在构建期/运行期/审计期三处执行 |
 | `endings[].conditions` | 表达式 | 同上（常用 `facts`+`stats` 合取形式）；结局是"条件"而非"选项"，玩家不是"选"结局，是"走"出来的 |
 
 **节拍表的作用（最重要）**：它是烂尾的解药。AI随便怎么写，但故事骨架必须踩点——`fixed`节拍是硬里程碑，`conditional`节拍由玩家行为触发，`optional`节拍由倾向向量解锁。**同一节拍，不同玩家走出不同路径，但节拍本身不消失。**
+
+### 工程化校验口径 `validation`（v0.4.8 起）
+
+"数值/事实变化必须发生在对应剧情点上"是引擎级的工程化校验（`engine/validation.py` 量表），
+校验口径是数据不是代码——剧本作者在此声明情景化规则，框架自动装配：
+
+```json
+"validation": {
+  "plot_points": {
+    "sanity": {
+      "allow_at": ["b1", "b2", "b3", "b4", "b5", "b6", "b7"],
+      "max_abs_delta": 30,
+      "forbid_reason_hints": {
+        "b1": ["消失", "不见了", "失踪"],
+        "b3": ["消失", "不见了", "失踪"]
+      }
+    },
+    "trust_lin": {"allow_at": ["b1", "b2", "b3", "b4", "b5", "b6", "b7"], "max_abs_delta": 15}
+  },
+  "fact_origins": {
+    "f_ledger_seen": {"beats": ["b2", "b3"], "via": ["scene", "choice"]},
+    "f_escaped": {"beats": ["b6"], "via": ["choice"]}
+  },
+  "rules": [{"id": "reason_required", "severity": "error", "params": {"min_error_delta": 10}}]
+}
+```
+
+| 键 | 说明 |
+|---|---|
+| `plot_points.<stat>` | **数值出发点**：`allow_at` 允许变化的节拍白名单；`max_abs_delta` 单次变化幅度上限；`forbid_reason_hints.<beat>` 该节拍的理由中禁止出现的剧情点外关键词（例：乘客消失是 b2 的剧情点，b1/b3 的理由出现"消失"即判定提前触发驳回） |
+| `fact_origins.<fact>` | **剧情出发点**：`beats` 允许授予该事实的节拍；`via` 允许的授予来源（`scene`/`choice`/`beat_grant`）。节拍 `grants` 保留的事实由引擎自动授予，不受此表约束 |
+| `rules` | 覆盖内置规则的严重度/参数（`error`=驳回重写，`warn`=接受但记账） |
+
+内置规则插件（`engine/validation.py`）：`stat_target_defined` / `tendency_dim_defined` / `fact_declared` /
+`update_type_valid` / `zero_delta_forbidden` / `reason_required`（大额变化必须带原因）/
+`beat_grant_not_premature`（节拍保留事实不得提前授予）/ `plot_point_gate` / `fact_origin_gate`。
+新增校验维度 = 注册插件函数 + 在 `DEFAULT_RULES` 登记，框架零改动。
+
+三种运行环境：**构建期**（`scripts/validate_content.py --mock` 校验 mock 脚本全场景）/
+**运行期**（流水线审查器每场生成后校验，error 驳回重写、warn 记账）/
+**审计期**（`scripts/validate_content.py --sessions` 离线追查历史会话的出发点违规）。
 
 ---
 

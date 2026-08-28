@@ -228,6 +228,42 @@ class TestDialogueFormat(unittest.TestCase):
         })
         self.assertFalse(any("对白行过多" in i for i in issues2))
 
+    def test_critic_rejects_premature_beat_grant(self):
+        """剧情点绑定：节拍grants保留的事实由引擎在节拍完成时自动授予，
+        AI提前授予其他节拍的保留事实 = 提前触发后续剧情点，必须驳回。"""
+        c, state, p = build()
+        # 无 scene_meta（或非保留节拍）：授予 b3/b6 的保留事实 → 驳回
+        scene = {
+            "dialogue": [{"speaker": "lin", "text": "先别急。"}],
+            "choices": [{"text": "继续", "tendency": {},
+                         "effects": [{"type": "fact", "id": "f_ledger_confirmed",
+                                      "text": "林sir掌握着乘客名册"}]}],
+            "world_updates": [{"type": "fact", "id": "f_truth_revealed",
+                               "text": "真相揭晓"}],
+        }
+        issues = p.critic.review(scene)
+        self.assertTrue(any("自动授予" in i for i in issues), issues)
+        self.assertTrue(any("f_ledger_confirmed" in i for i in issues))
+        self.assertTrue(any("f_truth_revealed" in i for i in issues))
+        # 当前节拍标注自己的保留事实：允许（引擎落账幂等，冗余无害）
+        ok = p.critic.review({
+            "scene_meta": {"beat_id": "b3"},
+            "dialogue": [{"speaker": "lin", "text": "名册在我这里。"}],
+            "choices": [{"text": "继续", "tendency": {}}],
+            "world_updates": [{"type": "fact", "id": "f_ledger_confirmed",
+                               "text": "林sir掌握着乘客名册"}],
+        })
+        self.assertFalse(any("自动授予" in i for i in ok))
+        # 玩家行为事实（非节拍保留）不受限
+        ok2 = p.critic.review({
+            "dialogue": [{"speaker": "lin", "text": "先别急。"}],
+            "choices": [{"text": "继续", "tendency": {},
+                         "effects": [{"type": "fact", "id": "f_escaped",
+                                      "text": "独自下车"}]}],
+            "world_updates": [],
+        })
+        self.assertFalse(any("自动授予" in i for i in ok2))
+
     def test_state_memory_stores_dialogue(self):
         c, state, p = build()
         p.start()

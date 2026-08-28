@@ -47,8 +47,15 @@ class TestApi(unittest.TestCase):
             if i == 0:
                 fx = r.json().get("last_effects")
                 self.assertTrue(fx, "回合响应应包含 last_effects")
+                self.assertIn("choice", fx)
+                self.assertIn("scene", fx)
+                # 数值变化绑定剧情点：sanity 下降来自新场景(目睹乘客消失)，不是选项本身
                 self.assertTrue(any(f["kind"] == "stat" and f["target"] == "sanity"
-                                    for f in fx))
+                                    for f in fx["scene"]),
+                                "理智值变化应来自剧情场景(scene)")
+                self.assertFalse(any(f["kind"] == "stat" and f["target"] == "sanity"
+                                     for f in fx["choice"]),
+                                 "理智值不应挂在选项效果上(choice)")
         self.assertTrue(r.json()["finished"])
         self.assertEqual(r.json()["ending"]["id"], "end_passenger")
 
