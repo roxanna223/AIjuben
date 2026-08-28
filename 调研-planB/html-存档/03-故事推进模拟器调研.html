@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>调研3 · 故事推进模拟器（大世界观脉络）技术方案调研</title>
+<style>
+:root{--primary:#0891B2;--primary-dark:#155E75;--primary-light:#CFFAFE;--accent:#4F46E5;--bg:#FAFAFB;--card:#fff;--text:#1F2937;--text2:#6B7280;--border:#E5E7EB;--ok:#059669;--warn:#D97706;--shadow:0 1px 3px rgba(0,0,0,.08);--shadow-lg:0 10px 30px rgba(0,0,0,.08);--radius:12px;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased}
+.hero{background:linear-gradient(135deg,#164E63,#0891B2 45%,#4F46E5);color:#fff;padding:64px 32px 48px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;right:-8%;width:500px;height:500px;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 70%);border-radius:50%}
+.hero h1{font-size:2.1em;font-weight:800;position:relative;letter-spacing:1px}
+.hero .sub{font-size:1.05em;opacity:.9;position:relative;margin-top:10px}
+.hero .meta{font-size:.82em;opacity:.7;position:relative;margin-top:18px}
+.container{max-width:1080px;margin:0 auto;padding:0 24px}
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;box-shadow:var(--shadow)}
+.nav a{text-decoration:none;color:var(--text2);font-size:.82em;font-weight:600;padding:5px 12px;border-radius:18px;transition:.2s;white-space:nowrap}
+.nav a:hover{color:var(--primary);background:var(--primary-light)}
+.section{padding:44px 0;border-bottom:1px solid var(--border)}
+.sec-title{font-size:1.5em;font-weight:800;display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.sec-title .icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1em;color:#fff;flex-shrink:0;background:linear-gradient(135deg,var(--primary),var(--primary-dark))}
+.sec-desc{color:var(--text2);font-size:.92em;margin-bottom:26px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:14px;box-shadow:var(--shadow)}
+.table-wrap{overflow-x:auto;margin:14px 0;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.84em;background:var(--card)}
+th{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:10px 14px;text-align:left;font-weight:700;white-space:nowrap}
+td{padding:9px 14px;border-top:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#F8FEFE}
+tr:hover td{background:#ECFEFF}
+.tag{display:inline-block;padding:3px 10px;border-radius:14px;font-size:.78em;font-weight:600;background:var(--primary-light);color:var(--primary-dark);margin:2px}
+.tag.indigo{background:#E0E7FF;color:#3730A3}
+.tag.green{background:#D1FAE5;color:#065F46}
+.tag.orange{background:#FED7AA;color:#9A3412}
+.tag.pink{background:#FCE7F3;color:#9D174D}
+pre{background:#0B2033;color:#D3EEF8;padding:18px;border-radius:10px;overflow-x:auto;font-size:.8em;line-height:1.7;font-family:"Cascadia Code",Consolas,"Courier New",monospace;margin:12px 0}
+pre .k{color:#67E8F9}pre .s{color:#A7F3D0}pre .c{color:#6494AB}
+.callout{background:linear-gradient(135deg,#CFFAFE,#E0E7FF);border-left:4px solid var(--primary);border-radius:var(--radius);padding:18px 22px;margin:18px 0}
+.callout h4{color:var(--primary-dark);font-size:1em;margin-bottom:6px}
+.callout p,.callout li{font-size:.87em}
+.callout ul{padding-left:20px;margin-top:6px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow .step{background:var(--card);border:2px solid var(--primary);border-radius:10px;padding:8px 14px;font-size:.84em;font-weight:700;color:var(--primary-dark);box-shadow:var(--shadow)}
+.flow .arr{color:var(--primary);font-weight:800;font-size:1.1em}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.mini{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow)}
+.mini h4{font-size:.98em;color:var(--primary-dark);margin-bottom:8px}
+.mini p,.mini li{font-size:.85em;color:var(--text2)}
+.mini ul{padding-left:18px}
+.tier{border-radius:var(--radius);padding:20px 24px;margin-bottom:14px;border:2px solid;box-shadow:var(--shadow)}
+.tier h4{font-size:1.05em;margin-bottom:8px}
+.tier p,.tier li{font-size:.87em}
+.tier ul{padding-left:20px;margin-top:6px}
+.tA{border-color:var(--ok);background:#F0FDF9}.tA h4{color:#065F46}
+.tB{border-color:var(--accent);background:#EEF2FF}.tB h4{color:#3730A3}
+.tC{border-color:#DB2777;background:#FDF2F8}.tC h4{color:#9D174D}
+.footer{background:#1F2937;color:#9CA3AF;text-align:center;padding:28px 20px;font-size:.8em}
+@media(max-width:768px){.hero{padding:44px 18px 32px}.hero h1{font-size:1.5em}.grid2{grid-template-columns:1fr}}
+.prio{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.prio .p{border-radius:8px;padding:6px 12px;font-size:.8em;font-weight:700;color:#fff}
+.p0{background:#1F2937}.p1{background:#4F46E5}.p2{background:#0891B2}.p3{background:#D97706}.p4{background:#DB2777}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>调研三 · 故事推进模拟器（大世界观脉络）</h1>
+  <div class="sub">世界规则引擎 · 多智能体推演前沿 · 时间线步进 · 编年史生成 · 剧情钩子提取</div>
+  <div class="meta">互动小说工具调研 · 第3/5篇 · 2026年8月</div>
+</div>
+
+<nav class="nav">
+  <a href="#p1">需求解析</a><a href="#p2">前沿与开源</a><a href="#p3">时间线推演</a>
+  <a href="#p4">规则系统</a><a href="#p5">世界状态</a><a href="#p6">叙事生成</a><a href="#p7">方案对比</a>
+</nav>
+
+<div class="container">
+
+<!-- P1 -->
+<section class="section" id="p1">
+  <h2 class="sec-title"><span class="icon">01</span>需求解析</h2>
+  <p class="sec-desc">本模块要建立<b>世界观的主线运转脉络</b>（非单个角色视角）：一套符合世界观规则的运算体系，推演世界从起源到 N 年后的发展，以"大画面"形式输出世界史，供后续模块选择角色切入个人剧情。</p>
+  <div class="flow">
+    <div class="step">世界观基本盘+规则库</div><span class="arr">→</span>
+    <div class="step">初始化世界状态</div><span class="arr">→</span>
+    <div class="step">时间步进推演</div><span class="arr">→</span>
+    <div class="step">规则校验</div><span class="arr">→</span>
+    <div class="step">编年史生成</div><span class="arr">→</span>
+    <div class="step">剧情钩子提取</div>
+  </div>
+  <div class="callout">
+    <h4>四个核心技术问题</h4>
+    <ul>
+      <li><b>规则遵守</b>：如何让推演严格遵守世界观规则（如规则怪谈的规则体系），不被 LLM 自由联想带偏？</li>
+      <li><b>长程稳定</b>：LLM 连续推演容易"漂移"（语义漂移/因果断裂/规则漂移），如何对策？</li>
+      <li><b>大画面</b>：如何以编年史/史书体视角（而非角色视角）生成世界史？</li>
+      <li><b>衔接</b>：推演出的世界大事记如何转化为可交互的个人剧情入口？</li>
+    </ul>
+  </div>
+</section>
+
+<!-- P2 前沿与开源 -->
+<section class="section" id="p2">
+  <h2 class="sec-title"><span class="icon">02</span>学术前沿与开源项目</h2>
+  <p class="sec-desc">LLM 多智能体模拟是近三年最活跃的方向，以下按"对本项目的参考价值"梳理。</p>
+
+  <div class="grid2">
+    <div class="mini">
+      <h4>Stanford Generative Agents（2023）<span class="tag green">奠基之作</span></h4>
+      <p>25 个 agent 在 Smallville 小镇自主生活，核心架构：</p>
+      <ul>
+        <li><b>Memory Stream 记忆流</b>：自然语言记录全部经历，按需检索</li>
+        <li><b>Reflection 反思</b>：从经历抽象出高层判断</li>
+        <li><b>Planning 计划 → Action 行动</b></li>
+      </ul>
+      <p>涌现出人际关系、信息传播、群体活动。<b>启示</b>：适合关键人物/势力的微观模拟，不适合全量推演。</p>
+    </div>
+    <div class="mini">
+      <h4>Project Sid（Altera，2024）<span class="tag indigo">文明涌现</span></h4>
+      <p>10–1000+ agent 的 Minecraft 文明模拟，PIANO 架构（多输出流并行协调）。涌现现象：专业化分工、投票修宪、市场与税收、宗教传播、平行城镇政策分化。<b>启示</b>：借鉴"角色-规则-文化-制度"演化逻辑，但成本高不宜默认采用。</p>
+    </div>
+    <div class="mini">
+      <h4>OASIS（CAMEL-AI，2024-25）<span class="tag">百万级社交</span></h4>
+      <p>最高约 100 万 agent 的社交媒体模拟（关注/评论/转发+推荐系统）。<b>启示</b>：适合舆论扩散、群体极化建模，非世界史引擎。</p>
+    </div>
+    <div class="mini">
+      <h4>AgentSociety（清华，2025）<span class="tag">社会模拟平台</span></h4>
+      <p>LLM-native 城市社会模拟，模块化环境热插拔、多种推理模式（CodeGen/ReAct/Plan-Execute）。<b>启示</b>：借鉴"环境模块化+agent+规则执行"架构，抽象出城市/势力/人口/制度/事件模块。</p>
+    </div>
+    <div class="mini">
+      <h4>Human History Simulator<span class="tag pink">最接近本项目</span></h4>
+      <p>LLM 多 agent 文明推演模拟器（开源可下载）：20 纪元、3600+ 年、1400+ 文明，经济/军事/外交/文化同步推算。机制：AI 编排器聚类区域生成事件 + 外交贸易 agent 双边推理 + 交互式世界地图，同一起点可产生不同历史走向。</p>
+    </div>
+    <div class="mini">
+      <h4>其他参考项目</h4>
+      <ul>
+        <li><b>Agentopia</b>：100 agent × 10 模拟年的长程社会生活</li>
+        <li><b>WarAgent</b>：LLM 模拟世界大战与冲突（含战国时期）</li>
+        <li><b>Agent Drift / ReflectiChain</b>：长程漂移问题与反思对策研究——<b>直接回应本项目"长程稳定性"痛点</b></li>
+        <li><b>CAMEL / MetaGPT</b>：通用多 agent 框架（后者偏软件开发流程）</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>开源资源</th><th>用途</th><th>规模</th><th>可用性</th></tr></thead>
+      <tbody>
+        <tr><td><b>Human History Simulator</b></td><td>多Agent文明推演</td><td>3600+年 / 1400+文明</td><td>客户端可下载，代码开源</td></tr>
+        <tr><td><b>CAMEL-AI / OASIS</b></td><td>大规模社交网络模拟</td><td>百万级</td><td>GitHub 开源</td></tr>
+        <tr><td><b>AgentSociety 2</b></td><td>社会/城市模拟平台</td><td>模块化可扩展</td><td>GitHub 开源</td></tr>
+        <tr><td><b>Agentopia</b></td><td>长程社会生活模拟</td><td>100 agent / 10年</td><td>GitHub 开源</td></tr>
+        <tr><td><b>Project Sid</b></td><td>多agent文明模拟</td><td>1000+ agent</td><td>论文+代码可见</td></tr>
+        <tr><td><b>Generative Agents</b></td><td>生成式行为模拟</td><td>25 agent</td><td>论文+演示</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- P3 时间线推演 -->
+<section class="section" id="p3">
+  <h2 class="sec-title"><span class="icon">03</span>世界时间线推演方法论</h2>
+  <p class="sec-desc">两条技术路线：分时代分段推演（状态文件传递）与事件链因果推演（状态机驱动）。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>游戏参考</th><th>机制</th><th>可借鉴点</th></tr></thead>
+      <tbody>
+        <tr><td><b>Dwarf Fortress</b></td><td>世界生成器：先生成地形/气候/生态，再推演文明兴衰、战争、英雄与巨兽，按"时代"推进</td><td>层叠结构：世界基底 → 历史事件 → 文明 → 人物</td></tr>
+        <tr><td><b>Crusader Kings</b></td><td>角色驱动历史：角色属性/婚姻/继承/野心，历史由角色行为涌现</td><td>关键人物作为"可被事件触发的实体"参与世界史</td></tr>
+        <tr><td><b>RimWorld AI Storyteller</b></td><td>三种讲述者控制叙事节奏：Cassandra（挑战-喘息循环）/ Phoebe（长期平静）/ Randy（随机）</td><td><b>世界史叙事节奏设计</b>：发展期→危机→全面危机→重建→新纪元</td></tr>
+        <tr><td><b>《文明VII》纪元机制</b></td><td>历史分层呈现：古典/探索/摩登时代各有独立科技树、危机与叙事弧</td><td>阶段推进而非线性年份：按社会形态跳跃进入新纪元</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:1.05em;margin:14px 0 8px;">方法一：分时代分段推演提示词</h3>
+  <pre><span class="c">// 每次只推演一个时代，时代总结写入世界状态文件作为下一时代输入</span>
+【世界观基础设定】{背景设定} {核心规则} {初始世界状态}
+【当前时代】：{纪元名称}，时间范围：{起始年}-{结束年}
+【时代特征】：{政治/经济/技术/文化特征}
+【前代世界状态摘要】：{上一时代的关键事件、势力变化、资源变化、规则状态}
+
+【推演任务】
+1. 按年或按年代推进，每次输出 5-10 个年度事件
+2. 事件格式：{年份} | {事件类型} | {影响范围} | {因果链}
+3. 必须遵守规则：{规则约束清单}
+4. 必须记录世界状态变化：资源、势力、人口、宗教、技术、外交
+
+【输出格式】
+时代：{纪元名称}　时间范围：{起}-{止}
+年度事件：
+- {年份}：{事件描述}（因果链：{前因}→{事件}→{后果}）
+世界状态变化：势力/资源/宗教/技术/外交…
+时代总结：{该时代对下一时代的影响}</pre>
+
+  <h3 style="font-size:1.05em;margin:14px 0 8px;">方法二：事件链因果推演提示词（JSON输出）</h3>
+  <pre><span class="c">// 从当前世界状态出发，生成带因果链的事件，事件间必须有因果或冲突关系</span>
+【当前世界状态】：{世界状态JSON摘要}
+【当前年份】：{year}
+【规则约束】：{世界规则 / 势力规则 / 禁忌规则 / 隐藏规则}
+
+【推演任务】生成 {N} 个本年度事件，每个事件包含：
+事件名称 / 触发原因 / 涉及势力人物 / 直接后果 / 对世界状态的影响
+禁止生成违反规则体系的事件。
+
+【输出格式】
+{
+  "year": <span class="k">year</span>,
+  "events": [{ "id": <span class="s">"E-xxx"</span>, "name": <span class="s">"..."</span>, "type": <span class="s">"..."</span>,
+    "actors": [<span class="s">"..."</span>], "cause": <span class="s">"..."</span>, "effect": <span class="s">"..."</span>,
+    "world_state_change": {<span class="k">...</span>} }],
+  "next_state": {<span class="k">...</span>}
+}</pre>
+
+  <div class="callout">
+    <h4>"初始条件 + 规则 → 推演 N 年"的可行性结论</h4>
+    <ul>
+      <li><b>短程可行（10-50年）</b>：结构化状态文件 + 规则约束，推演稳定</li>
+      <li><b>中程需干预（50-200年）</b>：需要事件触发器、时代转折点、阶段性总结</li>
+      <li><b>长程不推荐一次性推演</b>：必然漂移。对策：分阶段推演、强制 JSON 输出、规则前置注入、时间锚点（强制转折事件）、三系统互相校验（世界状态×事件日志×规则约束）</li>
+      <li><b>规则怪谈世界尤其要限制自由演化</b>：规则必须显式约束，不能依赖 LLM 联想</li>
+    </ul>
+  </div>
+</section>
+
+<!-- P4 规则系统 -->
+<section class="section" id="p4">
+  <h2 class="sec-title"><span class="icon">04</span>世界规则系统设计（规则怪谈方向）</h2>
+  <p class="sec-desc">规则的机器可读表达 + 优先级分层 + LLM 推演的规则约束机制。</p>
+
+  <div class="grid2">
+    <div class="mini">
+      <h4>规则怪谈创作方法论</h4>
+      <ul>
+        <li><b>日常场景</b>：规则发生在熟悉场所（公司/学校/医院）</li>
+        <li><b>语言严谨</b>：表述越正式，认知冲突越强</li>
+        <li><b>掺杂反常识偏差</b>：规则合逻辑但结论反直觉</li>
+        <li><b>不明说罚则</b>：通过后果暗示恐惧</li>
+        <li><b>暗线汤底</b>：规则背后有隐藏真相</li>
+        <li><b>污染机制</b>：规则可通过接触/观察/记忆"感染"</li>
+        <li><b>与本能相悖</b>："不要回头""不要相信眼睛"</li>
+      </ul>
+    </div>
+    <div class="mini">
+      <h4>规则四层结构</h4>
+      <ul>
+        <li><b>明面规则</b>：规则文本直接呈现</li>
+        <li><b>隐含规则</b>：通过规则间的矛盾暗示</li>
+        <li><b>反向规则</b>：与明面规则相反但更深层</li>
+        <li><b>污染规则</b>：违反后改变认知/规则效力/世界观结构</li>
+      </ul>
+      <p style="margin-top:6px;">设计原则：自洽性（单条可解释）、冲突性（多条部分矛盾制造撕裂感）、认知不可靠（规则可被篡改）、代价不可逆。</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.05em;margin:14px 0 8px;">规则优先级分层（P0-P4）</h3>
+  <div class="prio">
+    <span class="p p0">P0 世界底层物理规则（不可违反）</span>
+    <span class="p p1">P1 社会制度规则（法律/阶级/政治）</span>
+    <span class="p p2">P2 宗教/神秘规则（仪式/禁忌）</span>
+    <span class="p p3">P3 规则怪谈规则（明面/隐含/反向）</span>
+    <span class="p p4">P4 隐藏规则（最终真相）</span>
+  </div>
+
+  <h3 style="font-size:1.05em;margin:14px 0 8px;">规则的机器可读表达</h3>
+  <pre><span class="c">// 规则条目（状态机 + 事件系统 + 优先级 + 条件触发）</span>
+{
+  <span class="k">"id"</span>: <span class="s">"RULE-001"</span>, <span class="k">"name"</span>: <span class="s">"规则名称"</span>,
+  <span class="k">"tier"</span>: <span class="s">"explicit | implicit | reverse | pollution"</span>,   <span class="c">// 明面/隐含/反向/污染</span>
+  <span class="k">"condition"</span>: <span class="s">"触发条件"</span>, <span class="k">"action"</span>: <span class="s">"触发行为"</span>,
+  <span class="k">"priority"</span>: 1,
+  <span class="k">"conflicts_with"</span>: [<span class="s">"RULE-002"</span>],   <span class="c">// 冲突规则（撕裂感来源）</span>
+  <span class="k">"override_by"</span>: [<span class="s">"RULE-005"</span>],     <span class="c">// 被哪些深层规则覆盖</span>
+  <span class="k">"effect_on_state"</span>: {<span class="k">...</span>}
+}
+
+<span class="c">// 触发条件类型</span>
+时间触发（特定年份/世代/事件）· 条件触发（势力/资源/人物状态达阈值）
+规则冲突触发（两条规则同时生效）· 污染触发（认知污染超阈值）</pre>
+
+  <h3 style="font-size:1.05em;margin:14px 0 8px;">LLM 推演的规则约束模板</h3>
+  <pre>【世界规则约束】
+P0：{底层物理规则}　P1：{社会制度规则}
+P2：{宗教神秘规则}　P3：{规则怪谈规则}　P4：{隐藏规则}
+
+【当前生效规则】{RULE_ID}: {规则描述}
+
+【禁止事项】
+- 不得生成违反 P0 规则的事件
+- 不得绕过 P1 规则建立新制度
+- 不得忽略 P2/P3 规则的冲突机制
+- 不得直接揭示 P4 隐藏规则，除非满足触发条件
+
+【输出要求】必须输出结构化 JSON，不得输出自由文本。</pre>
+
+  <div class="callout">
+    <h4>规则约束五策略（防止 LLM 漂移）</h4>
+    <ul>
+      <li><b>规则注入时机</b>：每次生成前注入当前生效规则列表</li>
+      <li><b>输出校验</b>：LLM 输出必须为 JSON 并通过 Schema 校验</li>
+      <li><b>规则校验器</b>：确定性代码检查输出是否违反规则，违规则强制重新生成</li>
+      <li><b>冲突检测</b>：输出导致规则冲突时修正</li>
+      <li><b>分层推理</b>：先算世界状态变化（代码），再让 LLM 生成叙事描述</li>
+    </ul>
+  </div>
+</section>
+
+<!-- P5 世界状态 -->
+<section class="section" id="p5">
+  <h2 class="sec-title"><span class="icon">05</span>世界状态数据结构（核心资产）</h2>
+  <p class="sec-desc">"确定性状态 + LLM 叙事"混合架构：状态可序列化、事件可追溯、时间可步进、规则可查询。</p>
+
+  <pre>{
+  <span class="k">"world_state"</span>: {
+    "version": 1,
+    "current_era": <span class="s">"Era of Emergence"</span>,
+    "current_year": 0,
+    "last_event_log_id": <span class="s">"EVT-0000"</span>,
+    <span class="k">"forces"</span>: {                          <span class="c">// 势力</span>
+      "F001": { "name": <span class="s">"暗网"</span>, "type": <span class="s">"organization"</span>,
+        "status": <span class="s">"emerging"</span>, "power": 10,
+        "resources": { "faith": 5, "fear": 8, "knowledge": 3 },
+        "territory": [<span class="s">"Region_A"</span>], "alliances": [], "enemies": [],
+        "ideology": <span class="s">"秩序重构"</span>,
+        "rules_following": [<span class="s">"RULE-001"</span>, <span class="s">"RULE-003"</span>] }
+    },
+    <span class="k">"characters"</span>: {                      <span class="c">// 关键人物（可来自模块2的角色档案）</span>
+      "C001": { "name": <span class="s">"无名者"</span>, "role": <span class="s">"observer"</span>,
+        "status": <span class="s">"active"</span>, "knowledge": 5, "sanity": 90,
+        "affiliation": null, "goals": [<span class="s">"了解规则"</span>],
+        "memory": [], "actions_log": [] }
+    },
+    <span class="k">"events"</span>: [],                         <span class="c">// 事件日志</span>
+    <span class="k">"rules"</span>: { "RULE-001": {<span class="k">...</span>} },    <span class="c">// 规则库</span>
+    <span class="k">"pollution"</span>: {                       <span class="c">// 规则怪谈特有：污染度</span>
+      "global_level": 0, "local_levels": {} },
+    "revelation_level": 0,                   <span class="c">// 真相揭示进度（P4隐藏规则）</span>
+    "convergence_count": 0                   <span class="c">// 收敛事件计数</span>
+  }
+}
+
+<span class="c">// 事件日志条目</span>
+{
+  <span class="k">"id"</span>: <span class="s">"EVT-0001"</span>, <span class="k">"year"</span>: 0, <span class="k">"type"</span>: <span class="s">"formation"</span>,
+  "description": <span class="s">"暗网在Region_A形成"</span>,
+  "actors": [<span class="s">"F001"</span>], "cause": <span class="s">"初始规则被广泛遵守"</span>,
+  "effect": <span class="s">"暗网获得初步影响力"</span>,
+  "world_state_delta": { "forces": { "F001": { "status": <span class="s">"emerging"</span>, "power": 10 } } }
+}</pre>
+
+  <h3 style="font-size:1.05em;margin:14px 0 8px;">时间步进循环（推演主循环）</h3>
+  <div class="flow">
+    <div class="step">读取世界状态</div><span class="arr">→</span>
+    <div class="step">加载生效规则</div><span class="arr">→</span>
+    <div class="step">生成事件列表</div><span class="arr">→</span>
+    <div class="step">应用到世界状态</div><span class="arr">→</span>
+    <div class="step">规则冲突检查</div><span class="arr">→</span>
+    <div class="step">写事件日志</div><span class="arr">→</span>
+    <div class="step">LLM生成叙事</div><span class="arr">→</span>
+    <div class="step">保存状态·推进时间</div>
+  </div>
+
+  <h3 style="font-size:1.05em;margin:14px 0 8px;">推荐文件结构（TRAE Skill 落地）</h3>
+  <pre>world_simulator/
+├── core/
+│   ├── world_state.py       <span class="c"># 世界状态管理</span>
+│   ├── event_log.py         <span class="c"># 事件日志</span>
+│   ├── rule_engine.py       <span class="c"># 规则引擎（确定性校验）</span>
+│   └── time_step.py         <span class="c"># 时间步进</span>
+├── llm/
+│   ├── prompt_templates.py  <span class="c"># 推演/叙事提示词</span>
+│   └── world_generator.py   <span class="c"># 世界史生成</span>
+├── data/
+│   ├── world_state.json     <span class="c"># 世界状态文件（版本化）</span>
+│   ├── event_log.json       <span class="c"># 事件日志</span>
+│   └── rules.json           <span class="c"># 规则库</span>
+└── skills/
+    └── world_simulator.md   <span class="c"># TRAE Skill 定义：世界观→世界史+状态+剧情钩子</span></pre>
+</section>
+
+<!-- P6 叙事生成 -->
+<section class="section" id="p6">
+  <h2 class="sec-title"><span class="icon">06</span>大画面叙事生成与剧情钩子提取</h2>
+
+  <div class="grid2">
+    <div class="mini">
+      <h4>编年史/史书体生成技巧</h4>
+      <ul>
+        <li><b>历史学家视角</b>：LLM 扮演"世界史编纂者"而非角色</li>
+        <li><b>宏观语言</b>："某年，某地，某势力崛起/衰落"句式</li>
+        <li><b>多视角拼合</b>：同一事件记录不同势力版本，制造"史料感"</li>
+        <li><b>不确定性</b>：争议事件保留多版本——"A称……，B称……"</li>
+        <li><b>因果完整</b>：每事件含前因、经过、后果、格局影响</li>
+      </ul>
+    </div>
+    <div class="mini">
+      <h4>结构参考：编年体 → 纪传体</h4>
+      <ul>
+        <li><b>编年体</b>（按时间记事）：适合世界观主线推演——本模块产出</li>
+        <li><b>纪传体</b>（按人物记生平）：适合个人剧情——下一模块（角色小说模拟）消费</li>
+        <li><b>《冰与火之歌》多POV</b>：多线并行最终交汇，每角色有信息边界</li>
+        <li><b>《三体》时间跨度</b>：大历史直接作用于人物命运</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.05em;margin:14px 0 8px;">剧情钩子提取流程（世界史 → 互动剧情入口）</h3>
+  <div class="flow">
+    <div class="step">世界史事件</div><span class="arr">→</span>
+    <div class="step">提取危机/冲突/异变</div><span class="arr">→</span>
+    <div class="step">关联关键人物</div><span class="arr">→</span>
+    <div class="step">标注规则触发条件</div><span class="arr">→</span>
+    <div class="step">生成POV角色档案</div><span class="arr">→</span>
+    <div class="step">个人剧情钩子</div>
+  </div>
+  <p style="font-size:.87em;color:var(--text2);">五类钩子来源：①危机事件（事件日志中"危机/冲突/异变"类型）②人物关联（事件关键人物转POV角色）③规则触发（规则怪谈事件转为"探索/破解规则"剧情）④势力变化（加入/背叛/战争/联盟）⑤信息差（不同势力对同一事件的不同记录 → 悬疑剧情）。</p>
+
+  <h3 style="font-size:1.05em;margin:14px 0 8px;">编年史生成提示词</h3>
+  <pre>你是一位世界史编纂者，正在记录{纪元名称}时代的历史。
+
+【背景】：{世界背景}　【当前时间】：{年份}　【关键事件】：{事件列表}
+
+请以编年史体例撰写：
+1. 正式、客观的史书语言，使用宏观句式（避免个体情绪）
+2. 每个事件包含完整因果链
+3. 记录对世界格局的影响
+4. 对不同势力的视角保持平衡（争议事件保留多版本："A称……，B称……"）
+5. 总结该事件对下一时代的影响
+
+输出格式：
+---
+{年份}：{事件名称}
+{客观叙述起因、经过、结果}
+影响：{对世界格局的影响}
+---</pre>
+</section>
+
+<!-- P7 方案对比 -->
+<section class="section" id="p7">
+  <h2 class="sec-title"><span class="icon">07</span>三方案对比与推荐路线</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>方案A 单LLM多轮推演</th><th>方案B 多agent模拟</th><th>方案C 规则引擎+LLM混合</th></tr></thead>
+      <tbody>
+        <tr><td><b>实现复杂度</b></td><td>低</td><td>高</td><td>中</td></tr>
+        <tr><td><b>成本</b></td><td>低</td><td>高</td><td>中</td></tr>
+        <tr><td><b>一致性</b></td><td>中</td><td>高</td><td><b>高</b></td></tr>
+        <tr><td><b>可控性</b></td><td>中</td><td>低</td><td><b>高</b></td></tr>
+        <tr><td><b>规则约束能力</b></td><td>依赖提示词</td><td>依赖规则系统</td><td><b>显式规则系统</b></td></tr>
+        <tr><td><b>叙事质量</b></td><td>高</td><td>高</td><td>高</td></tr>
+        <tr><td><b>个人剧情衔接</b></td><td>需手动转换</td><td>可直接生成</td><td>可直接生成</td></tr>
+        <tr><td><b>适合阶段</b></td><td>原型验证</td><td>高拟真世界</td><td>生产环境</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tier tA">
+    <h4>第一阶段 MVP（1-2周）：方案A</h4>
+    <p>单 LLM 多轮推演：世界状态 JSON 传递 + 事件日志 + 时代分段推演，输出结构化 JSON。先验证"给定世界观 → 产出可用世界史"的完整链路。</p>
+  </div>
+  <div class="tier tC">
+    <h4>第二阶段 增强（3-4周）：升级方案C</h4>
+    <p>加入规则引擎：规则系统 + 冲突检测 + 事件触发器 + 规则校验器。LLM 只负责叙事，状态变更走确定性代码。</p>
+  </div>
+  <div class="tier tB">
+    <h4>第三阶段 扩展（2-3周）：混合架构</h4>
+    <p>对关键势力/关键人物引入 agent（宏观规则引擎 + 关键人物 agent），保持世界状态 JSON 统一接口。参考 Generative Agents 的记忆流-反思机制与 Project Sid 的制度演化逻辑。</p>
+  </div>
+  <div class="tier tA" style="border-color:var(--primary);background:#ECFEFF;">
+    <h4 style="color:var(--primary-dark);">第四阶段 产品化</h4>
+    <p>前端世界史可视化（Aeon Timeline / Campfire Timeline / 自研时间轴）+ 个人剧情入口 + 剧情钩子自动提取。TRAE 落地路径：Python 脚本管状态/日志/规则校验 + LLM API 生成叙事 + Skill 封装"输入世界观 → 输出世界史+状态+钩子"。</p>
+  </div>
+
+  <div class="callout">
+    <h4>核心结论</h4>
+    <ul>
+      <li><b>推荐路线 A → C → 混合</b>：不要一上来做多 agent（成本高、可控性差），先单 LLM 跑通，再加规则引擎保证一致性，最后按需引入 agent。</li>
+      <li><b>世界状态 JSON 是本模块的核心资产</b>：它是后续所有模块（角色剧情、互动节点）的共享事实源。</li>
+      <li><b>规则校验必须用确定性代码</b>：LLM 自查不可靠，规则违反检测要靠 rule_engine.py 而非提示词。</li>
+      <li><b>衔接下一模块</b>：编年史事件 + 剧情钩子 + 世界状态中的关键人物 → 「角色小说模拟推进工具」的输入。</li>
+    </ul>
+  </div>
+
+  <p style="font-size:.8em;color:var(--text2);margin-top:16px;">主要来源：Stanford Generative Agents 论文、Project Sid（Altera）、OASIS（arXiv 2411.11581）、AgentSociety（GitHub tsinghua-fib-lab）、Human History Simulator、Agentopia、WarAgent（arXiv 2311.17227）、Agent Drift（arXiv 2601.04170）、Dwarf Fortress Worldgen Wiki、Crusader Kings GDC 演讲、RimWorld AI Storytellers Wiki、《文明VII》开发者日志、Aeon Timeline、规则怪谈创作方法论（什么值得买/飞书文档）、《冰与火之歌》多POV研究（中国作家网）。</p>
+</section>
+
+</div>
+<div class="footer">互动小说工具调研 · 3/5 · 故事推进模拟器（大世界观脉络）· 2026年8月</div>
+</body>
+</html>

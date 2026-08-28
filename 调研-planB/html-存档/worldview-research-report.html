@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>女性向小说与影视剧题材世界观深度调研报告</title>
+<style>
+:root {
+  --primary: #8B5CF6;
+  --primary-dark: #6D28D9;
+  --primary-light: #C4B5FD;
+  --accent: #EC4899;
+  --accent-dark: #DB2777;
+  --bg: #FAFAFB;
+  --card-bg: #FFFFFF;
+  --text: #1F2937;
+  --text-secondary: #6B7280;
+  --border: #E5E7EB;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.08), 0 3px 10px rgba(0,0,0,0.06);
+  --radius: 12px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hero Cover */
+.hero {
+  background: linear-gradient(135deg, #6D28D9 0%, #8B5CF6 30%, #EC4899 100%);
+  color: #fff;
+  padding: 80px 40px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(236,72,153,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero h1 { font-size: 2.6em; font-weight: 800; margin-bottom: 16px; position: relative; letter-spacing: 2px; }
+.hero .subtitle { font-size: 1.2em; opacity: 0.9; margin-bottom: 8px; position: relative; }
+.hero .meta { font-size: 0.9em; opacity: 0.75; position: relative; margin-top: 24px; }
+
+/* Container */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+/* Sticky Nav */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow);
+}
+.nav a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 0.85em;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.nav a:hover { color: var(--primary); background: var(--primary-light); }
+.nav a.active { color: #fff; background: var(--primary); }
+
+/* Section */
+.section { padding: 48px 0; border-bottom: 1px solid var(--border); }
+.section:last-child { border-bottom: none; }
+.section-title { font-size: 1.8em; font-weight: 800; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+.section-title .icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2em; color: #fff; flex-shrink: 0;
+}
+.section-desc { color: var(--text-secondary); font-size: 0.95em; margin-bottom: 32px; }
+
+/* Cards */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+
+/* Persona Card */
+.persona-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.persona-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
+}
+.persona-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+.persona-header { padding: 16px 20px; color: #fff; }
+.persona-header h3 { font-size: 1.1em; font-weight: 700; }
+.persona-header .age { font-size: 0.8em; opacity: 0.85; margin-top: 2px; }
+.persona-body { padding: 20px; }
+.persona-body h4 { font-size: 0.85em; color: var(--primary); margin-bottom: 6px; margin-top: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.persona-body h4:first-child { margin-top: 0; }
+.persona-body ul { list-style: none; padding: 0; }
+.persona-body li { font-size: 0.88em; color: var(--text-secondary); padding: 3px 0; padding-left: 16px; position: relative; }
+.persona-body li::before { content: '•'; color: var(--primary); position: absolute; left: 0; font-weight: bold; }
+.persona-body .stat { display: inline-block; background: var(--primary-light); color: var(--primary-dark); padding: 2px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600; margin: 2px 4px 2px 0; }
+
+/* Table */
+.table-wrap { overflow-x: auto; margin: 16px 0; border-radius: var(--radius); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 0.88em; background: var(--card-bg); }
+th { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; padding: 12px 16px; text-align: left; font-weight: 700; white-space: nowrap; }
+td { padding: 10px 16px; border-top: 1px solid var(--border); color: var(--text); }
+tr:nth-child(even) td { background: #F9FAFB; }
+tr:hover td { background: #F3F0FF; }
+
+/* Theme Card */
+.theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+.theme-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
+  border-left: 4px solid var(--primary);
+}
+.theme-card:hover { box-shadow: var(--shadow-lg); }
+.theme-card.accent { border-left-color: var(--accent); }
+.theme-card h4 { font-size: 1.05em; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+.theme-card .sub { font-size: 0.82em; color: var(--text-secondary); margin-bottom: 12px; }
+.theme-card .label { display: inline-block; font-size: 0.75em; font-weight: 700; padding: 2px 8px; border-radius: 8px; margin-bottom: 8px; }
+.theme-card .label.rule { background: #EDE9FE; color: var(--primary-dark); }
+.theme-card .label.struct { background: #FCE7F3; color: var(--accent-dark); }
+.theme-card .label.conflict { background: #FEF3C7; color: #92400E; }
+.theme-card .label.elem { background: #D1FAE5; color: #065F46; }
+.theme-card p { font-size: 0.85em; color: var(--text-secondary); margin-bottom: 6px; }
+.theme-card p strong { color: var(--text); }
+
+/* Tag cloud */
+.tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.82em;
+  font-weight: 600;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  transition: all 0.2s;
+}
+.tag:hover { background: var(--primary); color: #fff; }
+.tag.pink { background: #FCE7F3; color: var(--accent-dark); }
+.tag.pink:hover { background: var(--accent); color: #fff; }
+.tag.green { background: #D1FAE5; color: #065F46; }
+.tag.orange { background: #FED7AA; color: #9A3412; }
+.tag.blue { background: #DBEAFE; color: #1E40AF; }
+
+/* Work Card */
+.work-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.work-item {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+.work-item:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+.work-num {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.9em; color: #fff;
+}
+.work-info h5 { font-size: 0.95em; font-weight: 700; margin-bottom: 2px; }
+.work-info .meta { font-size: 0.78em; color: var(--text-secondary); }
+.work-badge { text-align: right; }
+.work-badge .score { font-size: 1.4em; font-weight: 800; }
+.work-badge .label { font-size: 0.72em; color: var(--text-secondary); }
+
+.score-极优 { background: linear-gradient(135deg, #10B981, #059669); }
+.score-较优 { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+.score-一般 { background: linear-gradient(135deg, #F59E0B, #D97706); }
+
+/* Chart bars */
+.chart-bar { margin: 10px 0; }
+.chart-bar .row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.chart-bar .label { font-size: 0.82em; font-weight: 600; min-width: 120px; text-align: right; color: var(--text-secondary); }
+.chart-bar .track { flex: 1; height: 24px; background: #F3F4F6; border-radius: 12px; overflow: hidden; position: relative; }
+.chart-bar .fill { height: 100%; border-radius: 12px; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; font-size: 0.78em; font-weight: 700; color: #fff; transition: width 1s ease; }
+.chart-bar .fill.purple { background: linear-gradient(90deg, var(--primary), var(--primary-dark)); }
+.chart-bar .fill.pink { background: linear-gradient(90deg, var(--accent), var(--accent-dark)); }
+.chart-bar .fill.green { background: linear-gradient(90deg, #10B981, #059669); }
+.chart-bar .fill.blue { background: linear-gradient(90deg, #3B82F6, #2563EB); }
+.chart-bar .fill.orange { background: linear-gradient(90deg, #F59E0B, #D97706); }
+
+/* Callout */
+.callout {
+  background: linear-gradient(135deg, #EDE9FE, #FCE7F3);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.callout h4 { color: var(--primary-dark); font-size: 1em; margin-bottom: 8px; }
+.callout p { font-size: 0.88em; color: var(--text); }
+.callout ul { margin-top: 8px; padding-left: 20px; }
+.callout li { font-size: 0.85em; color: var(--text); margin-bottom: 4px; }
+
+/* Accordion */
+.accordion-item { margin-bottom: 8px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.accordion-header {
+  padding: 14px 20px;
+  background: var(--card-bg);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.2s;
+  user-select: none;
+}
+.accordion-header:hover { background: #F9FAFB; }
+.accordion-header .arrow { transition: transform 0.2s; font-size: 0.8em; color: var(--text-secondary); }
+.accordion-item.open .accordion-header .arrow { transform: rotate(180deg); }
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: #FAFAFB;
+}
+.accordion-item.open .accordion-body { max-height: 2000px; }
+.accordion-body-inner { padding: 16px 20px; }
+.accordion-body p { font-size: 0.85em; color: var(--text-secondary); margin-bottom: 6px; }
+
+/* Summary Box */
+.summary-box {
+  background: var(--card-bg);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  margin: 24px 0;
+  box-shadow: var(--shadow-lg);
+}
+.summary-box h3 { color: var(--primary); font-size: 1.3em; margin-bottom: 16px; }
+.summary-box ol { padding-left: 20px; }
+.summary-box li { font-size: 0.9em; margin-bottom: 10px; color: var(--text); }
+
+/* Colors for persona headers */
+.bg-student { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+.bg-newbie { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
+.bg-mid { background: linear-gradient(135deg, #EC4899, #DB2777); }
+.bg-mom { background: linear-gradient(135deg, #F59E0B, #D97706); }
+.bg-senior { background: linear-gradient(135deg, #10B981, #059669); }
+
+/* Platform badge */
+.platform-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.75em;
+  font-weight: 700;
+  margin-right: 4px;
+}
+.pf-fanqie { background: #FEF3C7; color: #92400E; }
+.pf-jinjiang { background: #FCE7F3; color: #9D174D; }
+.pf-qimao { background: #D1FAE5; color: #065F46; }
+.pf-qidian { background: #DBEAFE; color: #1E40AF; }
+.pf-zhihu { background: #E0E7FF; color: #3730A3; }
+.pf-duanju { background: #FEE2E2; color: #991B1B; }
+.pf-overseas { background: #F3E8FF; color: #6B21A8; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero { padding: 48px 20px 36px; }
+  .hero h1 { font-size: 1.8em; }
+  .persona-grid, .theme-grid { grid-template-columns: 1fr; }
+  .nav { gap: 4px; }
+  .nav a { font-size: 0.78em; padding: 4px 10px; }
+  .work-item { grid-template-columns: 50px 1fr; }
+  .work-badge { grid-column: 1 / -1; text-align: left; }
+}
+
+/* Footer */
+.footer {
+  background: #1F2937;
+  color: #9CA3AF;
+  text-align: center;
+  padding: 32px 20px;
+  font-size: 0.82em;
+}
+.footer a { color: var(--primary-light); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>女性向小说与影视剧题材世界观深度调研</h1>
+  <div class="subtitle">用户画像 × 题材分类 × 世界观设定 × 代表性作品 × AI续写适配</div>
+  <div class="meta">调研日期：2026年8月26日 | 数据周期：2023–2026 | 第一版</div>
+</div>
+
+<!-- Sticky Nav -->
+<nav class="nav" id="nav">
+  <a href="#part1">一、用户画像</a>
+  <a href="#part2">二、性别差异</a>
+  <a href="#part3">三、平台分类</a>
+  <a href="#part4">四、题材世界观</a>
+  <a href="#part5">五、代表性作品</a>
+  <a href="#part6">六、AI续写评估</a>
+  <a href="#part7">七、总结</a>
+</nav>
+
+<div class="container">
+
+<!-- ==================== Part 1: 用户画像 ==================== -->
+<section class="section" id="part1">
+  <h2 class="section-title">
+    <span class="icon" style="background:linear-gradient(135deg,#6366F1,#4F46E5)">01</span>
+    用户画像：女性阅读/观影偏好的年龄层细分
+  </h2>
+  <p class="section-desc">以女性用户为主体，兼顾男性群体对比。网络文学用户规模达5.26亿人，其中女性用户占比68%。以下按年龄层拆解各群体的题材偏好、阅读习惯和消费行为。</p>
+
+  <!-- Key stats -->
+  <div class="card" style="margin-bottom:24px;">
+    <h3 style="font-size:1.1em;margin-bottom:16px;">核心数据一览</h3>
+    <div class="chart-bar">
+      <div class="row"><span class="label">晋江女性占比</span><div class="track"><div class="fill pink" style="width:91%">91%</div></div></div>
+      <div class="row"><span class="label">红果短剧女性</span><div class="track"><div class="fill pink" style="width:68%">68%</div></div></div>
+      <div class="row"><span class="label">网文女性整体</span><div class="track"><div class="fill pink" style="width:68%">68%</div></div></div>
+      <div class="row"><span class="label">小红书女性</span><div class="track"><div class="fill pink" style="width:72%">72%</div></div></div>
+      <div class="row"><span class="label">掌阅女性</span><div class="track"><div class="fill purple" style="width:55%">55%</div></div></div>
+      <div class="row"><span class="label">微信读书女性</span><div class="track"><div class="fill purple" style="width:57%">57%</div></div></div>
+      <div class="row"><span class="label">番茄小说女性</span><div class="track"><div class="fill blue" style="width:43%">43%</div></div></div>
+      <div class="row"><span class="label">起点女性</span><div class="track"><div class="fill blue" style="width:18%">18%</div></div></div>
+    </div>
+    <p style="font-size:0.78em;color:var(--text-secondary);margin-top:8px;">数据来源：各平台公开数据、行业报告（2025-2026）</p>
+  </div>
+
+  <div class="persona-grid">
+    <!-- 学生群体 -->
+    <div class="persona-card">
+      <div class="persona-header bg-student">
+        <h3>学生群体（初中–大学）</h3>
+        <div class="age">15-22岁 · 男女兼顾</div>
+      </div>
+      <div class="persona-body">
+        <h4>偏好题材</h4>
+        <ul>
+          <li>甜宠、成长型女主、逆袭流（Z世代女生核心偏好）</li>
+          <li>现实都市、校园恋爱、青梅竹马</li>
+          <li>古言仙侠、悬疑推理、无限流</li>
+          <li>治愈甜宠、轻喜剧</li>
+        </ul>
+        <h4>关键数据</h4>
+        <div>
+          <span class="stat">00后占读者25%</span>
+          <span class="stat">番茄18-24岁占25.3%</span>
+          <span class="stat">起点00后新增38%</span>
+        </div>
+        <h4>阅读习惯</h4>
+        <ul>
+          <li>19-25岁单次阅读96分钟（同比下降）</li>
+          <li>日均阅读85.3分钟（行业均值）</li>
+          <li>番茄书荒广场日活超500万</li>
+        </ul>
+        <h4>主要平台</h4>
+        <div>
+          <span class="platform-badge pf-fanqie">番茄小说</span>
+          <span class="platform-badge pf-qimao">七猫</span>
+          <span class="platform-badge pf-zhihu">知乎盐选</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 职场新人 -->
+    <div class="persona-card">
+      <div class="persona-header bg-newbie">
+        <h3>职场新人</h3>
+        <div class="age">22-28岁 · 男女兼顾</div>
+      </div>
+      <div class="persona-body">
+        <h4>偏好题材</h4>
+        <ul>
+          <li>都市现偶、都市职场、现实议题</li>
+          <li>豪门总裁、年代文、现言脑洞</li>
+          <li>女性励志、法律/医学文（获取知识+情绪价值）</li>
+          <li>知乎短篇（如"咸鱼"女主+职场题材）</li>
+        </ul>
+        <h4>关键数据</h4>
+        <div>
+          <span class="stat">网文用户5.26亿</span>
+          <span class="stat">天猫网文党女性70%+</span>
+          <span class="stat">深度阅读42.7%</span>
+        </div>
+        <h4>阅读习惯</h4>
+        <ul>
+          <li>阅读高峰：晚8-11点（占35.2%）</li>
+          <li>午休/通勤形成阅读小高峰</li>
+          <li>碎片化时间适配免费模式</li>
+        </ul>
+        <h4>消费习惯</h4>
+        <ul>
+          <li>番茄付费转化8.4%，ARPPU 92元/季</li>
+          <li>七猫付费转化7.9%，ARPPU 86元/季</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 职场中层 -->
+    <div class="persona-card">
+      <div class="persona-header bg-mid">
+        <h3>职场中层</h3>
+        <div class="age">28-35岁 · 男女兼顾</div>
+      </div>
+      <div class="persona-body">
+        <h4>偏好题材</h4>
+        <ul>
+          <li>豪门总裁21%、年代文19%</li>
+          <li>现言脑洞16%、宫斗宅斗14%</li>
+          <li>人生翻盘、事业逆袭</li>
+          <li>成熟冷静、智商在线的女主形象</li>
+        </ul>
+        <h4>关键数据</h4>
+        <div>
+          <span class="stat">核心读者26-45岁占50%</span>
+          <span class="stat">晋江18-35岁占78%</span>
+        </div>
+        <h4>阅读习惯</h4>
+        <ul>
+          <li>碎片化阅读、情绪疲惫、耐心匮乏</li>
+          <li>段评/本章说即时互动</li>
+          <li>偏好成熟叙事，不喜无脑爽或过于沉重</li>
+        </ul>
+        <h4>影视偏好</h4>
+        <ul>
+          <li>古装剧、都市剧、女性励志</li>
+          <li>2025年女性观众占比升至60%</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 宝妈群体 -->
+    <div class="persona-card">
+      <div class="persona-header bg-mom">
+        <h3>宝妈群体及对应男性</h3>
+        <div class="age">25-40岁 · 女性为主</div>
+      </div>
+      <div class="persona-body">
+        <h4>偏好题材</h4>
+        <ul>
+          <li>育儿题材、萌娃文、重生斗极品亲戚</li>
+          <li>甜宠解压、家庭叙事</li>
+          <li>女频爽文、重生复仇</li>
+          <li>男性对应群体偏玄幻、悬疑、历史</li>
+        </ul>
+        <h4>关键数据</h4>
+        <div>
+          <span class="stat">红果女性68%</span>
+          <span class="stat">网文女性26-35岁占31%</span>
+        </div>
+        <h4>阅读习惯</h4>
+        <ul>
+          <li>阅读时间断裂式，对节奏极敏感</li>
+          <li>慢节奏小说体验差</li>
+          <li>日均85.3分钟，高峰晚8-11点</li>
+        </ul>
+        <h4>微短剧</h4>
+        <ul>
+          <li>红果短剧累计12.7万部，3862部破亿</li>
+          <li>女频占比74%，都市/情感/逆袭前三</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 中老年群体 -->
+    <div class="persona-card">
+      <div class="persona-header bg-senior">
+        <h3>中老年群体</h3>
+        <div class="age">40岁以上 · 男女兼顾</div>
+      </div>
+      <div class="persona-body">
+        <h4>偏好题材</h4>
+        <ul>
+          <li>节奏适中、人物清晰、世界观稳定</li>
+          <li>不喜强碎片化/强反转/快节奏</li>
+          <li>经典文学、历史题材</li>
+          <li>人生翻盘、事业逆袭（女性）</li>
+        </ul>
+        <h4>关键数据</h4>
+        <div>
+          <span class="stat">番茄45+占45.7%</span>
+          <span class="stat">45+活跃1.21亿</span>
+          <span class="stat">45-60岁约15%</span>
+          <span class="stat">60+超10%</span>
+        </div>
+        <h4>阅读习惯</h4>
+        <ul>
+          <li>有声阅读首度突破50%用户选择</li>
+          <li>喜马拉雅活跃用户超1.25亿</li>
+          <li>番茄上架38万册电子出版物</li>
+          <li>每天超1000万用户阅读经典著作</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 消费行为 -->
+    <div class="persona-card">
+      <div class="persona-header" style="background:linear-gradient(135deg,#6B7280,#4B5563);">
+        <h3>消费行为概览</h3>
+        <div class="age">全年龄层</div>
+      </div>
+      <div class="persona-body">
+        <h4>免费 vs 付费</h4>
+        <ul>
+          <li>免费阵营："看书不花钱，广告变现是平台的事"</li>
+          <li>付费阵营："内容值得付费=优质+无干扰"</li>
+          <li>2025年广告及其他营收占比51.81%（首破50%）</li>
+        </ul>
+        <h4>影视转化</h4>
+        <ul>
+          <li>网文IP改编涵盖都市/历史/仙侠等</li>
+          <li>红果短剧单部破亿作品3862部（+79.6%）</li>
+        </ul>
+        <h4>社交传播</h4>
+        <ul>
+          <li>小红书女性72%、00后35%、95后50%</li>
+          <li>段评/本章说即时互动</li>
+          <li>番茄签约作者超60万，九成兼职</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Part 2: 性别差异 ==================== -->
+<section class="section" id="part2">
+  <h2 class="section-title">
+    <span class="icon" style="background:linear-gradient(135deg,#EC4899,#DB2777)">02</span>
+    同年龄层性别偏好差异
+  </h2>
+  <p class="section-desc">同一题材在不同性别中的偏好差异显著。以下为各年龄层的对比分析。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>年龄层</th>
+          <th>女性偏好</th>
+          <th>男性偏好</th>
+          <th>男女通吃</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>学生</strong></td>
+          <td>甜宠、逆袭、成长型女主、治愈甜宠</td>
+          <td>玄幻、奇幻、都市</td>
+          <td>悬疑推理、无限流</td>
+        </tr>
+        <tr>
+          <td><strong>职场新人</strong></td>
+          <td>都市职场、现言脑洞、豪门总裁、现实议题</td>
+          <td>玄幻、都市、悬疑</td>
+          <td>历史、奇幻</td>
+        </tr>
+        <tr>
+          <td><strong>职场中层</strong></td>
+          <td>年代文、宫斗宅斗、人生翻盘、事业逆袭</td>
+          <td>玄幻、历史、悬疑</td>
+          <td>都市、现实题材</td>
+        </tr>
+        <tr>
+          <td><strong>宝妈</strong></td>
+          <td>育儿、萌娃文、甜宠、重生爽文、家庭叙事</td>
+          <td>玄幻、历史、悬疑</td>
+          <td>家庭、现实、悬疑</td>
+        </tr>
+        <tr>
+          <td><strong>中老年</strong></td>
+          <td>人生翻盘、事业逆袭、稳定叙事、经典文学</td>
+          <td>历史、玄幻、悬疑</td>
+          <td>经典文学、历史</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <h4>题材主导格局</h4>
+    <p><strong>女性主导题材：</strong>言情、甜宠、豪门总裁、宫斗宅斗、萌娃文、家庭叙事、女性励志、都市现偶、都市职场</p>
+    <p><strong>男女通吃题材：</strong>玄幻、悬疑、历史、奇幻、都市</p>
+    <p style="margin-top:8px;">爱情小说女性读者占78.6%，年龄集中18-35岁（占整体读者83.4%）。言情类作品下载量与阅读时长均占整体市场45%。</p>
+  </div>
+</section>
+
+<!-- ==================== Part 3: 平台分类体系 ==================== -->
+<section class="section" id="part3">
+  <h2 class="section-title">
+    <span class="icon" style="background:linear-gradient(135deg,#F59E0B,#D97706)">03</span>
+    平台分类体系总览
+  </h2>
+  <p class="section-desc">调研番茄小说、晋江文学城、七猫小说、起点女生网、知乎盐选、抖音/快手短剧及海外平台的完整分类体系。</p>
+
+  <!-- 番茄小说 -->
+  <div class="card">
+    <h3 style="margin-bottom:12px;"><span class="platform-badge pf-fanqie">番茄小说</span> 女频分类体系</h3>
+    <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:12px;">覆盖4.53亿用户、月活2.65亿，三线及以下城市占比超50%。</p>
+    <p style="font-weight:700;font-size:0.9em;margin-bottom:6px;">一级分类：</p>
+    <div class="tag-cloud">
+      <span class="tag">女生</span>
+      <span class="tag">男生</span>
+      <span class="tag">有声书</span>
+      <span class="tag">出版书</span>
+    </div>
+    <p style="font-weight:700;font-size:0.9em;margin:12px 0 6px;">女频二级分类：</p>
+    <div class="tag-cloud">
+      <span class="tag pink">现代言情</span>
+      <span class="tag pink">古代言情</span>
+      <span class="tag pink">幻想言情</span>
+    </div>
+    <p style="font-weight:700;font-size:0.9em;margin:12px 0 6px;">情节/角色标签：</p>
+    <div class="tag-cloud">
+      <span class="tag">快穿</span><span class="tag">校园</span><span class="tag">兽世</span><span class="tag">清穿</span>
+      <span class="tag">虐文</span><span class="tag">甜宠</span><span class="tag">萌宝</span><span class="tag">宠妻</span>
+      <span class="tag">豪门总裁</span><span class="tag">公主</span><span class="tag">皇后</span>
+    </div>
+    <p style="font-weight:700;font-size:0.9em;margin:12px 0 6px;">蝉鸣创作季12大分类：</p>
+    <div class="tag-cloud">
+      <span class="tag green">传统玄幻</span><span class="tag green">新玄幻</span>
+      <span class="tag orange">都市高武</span><span class="tag pink">言情万象</span>
+      <span class="tag pink">朱墙烟火</span><span class="tag pink">古风世情</span>
+      <span class="tag pink">豪门总裁</span><span class="tag pink">现言脑洞</span>
+      <span class="tag pink">古代言情</span><span class="tag pink">幻想言情</span>
+      <span class="tag blue">双女主</span><span class="tag">悬疑脑洞</span>
+    </div>
+    <p style="font-weight:700;font-size:0.9em;margin:12px 0 6px;">女频题材占比：</p>
+    <div class="chart-bar">
+      <div class="row"><span class="label">豪门总裁</span><div class="track"><div class="fill pink" style="width:21%">21%</div></div></div>
+      <div class="row"><span class="label">年代文</span><div class="track"><div class="fill pink" style="width:19%">19%</div></div></div>
+      <div class="row"><span class="label">现言脑洞</span><div class="track"><div class="fill purple" style="width:16%">16%</div></div></div>
+      <div class="row"><span class="label">宫斗宅斗</span><div class="track"><div class="fill purple" style="width:14%">14%</div></div></div>
+    </div>
+  </div>
+
+  <!-- 晋江文学城 -->
+  <div class="card">
+    <h3 style="margin-bottom:12px;"><span class="platform-badge pf-jinjiang">晋江文学城</span> 标签体系</h3>
+    <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:12px;">女性占比91%，18-35岁占78%，67%以上来自一线城市。129个标签，分类最丰富。</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <p style="font-weight:700;font-size:0.88em;margin-bottom:6px;">时代分类（4类）</p>
+        <div class="tag-cloud">
+          <span class="tag pink">近代现代</span><span class="tag pink">古色古香</span>
+          <span class="tag pink">架空历史</span><span class="tag pink">幻想未来</span>
+        </div>
+        <p style="font-weight:700;font-size:0.88em;margin:12px 0 6px;">风格标签（5类）</p>
+        <div class="tag-cloud">
+          <span class="tag">悲剧</span><span class="tag">正剧</span>
+          <span class="tag">轻松</span><span class="tag">爆笑</span>
+          <span class="tag">暗黑</span>
+        </div>
+        <p style="font-weight:700;font-size:0.88em;margin:12px 0 6px;">结构特点</p>
+        <div class="tag-cloud">
+          <span class="tag green">种田文</span><span class="tag green">升级流</span>
+          <span class="tag green">快穿</span><span class="tag green">无限流</span>
+          <span class="tag green">对话体</span><span class="tag green">论坛体</span>
+          <span class="tag green">单元文</span><span class="tag green">群像</span>
+        </div>
+      </div>
+      <div>
+        <p style="font-weight:700;font-size:0.88em;margin-bottom:6px;">金手指标签</p>
+        <div class="tag-cloud">
+          <span class="tag orange">清穿</span><span class="tag orange">随身空间</span>
+          <span class="tag orange">穿越时空</span><span class="tag orange">古穿今</span>
+          <span class="tag orange">异能</span><span class="tag orange">重生</span>
+          <span class="tag orange">系统</span><span class="tag orange">穿书</span>
+          <span class="tag orange">直播</span>
+        </div>
+        <p style="font-weight:700;font-size:0.88em;margin:12px 0 6px;">热门标签（部分）</p>
+        <div class="tag-cloud">
+          <span class="tag pink">甜文</span><span class="tag pink">爽文</span>
+          <span class="tag pink">女强</span><span class="tag pink">女配</span>
+          <span class="tag pink">女扮男装</span><span class="tag pink">复仇虐渣</span>
+          <span class="tag pink">逆袭</span><span class="tag pink">情有独钟</span>
+          <span class="tag pink">青梅竹马</span><span class="tag pink">破镜重圆</span>
+          <span class="tag pink">虐恋情深</span><span class="tag pink">欢喜冤家</span>
+          <span class="tag pink">豪门世家</span><span class="tag pink">宫廷侯爵</span>
+          <span class="tag pink">宫斗</span><span class="tag pink">宅斗</span>
+          <span class="tag pink">星际</span><span class="tag pink">末世</span>
+          <span class="tag pink">仙侠修真</span><span class="tag pink">洪荒</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 七猫 + 起点 + 知乎 + 短剧 + 海外 -->
+  <div class="card">
+    <h3 style="margin-bottom:16px;">其他平台分类一览</h3>
+
+    <p style="font-weight:700;font-size:0.9em;"><span class="platform-badge pf-qimao">七猫小说</span> 女生原创</p>
+    <div class="tag-cloud">
+      <span class="tag pink">总裁豪门</span><span class="tag green">种田经商</span>
+      <span class="tag green">玄幻仙侠</span><span class="tag pink">宫闱宅斗</span>
+      <span class="tag pink">古代情缘</span><span class="tag orange">年代重生</span>
+    </div>
+    <p style="font-size:0.8em;color:var(--text-secondary);margin:4px 0 16px;">快闪征文8题材：雄竞修罗场、新年开爽、男二上位、IP向古言职场、宅斗对照组、贵女多骄、现言职场、迷雾之下</p>
+
+    <p style="font-weight:700;font-size:0.9em;"><span class="platform-badge pf-qidian">起点女生网</span></p>
+    <div class="tag-cloud">
+      <span class="tag pink">古代言情</span><span class="tag pink">现代言情</span>
+      <span class="tag green">仙侠奇缘</span><span class="tag">衍生</span>
+    </div>
+
+    <p style="font-weight:700;font-size:0.9em;margin-top:16px;"><span class="platform-badge pf-zhihu">知乎盐选</span> 四大爆款类型</p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;">
+      <div style="text-align:center;background:#F3F4F6;padding:10px;border-radius:8px;">
+        <div style="font-size:1.4em;font-weight:800;color:var(--primary);">35%</div>
+        <div style="font-size:0.78em;color:var(--text-secondary);">悬疑犯罪</div>
+      </div>
+      <div style="text-align:center;background:#F3F4F6;padding:10px;border-radius:8px;">
+        <div style="font-size:1.4em;font-weight:800;color:var(--accent);">25%</div>
+        <div style="font-size:0.78em;color:var(--text-secondary);">现代言情</div>
+      </div>
+      <div style="text-align:center;background:#F3F4F6;padding:10px;border-radius:8px;">
+        <div style="font-size:1.4em;font-weight:800;color:#F59E0B;">22%</div>
+        <div style="font-size:0.78em;color:var(--text-secondary);">古言</div>
+      </div>
+      <div style="text-align:center;background:#F3F4F6;padding:10px;border-radius:8px;">
+        <div style="font-size:1.4em;font-weight:800;color:#10B981;">18%</div>
+        <div style="font-size:0.78em;color:var(--text-secondary);">现实题材</div>
+      </div>
+    </div>
+    <p style="font-size:0.8em;color:var(--text-secondary);margin-top:8px;">特色：每200-800字一个情节点，短篇快节奏</p>
+
+    <p style="font-weight:700;font-size:0.9em;margin-top:16px;"><span class="platform-badge pf-duanju">抖音/快手短剧</span> 广电备案题材分布（260部）</p>
+    <div class="chart-bar" style="margin-top:8px;">
+      <div class="row"><span class="label">都市 38.85%</span><div class="track"><div class="fill orange" style="width:39%">101部</div></div></div>
+      <div class="row"><span class="label">其他 18.08%</span><div class="track"><div class="fill" style="width:18%;background:#9CA3AF;">47部</div></div></div>
+      <div class="row"><span class="label">传奇 16.54%</span><div class="track"><div class="fill purple" style="width:17%">43部</div></div></div>
+      <div class="row"><span class="label">科幻 5%</span><div class="track"><div class="fill blue" style="width:5%">13部</div></div></div>
+      <div class="row"><span class="label">农村 4.62%</span><div class="track"><div class="fill green" style="width:5%">12部</div></div></div>
+      <div class="row"><span class="label">宫廷 3.46%</span><div class="track"><div class="fill pink" style="width:3.5%">9部</div></div></div>
+    </div>
+    <p style="font-size:0.8em;color:var(--text-secondary);margin-top:8px;">女频占比74.06%，四大重点激励：都市、年代、历史、悬疑</p>
+
+    <p style="font-weight:700;font-size:0.9em;margin-top:16px;"><span class="platform-badge pf-overseas">海外平台</span></p>
+    <p style="font-size:0.85em;color:var(--text-secondary);"><strong>Wattpad：</strong>13-25岁青少年，同人/轻romance/奇幻冒险，广告分成50%+打赏100%</p>
+    <p style="font-size:0.85em;color:var(--text-secondary);"><strong>Webnovel：</strong>阅文英文版，玄幻/修仙/言情</p>
+    <p style="font-size:0.85em;color:var(--text-secondary);margin-top:8px;">WebNovel Awards 2025 言情赛道分类：</p>
+    <div class="tag-cloud" style="margin-top:4px;">
+      <span class="tag blue">Billionaire/CEO</span><span class="tag blue">Werewolf</span>
+      <span class="tag blue">Fantasy Romance</span><span class="tag blue">Royal</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Part 4: 题材与世界观 ==================== -->
+<section class="section" id="part4">
+  <h2 class="section-title">
+    <span class="icon" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">04</span>
+    核心分类与题材世界观设定
+  </h2>
+  <p class="section-desc">在平台分类基础上，深入梳理每个题材的 worldview 核心规则、社会结构、核心矛盾和典型元素。</p>
+
+  <!-- 1. 甜宠/言情 -->
+  <h3 style="font-size:1.2em;margin-bottom:16px;color:var(--accent-dark);">4.1 甜宠 / 言情</h3>
+  <div class="theme-grid">
+    <div class="theme-card accent">
+      <h4>现代甜宠</h4>
+      <div class="sub">番茄·现言 | 晋江·现代甜文</div>
+      <p><span class="label rule">世界观规则</span> 当代中国都市社会，高度信息化、监控密集、移动支付与社交软件深度渗透。爱情关系建立在现代都市生活背景之上。</p>
+      <p><span class="label struct">社会结构</span> 企业职场、高校、社交平台构成社交场景，层级分明的职场和社会关系。</p>
+      <p><span class="label conflict">核心矛盾</span> 身份差异、职场竞争、情感误会、成长冲突。</p>
+      <p><span class="label elem">典型元素</span> 系统流（"甜宠系统"）、职场互动、都市地标、日常细节。</p>
+    </div>
+    <div class="theme-card accent">
+      <h4>总裁文 / 豪门</h4>
+      <div class="sub">番茄·豪门总裁 21% | 七猫·总裁豪门</div>
+      <p><span class="label rule">世界观规则</span> 当代中国精英社会切片，豪门世家构成顶层权力网络。如"五大豪门（顾、莫、江、唐、梁）构成顶层权力网络，繁世集团、柏氏集团代表新旧资本势力碰撞"。</p>
+      <p><span class="label struct">社会结构</span> 顶层豪门通过资本、人脉、舆情操纵形成权力网络。"权势可见性"法则——权力运作必有迹可循。</p>
+      <p><span class="label conflict">核心矛盾</span> 阶级差异、家族利益冲突、权力博弈。</p>
+      <p><span class="label elem">典型元素</span> 总裁身份、豪门家族、商业帝国、权力网络。</p>
+    </div>
+    <div class="theme-card accent">
+      <h4>校园恋爱 / 青梅竹马</h4>
+      <div class="sub">晋江·校园·青梅竹马 | 番茄·校园</div>
+      <p><span class="label rule">世界观规则</span> 校园/邻里场景为情感发展基础。如"两家是邻里，主角原生家庭缺少温暖，自小常常待在对方家中长大，被温柔接纳"。</p>
+      <p><span class="label struct">社会结构</span> 以学校、家庭、邻里关系为社交核心。</p>
+      <p><span class="label conflict">核心矛盾</span> 学业压力、家庭背景差异、情感成长。</p>
+      <p><span class="label elem">典型元素</span> 校园生活、邻里关系、青春成长、双向奔赴。</p>
+    </div>
+    <div class="theme-card accent">
+      <h4>破镜重圆</h4>
+      <div class="sub">晋江·破镜重圆 | 番茄·现言</div>
+      <p><span class="label rule">世界观规则</span> 现代背景下的久别重逢，男主从低谷崛起。如"当年被甩掉的穷小子，蜕变为百亿集团总裁，偏执深情"。</p>
+      <p><span class="label struct">社会结构</span> 跨越阶级鸿沟的重逢，强调男主身份转变。</p>
+      <p><span class="label conflict">核心矛盾</span> 旧日误会、身份落差、情感创伤修复。</p>
+      <p><span class="label elem">典型元素</span> 久别重逢、身份反转、疯批霸总、强制爱。</p>
+    </div>
+  </div>
+
+  <!-- 2. 古言/古风 -->
+  <h3 style="font-size:1.2em;margin:24px 0 16px;color:var(--primary-dark);">4.2 古言 / 古风</h3>
+  <div class="theme-grid">
+    <div class="theme-card">
+      <h4>宫斗</h4>
+      <div class="sub">番茄·宫宅 14% | 晋江·宫斗·宫廷侯爵</div>
+      <p><span class="label rule">世界观规则</span> 等级森严的封建王朝，如"《大梁宫制》等级：皇后（正一品）> 太后/太妃（超品）> 九嫔（正二至正九品）> 才人（正五品）> 御女（正七品）> 采女（正八品）"。</p>
+      <p><span class="label struct">社会结构</span> 皇权为核心，后宫嫔妃、宗室、外戚、宦官形成权力网络。"份例"刚性约束，如"太后份例'冰块每日二十缸'"。</p>
+      <p><span class="label conflict">核心矛盾</span> 嫡庶之争、妃嫔争宠、权力倾轧、家族利益。</p>
+      <p><span class="label elem">典型元素</span> 后宫等级、份例制度、宫规礼法、权力博弈。</p>
+    </div>
+    <div class="theme-card">
+      <h4>宅斗</h4>
+      <div class="sub">晋江·宅斗 | 番茄·宫宅</div>
+      <p><span class="label rule">世界观规则</span> 商贾家族、官宦世家、高门大户的后宅，情节以嫡庶之争、姨娘之争、地位/财富之争为主。</p>
+      <p><span class="label struct">社会结构</span> 宗法制度下的家族内部等级，嫡庶尊卑严格。如"沈府内部严格遵循嫡庶尊卑，嫡出二小姐地位远高于庶出三小姐"。</p>
+      <p><span class="label conflict">核心矛盾</span> 嫡庶之争、财产争夺、姨娘斗争、家族生存。</p>
+      <p><span class="label elem">典型元素</span> 后宅生活、礼法约束、家族内部权力、利益博弈。</p>
+    </div>
+    <div class="theme-card">
+      <h4>穿越古代</h4>
+      <div class="sub">晋江·穿越时空 | 番茄·古言</div>
+      <p><span class="label rule">世界观规则</span> 现代人穿越到古代世界，现代思维与古代社会的碰撞。</p>
+      <p><span class="label struct">社会结构</span> 古代社会等级制度，现代知识成为主角优势来源。</p>
+      <p><span class="label conflict">核心矛盾</span> 现代思维与古代礼法的冲突、生存适应。</p>
+      <p><span class="label elem">典型元素</span> 穿越时空、金手指、现代知识降维。</p>
+    </div>
+    <div class="theme-card">
+      <h4>架空王朝</h4>
+      <div class="sub">晋江·架空历史 | 番茄·古风世情</div>
+      <p><span class="label rule">世界观规则</span> 架空王朝"天朝"，承平日久而积弊深重，皇权式微、宗室坐大、外戚干政、边患潜伏。</p>
+      <p><span class="label struct">社会结构</span> 传统农耕文明向集权官僚体系转型，科举制与门阀荫庇并存。</p>
+      <p><span class="label conflict">核心矛盾</span> 权力争夺、宗室斗争、边患危机。</p>
+      <p><span class="label elem">典型元素</span> 架空朝代、礼法制度、宗室权力、权谋博弈。</p>
+    </div>
+    <div class="theme-card">
+      <h4>仙侠古风</h4>
+      <div class="sub">晋江·仙侠修真 | 番茄·幻想言情</div>
+      <p><span class="label rule">世界观规则</span> 受"天道"支配，天道是宇宙终极法则。修仙者"渡劫""飞升"本质是"通过修炼获得天道认可，提升存在等级"。</p>
+      <p><span class="label struct">社会结构</span> 仙界模仿人间官僚体系（天庭有玉皇大帝、各路仙官）。</p>
+      <p><span class="label conflict">核心矛盾</span> 正邪对抗、天道考验、修炼竞争。</p>
+      <p><span class="label elem">典型元素</span> 修仙体系、渡劫飞升、天道法则、仙界官僚。</p>
+    </div>
+    <div class="theme-card">
+      <h4>种田文</h4>
+      <div class="sub">晋江·种田文 | 七猫·种田经商</div>
+      <p><span class="label rule">世界观规则</span> 古代农业社会，土地所有权是核心生产资料。"土地所有权（地契争夺）、话语权（造谣被证伪）、生产资料控制权（护鸡棚、管账本）"。</p>
+      <p><span class="label struct">社会结构</span> 金字塔型固化形态：皇室/宫廷→世家集团→佃农/雇工/小商贩/流民。"恩庇—依附"关系网。</p>
+      <p><span class="label conflict">核心矛盾</span> 传统宗法秩序与新生家庭伦理的博弈、生存资源争夺。</p>
+      <p><span class="label elem">典型元素</span> 农业社会、土地制度、宗族关系、家庭经营。</p>
+    </div>
+  </div>
+
+  <!-- 3. 悬疑/推理 -->
+  <h3 style="font-size:1.2em;margin:24px 0 16px;color:#92400E;">4.3 悬疑 / 推理</h3>
+  <div class="theme-grid">
+    <div class="theme-card" style="border-left-color:#F59E0B;">
+      <h4>法医 / 刑侦</h4>
+      <div class="sub">知乎盐选·悬疑犯罪 35% | 晋江·悬疑推理</div>
+      <p><span class="label rule">世界观规则</span> 当代中国都市，2020年代中后期，社会高度信息化、监控网络密集化（天网系统、交通卡口、小区门禁），移动支付与社交媒体深度渗透。</p>
+      <p><span class="label struct">社会结构</span> 警方侦查体系与犯罪组织对抗，法律程序与破案效率之间的张力。</p>
+      <p><span class="label conflict">核心矛盾</span> 个体创伤记忆与集体安全秩序的对抗；程序正义刚性要求与人性救赎柔性需求的张力。</p>
+      <p><span class="label elem">典型元素</span> 法医专业、刑侦破案、心理惊悚、系统重置、AI伪造技术。</p>
+    </div>
+    <div class="theme-card" style="border-left-color:#F59E0B;">
+      <h4>悬疑惊悚</h4>
+      <div class="sub">晋江·惊悚·暗黑 | 番茄·悬疑脑洞</div>
+      <p><span class="label rule">世界观规则</span> 以心理惊悚、人格解构为叙事核心。"通过刑警对连环命案的追索，层层剥开心理惊悚、人格解构与存在主义哲思"。</p>
+      <p><span class="label struct">社会结构</span> 犯罪心理与警方侦查之间的对抗。</p>
+      <p><span class="label conflict">核心矛盾</span> 人性恶与正义追求的对抗、心理创伤与生存本能。</p>
+      <p><span class="label elem">典型元素</span> 连环命案、心理分析、悬疑氛围、反转结局。</p>
+    </div>
+    <div class="theme-card" style="border-left-color:#F59E0B;">
+      <h4>社会派推理</h4>
+      <div class="sub">晋江·悬疑 | 知乎·悬疑</div>
+      <p><span class="label rule">世界观规则</span> 凶手并非传统疯魔个体，而是由科研权威、资本权力、体制缝隙共同构筑的结构性恶。"PDS II可吸收缝合线、电凝止血痕迹、手术标记式血字——每一处细节皆指向合法医疗场景的异化挪用"。</p>
+      <p><span class="label struct">社会结构</span> 专业领域与权力结构交织，专业知识脱离监督机制可能催生隐蔽暴力。</p>
+      <p><span class="label conflict">核心矛盾</span> 系统性腐败与个体正义的对抗、制度漏洞与人性贪婪。</p>
+      <p><span class="label elem">典型元素</span> 专业领域犯罪、社会批判、制度反思、结构恶。</p>
+    </div>
+  </div>
+
+  <!-- 4. 爽文/大女主 -->
+  <h3 style="font-size:1.2em;margin:24px 0 16px;color:var(--primary);">4.4 爽文 / 大女主</h3>
+  <div class="theme-grid">
+    <div class="theme-card">
+      <h4>女强</h4>
+      <div class="sub">晋江·女强 | 番茄·古风世情</div>
+      <p><span class="label rule">世界观规则</span> 以女主成长史为主线，通过自身能力突破困境。从凡界武者到隐族强者再到神界仙君，力量层级分明。</p>
+      <p><span class="label struct">社会结构</span> 传统权力结构被女主能力挑战，通过武力/智慧/医术实现突破。</p>
+      <p><span class="label conflict">核心矛盾</span> 女性能力与社会期待之间的冲突、个人成长与外部阻力。</p>
+      <p><span class="label elem">典型元素</span> 武力/医术/毒术、等级晋升、打脸反派。</p>
+    </div>
+    <div class="theme-card">
+      <h4>女尊</h4>
+      <div class="sub">晋江·女尊·性别转换</div>
+      <p><span class="label rule">世界观规则</span> 以"女尊男卑"为基本社会规则，"男子可生育，女子为家庭主导，颠覆传统认知，形成独特的文化冲突"。</p>
+      <p><span class="label struct">社会结构</span> 社会形态处于封建晚期向早期资本主义萌芽过渡，中央集权稳固但地方势力盘根错节。双轨承嗣制。</p>
+      <p><span class="label conflict">核心矛盾</span> 女尊男卑体制下的权力争夺、性别身份反转带来的文化冲突。</p>
+      <p><span class="label elem">典型元素</span> 女尊社会、男性生育、女性掌权、双轨承嗣制。</p>
+    </div>
+    <div class="theme-card">
+      <h4>重生复仇</h4>
+      <div class="sub">晋江·重生·复仇虐渣 | 番茄·年代重生</div>
+      <p><span class="label rule">世界观规则</span> 女主重生回到关键节点，带着前世记忆改变命运。</p>
+      <p><span class="label struct">社会结构</span> 权力结构不变，女主利用前世信息优势改变命运轨迹。</p>
+      <p><span class="label conflict">核心矛盾</span> 前世悲剧与今生复仇的对抗。</p>
+      <p><span class="label elem">典型元素</span> 重生、前世记忆、复仇、系统任务。</p>
+    </div>
+    <div class="theme-card">
+      <h4>系统流</h4>
+      <div class="sub">晋江·系统 | 番茄·现言脑洞</div>
+      <p><span class="label rule">世界观规则</span> 存在系统面板/任务系统，"系统任务""恐惧值""系统点"等量化指标。</p>
+      <p><span class="label struct">社会结构</span> 系统规则成为世界运行的额外维度，主角通过完成任务获得奖励。</p>
+      <p><span class="label conflict">核心矛盾</span> 系统任务要求与主角自主意愿的冲突。</p>
+      <p><span class="label elem">典型元素</span> 系统面板、任务系统、奖励机制、恐惧值/积分。</p>
+    </div>
+  </div>
+
+  <!-- 5. 虐文/悲剧 -->
+  <h3 style="font-size:1.2em;margin:24px 0 16px;color:#991B1B;">4.5 虐文 / 悲剧</h3>
+  <div class="theme-grid">
+    <div class="theme-card" style="border-left-color:#EF4444;">
+      <h4>虐恋情深</h4>
+      <div class="sub">晋江·虐恋情深·悲剧</div>
+      <p><span class="label rule">世界观规则</span> 以情感创伤为核心，通过误会、分离、重逢等情节制造情感张力。</p>
+      <p><span class="label struct">社会结构</span> 阶级差异、家族阻力、身份落差构成情感障碍。</p>
+      <p><span class="label conflict">核心矛盾</span> 深情与误解之间的对抗、相爱与伤害的悖论。</p>
+      <p><span class="label elem">典型元素</span> 误会分离、强制爱、追妻、重逢。</p>
+    </div>
+    <div class="theme-card" style="border-left-color:#EF4444;">
+      <h4>BE美学</h4>
+      <div class="sub">晋江·悲剧</div>
+      <p><span class="label rule">世界观规则</span> 以悲剧结局为美学追求，故事基调为悲情。</p>
+      <p><span class="label struct">社会结构</span> 悲剧结局往往源于不可调和的社会矛盾或命运悲剧。</p>
+      <p><span class="label conflict">核心矛盾</span> 美好情感与残酷现实之间的对抗。</p>
+      <p><span class="label elem">典型元素</span> 悲剧结局、情感虐心、命运无常。</p>
+    </div>
+  </div>
+
+  <!-- 6. 玄幻/仙侠 -->
+  <h3 style="font-size:1.2em;margin:24px 0 16px;color:#059669;">4.6 玄幻 / 仙侠</h3>
+  <div class="theme-grid">
+    <div class="theme-card" style="border-left-color:#10B981;">
+      <h4>修仙体系</h4>
+      <div class="sub">晋江·仙侠修真·东方玄幻</div>
+      <p><span class="label rule">世界观规则</span> 天圆地方，灵气为本。世界通常呈现为巨大无边的大陆（"主界"/"凡界"/"下界"），悬浮于混沌虚空。大陆之上是更高位面（灵界/仙界/神界），之下可能是幽冥地府或魔界。</p>
+      <p><span class="label struct">社会结构</span> 仙界模仿人间官僚体系（天庭有玉皇大帝、各路仙官）。</p>
+      <p><span class="label conflict">核心矛盾</span> 正邪对抗、天道考验、修炼竞争、飞升之路。</p>
+      <p><span class="label elem">典型元素</span> 灵力体系、境界升格（感应境/灵动境/轮海境/通天境/至尊境）、金丹大道、渡劫飞升。</p>
+    </div>
+    <div class="theme-card" style="border-left-color:#10B981;">
+      <h4>洪荒神话</h4>
+      <div class="sub">晋江·洪荒</div>
+      <p><span class="label rule">世界观规则</span> 上古神话世界观，涉及盘古开天、三清、女娲、伏羲等神话人物。</p>
+      <p><span class="label struct">社会结构</span> 洪荒时期神魔共存，人族崛起。</p>
+      <p><span class="label conflict">核心矛盾</span> 神魔对抗、人族生存、天道博弈。</p>
+      <p><span class="label elem">典型元素</span> 洪荒神话、上古神魔、先天神魔、天道法则。</p>
+    </div>
+    <div class="theme-card" style="border-left-color:#10B981;">
+      <h4>西方魔法</h4>
+      <div class="sub">晋江·西幻·奇幻魔幻·骑士与剑</div>
+      <p><span class="label rule">世界观规则</span> 西方奇幻世界观，涉及魔法体系、异世大陆、骑士与剑等元素。</p>
+      <p><span class="label struct">社会结构</span> 魔法世界中的种族、阶级、势力分布。</p>
+      <p><span class="label conflict">核心矛盾</span> 魔法力量对抗、种族冲突、冒险成长。</p>
+      <p><span class="label elem">典型元素</span> 魔法体系、异世大陆、骑士、龙、精灵、恶魔。</p>
+    </div>
+  </div>
+
+  <!-- 7. 科幻/末世 -->
+  <h3 style="font-size:1.2em;margin:24px 0 16px;color:#1E40AF;">4.7 科幻 / 末世</h3>
+  <div class="theme-grid">
+    <div class="theme-card" style="border-left-color:#3B82F6;">
+      <h4>末世求生</h4>
+      <div class="sub">晋江·末世 | 番茄·末世</div>
+      <p><span class="label rule">世界观规则</span> 末世背景下的生存挑战，末世异能体系（精神力、雷系等）。</p>
+      <p><span class="label struct">社会结构</span> 末世秩序崩塌，幸存者社会形成新的权力结构。</p>
+      <p><span class="label conflict">核心矛盾</span> 生存资源争夺、人性考验、秩序重建。</p>
+      <p><span class="label elem">典型元素</span> 末世设定、异能、生存挑战、物资争夺。</p>
+    </div>
+    <div class="theme-card" style="border-left-color:#3B82F6;">
+      <h4>星际</h4>
+      <div class="sub">晋江·星际 | 番茄·星际</div>
+      <p><span class="label rule">世界观规则</span> 星际背景下的文明探索与冲突。</p>
+      <p><span class="label struct">社会结构</span> 星际文明之间的权力博弈、种族关系。</p>
+      <p><span class="label conflict">核心矛盾</span> 星际战争、文明冲突、探索未知。</p>
+      <p><span class="label elem">典型元素</span> 星际文明、宇宙探索、种族战争、飞船科技。</p>
+    </div>
+    <div class="theme-card" style="border-left-color:#3B82F6;">
+      <h4>赛博朋克</h4>
+      <div class="sub">晋江·科幻·未来架空</div>
+      <p><span class="label rule">世界观规则</span> 企业霸权与社会分裂。"企业掌控全球：国家主权被跨国企业肢解，如加拿大被分割为'资源殖民地'——军用科技控制阿尔伯塔（合成石油）、网监控制魁北克（数据农场）、荒坂独占温哥华"。</p>
+      <p><span class="label struct">社会结构</span> 企业掌控权力，底层民众被剥削，帮派与边缘群体形成亚文化。</p>
+      <p><span class="label conflict">核心矛盾</span> 底层反抗与精英统治的对抗、人性与技术异化的冲突。</p>
+      <p><span class="label elem">典型元素</span> 义体改造、赛博精神病、企业霸权、网络监控、暗网交易。</p>
+    </div>
+  </div>
+
+  <!-- 8. 无限流/快穿 -->
+  <h3 style="font-size:1.2em;margin:24px 0 16px;color:#6B21A8;">4.8 无限流 / 快穿</h3>
+  <div class="theme-grid">
+    <div class="theme-card" style="border-left-color:#8B5CF6;">
+      <h4>无限流</h4>
+      <div class="sub">晋江·无限流</div>
+      <p><span class="label rule">世界观规则</span> 被选中的轮回者穿梭于各类恐怖电影世界，完成主神发布的任务获取奖励点和支线剧情。主神空间是远古圣人与修真者大战后遗留的古战场改造而成的试炼场。</p>
+      <p><span class="label struct">社会结构</span> 主神空间中的团队博弈、基因锁等级体系（五阶）。</p>
+      <p><span class="label conflict">核心矛盾</span> 生存与死亡的对抗、团队内部博弈、副本任务挑战。</p>
+      <p><span class="label elem">典型元素</span> 主神空间、轮回者、任务系统、基因锁、副本世界。</p>
+    </div>
+    <div class="theme-card" style="border-left-color:#8B5CF6;">
+      <h4>快穿</h4>
+      <div class="sub">晋江·快穿 | 番茄·快穿</div>
+      <p><span class="label rule">世界观规则</span> 依次穿越到各个世界，展开剧情。如"以'无量骰子'驱动的强制性、高密度、多维度快穿机制，构建起一套严苛自洽的无限循环系统。该系统以'生存即规则'为铁律"。</p>
+      <p><span class="label struct">社会结构</span> 每个世界独立的社会结构，主角在不同世界中切换身份。</p>
+      <p><span class="label conflict">核心矛盾</span> 不同世界中的生存挑战、任务完成与情感纠葛。</p>
+      <p><span class="label elem">典型元素</span> 快穿机制、系统任务、多世界穿梭、副本设定。</p>
+    </div>
+  </div>
+
+  <!-- 9. 现实题材 -->
+  <h3 style="font-size:1.2em;margin:24px 0 16px;color:#4B5563;">4.9 现实题材</h3>
+  <div class="theme-grid">
+    <div class="theme-card" style="border-left-color:#6B7280;">
+      <h4>职场</h4>
+      <div class="sub">晋江·职场·业界精英 | 番茄·现言</div>
+      <p><span class="label rule">世界观规则</span> 当代中国都市职场社会。"S市被划分为'光鲜带'（陆家嘴金融区）与'毛细血管'（城郊结合部），后者拥有最高密度的生活细节：1500元房租含水电、楼下煎饼摊、房东催租微信"。</p>
+      <p><span class="label struct">社会结构</span> 四层金字塔：顶层（经理级）、中层（主管/组长）、基层。制度现实性深度绑定中国社会运行机制。</p>
+      <p><span class="label conflict">核心矛盾</span> 职场竞争、阶层流动、生存压力、个人发展与制度约束。</p>
+      <p><span class="label elem">典型元素</span> 职场规则、绩效考核、职场关系、生活细节。</p>
+    </div>
+    <div class="theme-card" style="border-left-color:#6B7280;">
+      <h4>家庭 / 都市生活</h4>
+      <div class="sub">晋江·布衣生活·市井生活 | 番茄·年代文</div>
+      <p><span class="label rule">世界观规则</span> 以家庭关系为核心，涵盖校园、家庭、科研机构等多层面。</p>
+      <p><span class="label struct">社会结构</span> 家庭内部关系、宗族关系、代际关系、城市化进程中的阶层差异。</p>
+      <p><span class="label conflict">核心矛盾</span> 家庭利益冲突、代际矛盾、生存压力、城市生活压力。</p>
+      <p><span class="label elem">典型元素</span> 家庭关系、宗族制度、代际传承、都市地标、日常生活。</p>
+    </div>
+    <div class="theme-card" style="border-left-color:#6B7280;">
+      <h4>校园</h4>
+      <div class="sub">晋江·校园·花季雨季</div>
+      <p><span class="label rule">世界观规则</span> 以大学城、学校为核心场景。"双核地理空间：以'大学城'为代表的现代教育空间与以'城中村棚屋区'为代表的底层劳工空间形成尖锐对照"。</p>
+      <p><span class="label struct">社会结构</span> 学校内部阶层差异、城乡差异。</p>
+      <p><span class="label conflict">核心矛盾</span> 学业竞争、阶层差异、青春成长。</p>
+      <p><span class="label elem">典型元素</span> 校园生活、学业压力、青春成长、城市空间对照。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Part 5: 代表性作品 ==================== -->
+<section class="section" id="part5">
+  <h2 class="section-title">
+    <span class="icon" style="background:linear-gradient(135deg,#10B981,#059669)">05</span>
+    代表性作品对应
+  </h2>
+  <p class="section-desc">按版权状态分为"公共领域（无版权）"和"有版权"两大类。优先推荐无版权作品用于AI续写和知识库搭建。</p>
+
+  <!-- 公共领域：中国 -->
+  <h3 style="font-size:1.15em;margin-bottom:16px;color:var(--success);">5.1 公共领域 · 中国古典名著</h3>
+  <div class="work-grid">
+    <div class="work-item">
+      <div class="work-num score-极优" style="font-size:0.6em;">极优</div>
+      <div class="work-info">
+        <h5>《西游记》</h5>
+        <div class="meta">吴承恩 · 明代(16世纪) · 中国 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">神魔修仙宇宙：天界/人间/地府三界；八十一难单元结构；佛教/道教神学体系。师徒四人冒险框架天然适合AI扩展。</div>
+      </div>
+      <div class="work-badge"><div class="score score-极优" style="color:var(--success);">5.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-极优" style="font-size:0.6em;">极优</div>
+      <div class="work-info">
+        <h5>《红楼梦》</h5>
+        <div class="meta">曹雪芹 · 清代(~1750s) · 中国 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">封建贵族社会+太虚幻境神话框架。仅前80回为曹雪芹原著，后40回续书争议，AI续写可与学界补遗对话。贾府四大家族人物关系复杂可扩展。</div>
+      </div>
+      <div class="work-badge"><div class="score score-极优" style="color:var(--success);">5.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-极优" style="font-size:0.6em;">极优</div>
+      <div class="work-info">
+        <h5>《聊斋志异》</h5>
+        <div class="meta">蒲松龄 · 清代(17世纪末) · 中国 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">狐鬼志怪世界：人/鬼/妖/神/动物五族并存；阴司/仙界/人间多重空间。独立故事单元，每个可独立续写；狐妖书生CP模式成熟。</div>
+      </div>
+      <div class="work-badge"><div class="score score-极优" style="color:var(--success);">5.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-极优" style="font-size:0.6em;">极优</div>
+      <div class="work-info">
+        <h5>《封神演义》</h5>
+        <div class="meta">许仲琳 · 明代(~1620) · 中国 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">阐教/截教两派对立；鸿钧道人师尊；封神榜体系。阵营对抗结构清晰，神魔战斗体系完整，可生成新故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-极优" style="color:var(--success);">5.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《水浒传》</h5>
+        <div class="meta">施耐庵 · 元末明初 · 中国 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">侠义江湖+朝廷斗争；108好汉。每位人物可独立延展，结局散伙后命运有续写空间。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《三国演义》</h5>
+        <div class="meta">罗贯中 · 元末明初 · 中国 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">历史权谋+英雄史诗；三国鼎立。人物关系明确，可做"假如"式AI续写。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《三言二拍》</h5>
+        <div class="meta">冯梦龙/凌濛初 · 明代(16-17世纪) · 中国 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">话本小说集；市井故事；因果报应。大量独立故事单元，可按主题批量生成。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《山海经》《搜神记》</h5>
+        <div class="meta">佚名/干宝 · 先秦/晋代 · 中国 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">神话地理志怪/志怪小说集。地理志怪结构适合AI扩展，可生成新的"异兽档案"和海外国度。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《镜花缘》</h5>
+        <div class="meta">李汝珍 · 清代(1815) · 中国 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">奇幻海外游记；女儿国等奇异国度；女性议题。海外游记结构适合AI扩展，女性主义议题可产生新对话。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-一般" style="font-size:0.6em;">一般</div>
+      <div class="work-info">
+        <h5>《西厢记》《牡丹亭》《长生殿》</h5>
+        <div class="meta">王实甫/汤显祖/洪昇 · 元/明/清 · 中国 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">经典爱情叙事/奇幻爱情/历史爱情。续写空间有限，但AI可生成平行故事或新版本。</div>
+      </div>
+      <div class="work-badge"><div class="score score-一般" style="color:#F59E0B;">3.0</div><div class="label">适配评分</div></div>
+    </div>
+  </div>
+
+  <!-- 公共领域：外国 -->
+  <h3 style="font-size:1.15em;margin:28px 0 16px;color:var(--success);">5.2 公共领域 · 外国名著</h3>
+  <div class="work-grid">
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《傲慢与偏见》</h5>
+        <div class="meta">简·奥斯汀 · 英国 · 1813 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">19世纪初英国中产社会；婚恋社会规范。奥斯汀续写传统成熟，AI可生成新家族故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《简·爱》</h5>
+        <div class="meta">夏洛蒂·勃朗特 · 英国 · 1847 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">维多利亚时代社会；阶级与性别议题。女性成长叙事，AI可生成新社会冲突。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《呼啸山庄》</h5>
+        <div class="meta">艾米莉·勃朗特 · 英国 · 1847 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">约克郡荒原；哥特式浪漫。哥特氛围+家族仇恨叙事，AI可生成新的荒原故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《莎士比亚全集》</h5>
+        <div class="meta">威廉·莎士比亚 · 英国 · ~1600s · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">文艺复兴时期英国；王权、爱情、复仇、命运。经典人物和情节可被AI重新编排，但风格模仿是巨大挑战。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《福尔摩斯探案集》</h5>
+        <div class="meta">阿瑟·柯南·道尔 · 英国 · 1887-1927 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">维多利亚/爱德华时代伦敦；侦探推理。侦探单元结构适合AI批量生成新案件。（注：部分后期作品版权状态因国家/地区而异，使用前需确认）</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《基督山伯爵》</h5>
+        <div class="meta">大仲马 · 法国 · 1844 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">19世纪法国；复仇+财富+身份转换。复仇叙事结构清晰，AI可生成新复仇故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《悲惨世界》</h5>
+        <div class="meta">维克多·雨果 · 法国 · 1862 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">19世纪法国社会；革命、贫困、救赎。人物众多，社会矛盾深刻。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《小妇人》</h5>
+        <div class="meta">路易莎·梅·奥尔科特 · 美国 · 1868 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">19世纪美国康科德小镇；南北战争背景。马奇四姐妹女性成长叙事，AI可生成新的姐妹故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《源氏物语》</h5>
+        <div class="meta">紫式部 · 日本 · 11世纪(~1000-1012) · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">日本平安时代宫廷；贵族恋爱+佛教无常观。光源氏与众多女性人物，AI可生成新宫廷故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《罪与罚》《战争与和平》</h5>
+        <div class="meta">陀思妥耶夫斯基/列夫·托尔斯泰 · 俄国 · 1866/1869 · <strong style="color:var(--success)">无版权</strong></div>
+        <div class="meta" style="margin-top:4px;">19世纪俄国社会；犯罪/赎罪/历史史诗。心理深度极强，人物众多，历史框架宏大。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+  </div>
+
+  <!-- 有版权 -->
+  <h3 style="font-size:1.15em;margin:28px 0 16px;color:var(--warning);">5.3 有版权代表性作品</h3>
+  <div class="card" style="background:#FFFBEB;border-color:#FCD34D;">
+    <p style="font-size:0.85em;color:#92400E;"><strong>注意：</strong>以下作品受版权保护，使用需获授权。以下信息仅供调研参考，不构成使用许可。AI续写/改编须区分"事实信息/人物关系"与"版权文本/衍生表达"，避免侵权。</p>
+  </div>
+
+  <div class="work-grid" style="margin-top:16px;">
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《甄嬛传》（后宫·甄嬛传）</h5>
+        <div class="meta">流潋紫 · 中国 · 2006连载/2008出版 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">清朝后宫等级森严的宫廷社会。人物关系复杂，AI可生成新宫斗故事（需避开已知情节）。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《三生三世十里桃花》</h5>
+        <div class="meta">唐七 · 中国 · 2008-2009 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">仙侠世界；九重天/青丘/人间三界。多世轮回设定，AI可生成新轮回故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《花千骨》</h5>
+        <div class="meta">fresh果果 · 中国 · 2014出版 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">仙侠世界；长留山/蜀山/蓬莱。师徒关系设定，AI可生成新仙侠故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《知否知否应是绿肥红瘦》</h5>
+        <div class="meta">关心则乱 · 中国 · 2012-2015 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">宋朝世家大族社会。家族叙事+历史背景，AI可生成新家族故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《墨雨云间》（原著《嫡嫁千金》）</h5>
+        <div class="meta">千山茶客 · 中国 · 2023-2024 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">架空古代；县令之女重生复仇。复仇+重生叙事，AI可生成新复仇故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《与凤行》（原著《本王在此》）</h5>
+        <div class="meta">九鹭非香 · 中国 · 2013完结 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">仙侠世界；灵界/天界/人间三界。仙侠+大女主设定。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《哈利·波特》系列</h5>
+        <div class="meta">J.K.罗琳 · 英国 · 1997-2007 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">魔法世界；霍格沃茨+魔法部+伏地魔势力。魔法世界观完整，AI可生成新魔法故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《暮光之城》系列</h5>
+        <div class="meta">斯蒂芬妮·梅尔 · 美国 · 2005-2008 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">吸血鬼+狼人+人类世界。奇幻爱情设定，AI可生成新奇幻爱情故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《饥饿游戏》三部曲</h5>
+        <div class="meta">苏珊·柯林斯 · 美国 · 2008-2010 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">反乌托邦未来；施惠国12个区+首都。反乌托邦设定，AI可生成新反抗故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《我的美好婚事》</h5>
+        <div class="meta">颚木亚久弥 · 日本 · 2019 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">日本大正时代；神秘术士家族。历史+奇幻+恋爱，AI可生成新家族故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+    <div class="work-item">
+      <div class="work-num score-较优" style="font-size:0.6em;">较优</div>
+      <div class="work-info">
+        <h5>《三体》系列</h5>
+        <div class="meta">刘慈欣 · 中国 · 2006/2008 · <strong style="color:var(--warning)">有版权</strong></div>
+        <div class="meta" style="margin-top:4px;">硬科幻；三体文明+地球文明+宇宙社会学。硬科幻设定，AI可生成新科幻故事。</div>
+      </div>
+      <div class="work-badge"><div class="score score-较优" style="color:#3B82F6;">4.0</div><div class="label">适配评分</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Part 6: AI续写评估 ==================== -->
+<section class="section" id="part6">
+  <h2 class="section-title">
+    <span class="icon" style="background:linear-gradient(135deg,#3B82F6,#2563EB)">06</span>
+    AI续写适配性评估
+  </h2>
+  <p class="section-desc">对调研到的所有作品按"世界观完整性、角色丰富度、叙事开放性、知识库适配性"四维度评估，并按适配性分为三个梯队。</p>
+
+  <div class="callout">
+    <h4>评估四维度</h4>
+    <ul>
+      <li><strong>世界观完整性：</strong>是否有完整可扩展的设定体系（地理/社会/魔法/神学等）</li>
+      <li><strong>角色丰富度：</strong>人物关系是否可以继续延展和增加新角色</li>
+      <li><strong>叙事开放性：</strong>故事是否有继续发展的空间（开放式结局/单元结构/多线叙事）</li>
+      <li><strong>知识库适配性：</strong>核心设定能否被一个知识库完整容纳（规则化程度）</li>
+    </ul>
+  </div>
+
+  <!-- 第一梯队 -->
+  <h3 style="font-size:1.15em;margin:24px 0 12px;color:var(--success);">第一梯队 · 极优（世界观完整+人物丰富+叙事开放+知识库适配）</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>排名</th><th>作品</th><th>版权</th><th>适配理由</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><strong>《西游记》</strong></td><td>无</td><td>八十一难单元结构天然适合AI扩展；三界设定完整；师徒四人关系稳固</td></tr>
+        <tr><td>2</td><td><strong>《红楼梦》</strong></td><td>无</td><td>后40回续书争议；人物关系复杂；AI续写可与学界补遗对话</td></tr>
+        <tr><td>3</td><td><strong>《水浒传》</strong></td><td>无</td><td>108位人物，每位可独立延展；忠义文化主线清晰；结局后命运有续写空间</td></tr>
+        <tr><td>4</td><td><strong>《封神演义》</strong></td><td>无</td><td>阐教/截教阵营对抗清晰；封神榜设定可扩展；神魔战斗体系完整</td></tr>
+        <tr><td>5</td><td><strong>《聊斋志异》</strong></td><td>无</td><td>独立故事单元，每个可独立续写；狐妖书生CP模式成熟</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 第二梯队 -->
+  <h3 style="font-size:1.15em;margin:24px 0 12px;color:#3B82F6;">第二梯队 · 较优（有明确可扩展空间，需注意续写约束）</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>排名</th><th>作品</th><th>版权</th><th>适配理由</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>6</td><td>《三国演义》</td><td>无</td><td>人物关系明确；历史框架可转向"假如"式AI续写</td></tr>
+        <tr><td>7</td><td>《傲慢与偏见》</td><td>无</td><td>奥斯汀续写传统成熟；AI可生成新家族故事</td></tr>
+        <tr><td>8</td><td>《简·爱》</td><td>无</td><td>女性成长叙事；AI可生成新社会冲突</td></tr>
+        <tr><td>9</td><td>《呼啸山庄》</td><td>无</td><td>哥特式氛围+家族仇恨叙事</td></tr>
+        <tr><td>10</td><td>《悲惨世界》</td><td>无</td><td>人物众多，社会矛盾深刻</td></tr>
+        <tr><td>11</td><td>《福尔摩斯探案集》</td><td>无*</td><td>侦探单元结构适合AI批量生成；*部分作品版权因地区而异</td></tr>
+        <tr><td>12</td><td>《小妇人》</td><td>无</td><td>女性成长叙事；AI可生成新姐妹故事</td></tr>
+        <tr><td>13</td><td>《源氏物语》</td><td>无</td><td>古典宫廷文学经典；AI可生成新宫廷故事</td></tr>
+        <tr><td>14</td><td>《三言二拍》</td><td>无</td><td>话本单元结构适合AI按主题批量生成</td></tr>
+        <tr><td>15</td><td>《甄嬛传》</td><td>有</td><td>人物关系复杂；AI可生成新宫斗故事（需避开已知情节）</td></tr>
+        <tr><td>16</td><td>《三生三世十里桃花》</td><td>有</td><td>仙侠设定+多世轮回；可生成新轮回故事</td></tr>
+        <tr><td>17</td><td>《花千骨》</td><td>有</td><td>仙侠设定+师徒关系</td></tr>
+        <tr><td>18</td><td>《墨雨云间》</td><td>有</td><td>复仇+重生叙事</td></tr>
+        <tr><td>19</td><td>《与凤行》</td><td>有</td><td>仙侠+大女主</td></tr>
+        <tr><td>20</td><td>《我的美好婚事》</td><td>有</td><td>日本大正时代+奇幻+恋爱</td></tr>
+        <tr><td>21</td><td>《哈利·波特》</td><td>有</td><td>魔法世界观完整；可生成新魔法故事</td></tr>
+        <tr><td>22</td><td>《暮光之城》</td><td>有</td><td>吸血鬼+狼人设定</td></tr>
+        <tr><td>23</td><td>《饥饿游戏》</td><td>有</td><td>反乌托邦设定</td></tr>
+        <tr><td>24</td><td>《三体》</td><td>有</td><td>硬科幻设定</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 第三梯队 -->
+  <h3 style="font-size:1.15em;margin:24px 0 12px;color:#F59E0B;">第三梯队 · 一般（续写空间有限，但有特定价值）</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>排名</th><th>作品</th><th>版权</th><th>适配理由</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>25</td><td>《西厢记》</td><td>无</td><td>经典爱情叙事，续写空间有限</td></tr>
+        <tr><td>26</td><td>《牡丹亭》</td><td>无</td><td>奇幻爱情，续写空间有限</td></tr>
+        <tr><td>27</td><td>《长生殿》</td><td>无</td><td>历史爱情题材</td></tr>
+        <tr><td>28</td><td>《茶花女》</td><td>无</td><td>经典爱情悲剧</td></tr>
+        <tr><td>29</td><td>《儒林外史》</td><td>无</td><td>讽刺科举社会，人物群像延展空间不如前几部</td></tr>
+        <tr><td>30</td><td>《繁花》</td><td>有</td><td>方言叙事+海派文化，AI续写风格挑战大</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout" style="border-left-color:var(--success);background:linear-gradient(135deg,#D1FAE5,#EDE9FE);">
+    <h4 style="color:#065F46;">知识库适配性关键指标</h4>
+    <p>适合AI续写的作品应具备以下四个特征：</p>
+    <ul>
+      <li><strong>完整的地理/社会/魔法/神学世界观设定</strong>——如《西游记》的三界体系、《封神演义》的教派体系</li>
+      <li><strong>清晰的人物关系图谱</strong>——如《红楼梦》贾府四大家族、《水浒传》108好汉</li>
+      <li><strong>可重复使用的叙事模板</strong>——如"师徒冒险""家族斗争""复仇成长""爱情轮回"</li>
+      <li><strong>规则化程度高</strong>——世界运作规则可以被结构化表达，如修仙境界体系、系统面板数值</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ==================== Part 7: 总结 ==================== -->
+<section class="section" id="part7">
+  <h2 class="section-title">
+    <span class="icon" style="background:linear-gradient(135deg,#1F2937,#111827)">07</span>
+    关键发现与总结
+  </h2>
+
+  <div class="summary-box">
+    <h3>核心结论</h3>
+    <ol>
+      <li><strong>女性用户是网文和微短剧消费的主力军</strong>：网文女性占比68%，红果短剧女性68%，晋江女性91%。言情类作品下载量与阅读时长占市场45%，爱情小说女性读者占78.6%。</li>
+      <li><strong>年龄层分化显著</strong>：学生偏好甜宠/逆袭/校园/无限流；职场新人偏好都市职场/豪门/现实议题；职场中层偏好年代文/宫斗/事业逆袭；宝妈偏好育儿/萌娃/甜宠解压；中老年偏好稳定叙事/经典文学（番茄45+用户1.21亿，占45.7%）。</li>
+      <li><strong>碎片化阅读与情绪价值是核心驱动力</strong>：日均阅读85.3分钟，深度阅读42.7%，阅读高峰晚8-11点。免费模式将"货币支付"转向"时间支付"，2025年广告营收首破50%。</li>
+      <li><strong>平台分类体系各有侧重</strong>：番茄12大分类（蝉鸣季），晋江129个标签最丰富，七猫6大分类，知乎4大爆款（悬疑35%），短剧女频74%。</li>
+      <li><strong>世界观设定围绕"规则+结构+矛盾+元素"四维度展开</strong>：从宫斗的份例制度到无限流的基因锁体系，从种田文的土地制度到赛博朋克的企业霸权，每个题材都有独特的可结构化世界观。</li>
+      <li><strong>公共领域作品是AI续写最佳素材</strong>：《西游记》《红楼梦》《聊斋志异》《封神演义》《水浒传》因无版权限制且世界观完整，最适合搭建知识库。单元结构作品（八十一难、志怪集、话本集）天然适合AI批量生成。</li>
+      <li><strong>有版权作品的世界观可参考但不可直接复制表达</strong>：如《甄嬛传》的宫斗体系、《三生三世》的仙侠轮回、《哈利·波特》的魔法世界，其"设定框架"可被借鉴，但"具体表达"受版权保护。</li>
+      <li><strong>社交平台正在成为传播核心节点</strong>：小红书女性72%/00后35%/95后50%成为网文推流系统，番茄书荒广场日活500万，段评/本章说即时互动。</li>
+    </ol>
+  </div>
+
+  <div class="callout">
+    <h4>后续建议</h4>
+    <p>本报告为第一版，尽可能涵盖了用户画像、平台分类、题材世界观和代表性作品四个维度。后续可根据以下方向深化：</p>
+    <ul>
+      <li>按具体题材深化世界观设定模板（如宫斗等级制/修仙境界体系/系统面板规则的完整规则文档）</li>
+      <li>为无版权作品构建可用的知识库结构（人物关系图谱/地理设定/规则体系/叙事模板）</li>
+      <li>补充更多海外公共领域作品（如格林童话/安徒生童话/阿拉伯之夜等）</li>
+      <li>增加各题材的"AI续写提示词模板"和"世界观搭建SOP"</li>
+      <li>深化男性用户在各题材中的偏好数据</li>
+    </ul>
+  </div>
+</section>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>女性向小说与影视剧题材世界观深度调研报告 · 第一版</p>
+  <p>调研日期：2026年8月26日 | 数据来源：各平台公开数据、行业报告、学术文献</p>
+  <p>本报告数据仅供参考，不构成投资或商业决策建议。版权信息以当地法律为准。</p>
+</div>
+
+<script>
+// Accordion
+document.querySelectorAll('.accordion-header').forEach(h => {
+  h.addEventListener('click', () => {
+    h.parentElement.classList.toggle('open');
+  });
+});
+
+// Nav active state
+const navLinks = document.querySelectorAll('.nav a');
+const sections = document.querySelectorAll('.section[id]');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+
+// Animate chart bars on load
+window.addEventListener('load', () => {
+  document.querySelectorAll('.chart-bar .fill').forEach(f => {
+    const w = f.style.width;
+    f.style.width = '0';
+    setTimeout(() => f.style.width = w, 100);
+  });
+});
+</script>
+</body>
+</html>

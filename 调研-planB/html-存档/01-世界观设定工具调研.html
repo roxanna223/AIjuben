@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>调研1 · 世界观设定工具技术方案调研</title>
+<style>
+:root{--primary:#7C3AED;--primary-dark:#5B21B6;--primary-light:#EDE9FE;--accent:#DB2777;--bg:#FAFAFB;--card:#fff;--text:#1F2937;--text2:#6B7280;--border:#E5E7EB;--ok:#059669;--warn:#D97706;--shadow:0 1px 3px rgba(0,0,0,.08);--shadow-lg:0 10px 30px rgba(0,0,0,.08);--radius:12px;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased}
+.hero{background:linear-gradient(135deg,#4C1D95,#7C3AED 45%,#DB2777);color:#fff;padding:64px 32px 48px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;right:-8%;width:500px;height:500px;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 70%);border-radius:50%}
+.hero h1{font-size:2.2em;font-weight:800;position:relative;letter-spacing:1px}
+.hero .sub{font-size:1.05em;opacity:.9;position:relative;margin-top:10px}
+.hero .meta{font-size:.82em;opacity:.7;position:relative;margin-top:18px}
+.container{max-width:1080px;margin:0 auto;padding:0 24px}
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;box-shadow:var(--shadow)}
+.nav a{text-decoration:none;color:var(--text2);font-size:.82em;font-weight:600;padding:5px 12px;border-radius:18px;transition:.2s;white-space:nowrap}
+.nav a:hover{color:var(--primary);background:var(--primary-light)}
+.section{padding:44px 0;border-bottom:1px solid var(--border)}
+.sec-title{font-size:1.5em;font-weight:800;display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.sec-title .icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1em;color:#fff;flex-shrink:0;background:linear-gradient(135deg,var(--primary),var(--primary-dark))}
+.sec-desc{color:var(--text2);font-size:.92em;margin-bottom:26px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:14px;box-shadow:var(--shadow)}
+.table-wrap{overflow-x:auto;margin:14px 0;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.84em;background:var(--card)}
+th{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:10px 14px;text-align:left;font-weight:700;white-space:nowrap}
+td{padding:9px 14px;border-top:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#F9FAFB}
+tr:hover td{background:#F5F3FF}
+.score{font-weight:800}
+.s9{color:var(--ok)}.s8{color:#2563EB}.s7{color:var(--warn)}.s6,.s5{color:#EA580C}.s3{color:#DC2626}
+.tag{display:inline-block;padding:3px 10px;border-radius:14px;font-size:.78em;font-weight:600;background:var(--primary-light);color:var(--primary-dark);margin:2px}
+.tag.pink{background:#FCE7F3;color:var(--accent)}
+.tag.green{background:#D1FAE5;color:#065F46}
+.tag.orange{background:#FED7AA;color:#9A3412}
+pre{background:#1E1B3A;color:#E9E7FF;padding:18px;border-radius:10px;overflow-x:auto;font-size:.8em;line-height:1.7;font-family:"Cascadia Code",Consolas,"Courier New",monospace;margin:12px 0}
+pre .k{color:#C4B5FD}pre .s{color:#86EFAC}pre .c{color:#9CA3AF}
+.callout{background:linear-gradient(135deg,#EDE9FE,#FCE7F3);border-left:4px solid var(--primary);border-radius:var(--radius);padding:18px 22px;margin:18px 0}
+.callout h4{color:var(--primary-dark);font-size:1em;margin-bottom:6px}
+.callout p,.callout li{font-size:.87em}
+.callout ul{padding-left:20px;margin-top:6px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow .step{background:var(--card);border:2px solid var(--primary);border-radius:10px;padding:8px 14px;font-size:.84em;font-weight:700;color:var(--primary-dark);box-shadow:var(--shadow)}
+.flow .arr{color:var(--primary);font-weight:800;font-size:1.1em}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.mini{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow)}
+.mini h4{font-size:.98em;color:var(--primary-dark);margin-bottom:8px}
+.mini p,.mini li{font-size:.85em;color:var(--text2)}
+.mini ul{padding-left:18px}
+.check{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 22px;font-size:.86em;line-height:2.1;box-shadow:var(--shadow)}
+.check b{color:var(--primary-dark)}
+.tier{border-radius:var(--radius);padding:20px 24px;margin-bottom:14px;border:2px solid;box-shadow:var(--shadow)}
+.tier h4{font-size:1.05em;margin-bottom:8px}
+.tier p,.tier li{font-size:.87em}
+.tier ul{padding-left:20px;margin-top:6px}
+.t1{border-color:var(--ok);background:#F0FDF9}.t1 h4{color:#065F46}
+.t2{border-color:var(--primary);background:#F5F3FF}.t2 h4{color:var(--primary-dark)}
+.t3{border-color:var(--accent);background:#FDF2F8}.t3 h4{color:var(--accent)}
+.footer{background:#1F2937;color:#9CA3AF;text-align:center;padding:28px 20px;font-size:.8em}
+@media(max-width:768px){.hero{padding:44px 18px 32px}.hero h1{font-size:1.5em}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>调研一 · 世界观设定工具技术方案</h1>
+  <div class="sub">自然语言输入 → AI辅助生成 → 自动补齐 → 多轮迭代 → 固定格式"基本盘"输出</div>
+  <div class="meta">互动小说工具调研 · 第1/5篇 · 2026年8月</div>
+</div>
+
+<nav class="nav">
+  <a href="#p1">需求解析</a><a href="#p2">工具全景</a><a href="#p3">基本盘字段</a>
+  <a href="#p4">迭代机制</a><a href="#p5">提示词模板</a><a href="#p6">落地方案</a><a href="#p7">结论</a>
+</nav>
+
+<div class="container">
+
+<!-- P1 需求解析 -->
+<section class="section" id="p1">
+  <h2 class="sec-title"><span class="icon">01</span>需求解析：这个工具要做什么</h2>
+  <p class="sec-desc">目标工作流：用户用一句自然语言描述想法，AI 生成完整世界观，自动补齐缺失部分，通过多轮对话不断完善，最终输出一套固定格式的"基本盘"字段——字段填完即代表世界观相对完整，可进入下一阶段（人物设定 / 剧情推演）。</p>
+  <div class="flow">
+    <div class="step">自然语言描述</div><span class="arr">→</span>
+    <div class="step">AI生成完整世界观</div><span class="arr">→</span>
+    <div class="step">自动补齐缺失项</div><span class="arr">→</span>
+    <div class="step">多轮沟通迭代</div><span class="arr">→</span>
+    <div class="step">完整性审计通过</div><span class="arr">→</span>
+    <div class="step">输出基本盘JSON</div>
+  </div>
+  <div class="callout">
+    <h4>四个核心技术问题</h4>
+    <ul>
+      <li><b>生成</b>：如何从模糊想法生成结构化、字段齐全的世界观？</li>
+      <li><b>补齐</b>：AI 如何识别缺失字段——自动填默认值，还是主动提问？</li>
+      <li><b>迭代</b>：多轮修改如何保持一致性（不冲突、不漂移）？</li>
+      <li><b>输出</b>：固定格式怎么定？填完哪些字段才算"世界观完整"？</li>
+    </ul>
+  </div>
+</section>
+
+<!-- P2 工具全景 -->
+<section class="section" id="p2">
+  <h2 class="sec-title"><span class="icon">02</span>现有工具全景对比</h2>
+  <p class="sec-desc">调研国际专业写作工具、Lorebook 系角色扮演平台与国内工具，按世界观生成能力、迭代能力、结构化输出能力综合评分。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>工具</th><th>世界观生成方式</th><th>迭代修改</th><th>结构化输出</th><th>价格</th><th>适配度</th></tr></thead>
+      <tbody>
+        <tr><td><b>NovelCrafter</b></td><td>Codex 作为"活体 wiki"，角色/地点/魔法/派系结构化为条目，AI 写作前自动读取</td><td>条目管理、全局映射、AI 生成后一键提取为条目</td><td>完整</td><td>$4–20/月（AI 需自带 API Key）</td><td class="score s9">9/10</td></tr>
+        <tr><td><b>World Anvil</b></td><td>模板体系 + AI Sage 辅助生成条目细节（城市历史、地区、节日等）</td><td>实时更新，适合长期维护庞大世界观</td><td>很强（地理/历史/组织/力量体系/地图/时间线）</td><td>$8.25/月起</td><td class="score s9">9/10</td></tr>
+        <tr><td><b>Sudowrite</b></td><td>Story Bible：从 Braindump（想法倾倒）起步，自动整理为世界观卡片</td><td>生成后可持续修改扩展，保持世界规则一致</td><td>较完整（Braindump/Worldbuilding/Lorebook）</td><td>$19–59/月</td><td class="score s8">8/10</td></tr>
+        <tr><td><b>Obsidian + AI插件</b></td><td>本地笔记 + AI 插件构建离线知识库 wiki</td><td>笔记编辑、模板、AI 维护</td><td>取决于模板（可做 Markdown wiki / 角色卡 / 地点卡）</td><td>免费（AI 费用另计）</td><td class="score s8">8/10</td></tr>
+        <tr><td><b>Custom GPTs</b></td><td>系统提示词 + 知识文件 + 对话工作流构建世界观助手</td><td>多轮对话修改，可导出固定格式</td><td>中等（依赖提示词与文件组织）</td><td>订阅制</td><td class="score s8">8/10</td></tr>
+        <tr><td><b>Campfire Writing</b></td><td>模块化系统：角色、地点、地图、时间线、魔法、语言、物种、文化等 17 个模块</td><td>各模块独立编辑，AI 辅助生成</td><td>模块化</td><td>模块 $0.25–2/月</td><td class="score s7">7/10</td></tr>
+        <tr><td><b>LegendKeeper</b></td><td>协作式世界观构建（词条、地图、时间线、RPG战役）</td><td>协作、实时同步、模板复用</td><td>较强</td><td>免费试用</td><td class="score s7">7/10</td></tr>
+        <tr><td><b>Notion AI / Claude Projects</b></td><td>文档知识库 + 上传设定让 AI 基于资料回答</td><td>手动维护、逐步补齐</td><td>中等</td><td>订阅制</td><td class="score s7">7/10</td></tr>
+        <tr><td><b>NovelAI Lorebook</b></td><td>关键词触发机制（Entry + Activation Keys，支持 Regex）</td><td>按关键词动态激活条目</td><td>条目式</td><td>订阅制</td><td class="score s6">6/10</td></tr>
+        <tr><td><b>SillyTavern World Info</b></td><td>关键词触发 + scan depth / priority / token budget / injection position</td><td>常开、正则、大小写、全文匹配、扫描深度</td><td>条目式（YAML frontmatter）</td><td>免费开源</td><td class="score s6">6/10</td></tr>
+        <tr><td><b>AI Dungeon World Info</b></td><td>Story Cards 逗号分隔触发词，关键词出现时注入设定</td><td>实时触发</td><td>卡片式</td><td>订阅制</td><td class="score s5">5/10</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>国内工具</th><th>能力</th><th>适配度</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr><td><b>彩云小梦</b></td><td>世界设定模块：普通词条、人物词条、人物关系、背景故事 + AI 续写</td><td class="score s7">7/10</td><td>有中文世界设定功能，偏故事续写</td></tr>
+        <tr><td><b>墨狐AI</b></td><td>输入灵感生成导语、世界观、角色卡、目录；支持剧情树分析</td><td class="score s7">7/10</td><td>网文方向，世界观偏大纲级</td></tr>
+        <tr><td><b>蛙蛙写作</b></td><td>AI 小说/剧本写作助手</td><td class="score s6">6/10</td><td>黄金会员 405.7元/年</td></tr>
+        <tr><td><b>Kimi / 豆包</b></td><td>长文本读取设定、多轮对话维护、整理世界文档</td><td class="score s5">5/10</td><td>无结构化世界观模块，需配提示词</td></tr>
+        <tr><td><b>讯飞星火</b></td><td>个人空间上传文档并与文件对话</td><td class="score s5">5/10</td><td>文档知识库方向</td></tr>
+        <tr><td><b>秘塔写作猫</b></td><td>生成、校对、润色</td><td class="score s3">3/10</td><td>世界观构建能力弱</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <h4>关键结论</h4>
+    <ul>
+      <li><b>没有现成产品完整覆盖需求</b>——国际工具偏"写作辅助"（面向作者手动维护），国内工具偏"大纲生成"（一次性输出），都缺少"多轮迭代补齐 → 固定格式验收"的闭环。</li>
+      <li><b>最值得借鉴的机制</b>：Sudowrite 的 Braindump（想法倾倒→自动结构化）、NovelCrafter 的 Codex（活体wiki按需注入）、SillyTavern 的关键词触发（Lorebook技术）。</li>
+      <li><b>推荐自建</b>：用通用 LLM + 结构化提示词 + 本地知识库自建工作流（见第6节落地方案）。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- P3 基本盘字段 -->
+<section class="section" id="p3">
+  <h2 class="sec-title"><span class="icon">03</span>核心交付物：世界观"基本盘"字段体系</h2>
+  <p class="sec-desc">综合 World Anvil 模板体系、Sanderson 世界观方法、SummonWorlds 12部分70+问题模板、D&D 设定文档结构，提炼出适合互动小说（女性向题材）的 11 大类字段。字段填完 = 世界观完整。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>字段类别</th><th>子字段</th><th>必填</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>基本信息</b></td><td>风格 / 年代朝代 / 故事背景一句话</td><td>✓</td><td>宫斗·甜宠·悬疑·规则怪谈·仙侠等；架空古代/现代/近未来</td></tr>
+        <tr><td>2</td><td><b>主角信息</b></td><td>姓名 / 年龄身份 / 外貌特征 / 性格标签(3-5个) / 核心欲望 / 核心恐惧</td><td>✓</td><td>欲望与恐惧驱动全部剧情</td></tr>
+        <tr><td>3</td><td><b>核心冲突</b></td><td>表面冲突 / 深层冲突 / 反派或对立势力 / 力量体系</td><td>✓</td><td>力量体系需含机制、等级、代价</td></tr>
+        <tr><td>4</td><td><b>世界设定</b></td><td>地理环境 / 社会规则 / 文化习俗 / 历史事件 / 势力格局 / 货币经济</td><td>前三项✓</td><td>等级、礼仪、禁忌、潜规则</td></tr>
+        <tr><td>5</td><td><b>故事开头</b></td><td>开头场景 / 开头冲突 / 第一个钩子 / 可选场景1-3</td><td>✓</td><td>可选场景用于互动分支起点</td></tr>
+        <tr><td>6</td><td><b>人物关系</b></td><td>核心关系网 / 关系状态</td><td>✓</td><td>好感度、敌对、未知、依赖</td></tr>
+        <tr><td>7</td><td><b>规则系统</b></td><td>规则或禁忌 / 违规后果 / 代价限制</td><td>✓</td><td>规则怪谈类核心字段</td></tr>
+        <tr><td>8</td><td><b>情感线</b></td><td>主线情感走向 / 配角情感线</td><td>主线✓</td><td>女性向题材关键</td></tr>
+        <tr><td>9</td><td><b>关键物品</b></td><td>关键道具 / 秘密信息</td><td>✓</td><td>推动剧情的麦高芬与隐藏秘密</td></tr>
+        <tr><td>10</td><td><b>故事基调</b></td><td>基调氛围 / 主题</td><td>基调✓</td><td>"甜中带虐""悬疑压迫"等</td></tr>
+        <tr><td>11</td><td><b>名称体系</b></td><td>命名规则</td><td>可选</td><td>地名、人名、组织名的命名风格</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:1.05em;margin:18px 0 8px;">JSON 输出格式示例（规则怪谈+悬疑题材）</h3>
+  <pre>{
+  <span class="k">"world_bible"</span>: {
+    <span class="k">"basic_info"</span>: {
+      "style": <span class="s">"规则怪谈 + 悬疑"</span>,
+      "era": <span class="s">"现代架空"</span>,
+      "one_sentence_background": <span class="s">"一场直播事故后，'第一病房'成为唯一能存活的主线规则空间，入住者必须遵守规则，否则触发死亡结局。"</span>
+    },
+    <span class="k">"protagonist"</span>: {
+      "name": <span class="s">"苏晚"</span>,
+      "age_identity": <span class="s">"24岁，坠楼前是规则怪谈新手，坠楼后成为'第一病房'主持人"</span>,
+      "appearance": <span class="s">"黑色长发，苍白肤色，眼神冷静"</span>,
+      "personality_tags": [<span class="s">"冷静"</span>, <span class="s">"理智"</span>, <span class="s">"危险直觉"</span>],
+      "core_desire": <span class="s">"找出坠楼真相并改变规则"</span>,
+      "core_fear": <span class="s">"规则失控导致无法逆转的死亡"</span>
+    },
+    <span class="k">"core_conflict"</span>: {
+      "surface_conflict": <span class="s">"入住者必须在'第一病房'规则下生存"</span>,
+      "deep_conflict": <span class="s">"苏晚记忆碎片与现实被规则空间反向吞噬"</span>,
+      "antagonist": <span class="s">"规则空间底层程序与'知晓者'"</span>,
+      "power_system": {
+        "name": <span class="s">"规则对抗"</span>,
+        "mechanics": <span class="s">"遵守规则可存活，违规触发死亡结局"</span>,
+        "levels": <span class="s">"新手 / 活跃者 / 主持人"</span>,
+        "cost": <span class="s">"每次突破规则会失去现实记忆碎片"</span>  <span class="c">// 力量必有代价（Sanderson法则）</span>
+      }
+    },
+    <span class="k">"world_settings"</span>: {
+      "geography": { "name": <span class="s">"第一病房"</span>, "structure": <span class="s">"三层结构，每层对应不同规则等级"</span> },
+      "social_rules": <span class="s">"只有写在规则列表中的条款具有实际效力"</span>,
+      "factions": [<span class="s">"幸存者互助会"</span>, <span class="s">"规则探索者"</span>, <span class="s">"知晓者"</span>]
+    },
+    <span class="k">"story_start"</span>: {
+      "opening_scene": <span class="s">"苏晚从噩梦中醒来，发现自己在医院，周围贴满规则纸条"</span>,
+      "opening_conflict": <span class="s">"第一个规则'禁止查看监控'引发事件"</span>,
+      "first_hook": <span class="s">"监控画面中出现三年前坠楼的自己"</span>,
+      "alternative_scenes": [
+        { "name": <span class="s">"初始危机"</span>, "content": <span class="s">"规则列表中有矛盾条款"</span> },
+        { "name": <span class="s">"意外相遇"</span>, "content": <span class="s">"一位入住者提前警告：不要相信第一个规则"</span> }
+      ]
+    },
+    <span class="k">"rules_system"</span>: {
+      "core_rule": <span class="s">"禁止查看监控"</span>,
+      "breaking_rule_consequence": <span class="s">"触发楼层重置，进入更深层空间"</span>,
+      "special_items": [<span class="s">"旧病历卡"</span>, <span class="s">"病房钥匙"</span>, <span class="s">"监控硬盘"</span>]
+    },
+    <span class="k">"key_items"</span>: [
+      { "name": <span class="s">"旧病历卡"</span>, "function": <span class="s">"记录三年前真相"</span>,
+        "hidden_secret": <span class="s">"病历卡背面写着苏晚自己的名字"</span> }
+    ],
+    <span class="k">"story_tone"</span>: { "tone": <span class="s">"悬疑压迫 + 规则怪谈"</span>, "theme": <span class="s">"记忆、身份、规则与控制"</span> }
+  }
+}</pre>
+
+  <h3 style="font-size:1.05em;margin:18px 0 8px;">完整性检查清单（字段填完即验收通过）</h3>
+  <div class="check">
+    □ 风格、年代、背景一句话是否明确　　□ 主角姓名/身份/外貌/性格/欲望/恐惧是否齐全<br>
+    □ 表面冲突与深层冲突是否区分清楚　　□ 反派或对立势力是否明确<br>
+    □ 力量体系是否有<b>机制 + 等级 + 代价</b>　　□ 地理/社会规则/文化是否覆盖<br>
+    □ 历史事件、势力格局是否为当前故事服务　□ 开头场景/冲突/第一个钩子是否明确<br>
+    □ 是否设计了 2-3 个可选开头场景　　□ 核心人物关系是否建立<br>
+    □ 规则禁忌与违规后果是否明确　　□ 情感主线是否清晰<br>
+    □ 关键物品与隐藏秘密是否就绪　　□ 基调是否全文一致
+  </div>
+</section>
+
+<!-- P4 迭代机制 -->
+<section class="section" id="p4">
+  <h2 class="sec-title"><span class="icon">04</span>多轮迭代完善机制设计</h2>
+  <p class="sec-desc">来源：r/worldbuilding 社区的"Play 20 Questions With Your World"方法论，改造为互动小说适用的问答体系。</p>
+
+  <div class="grid2">
+    <div class="mini">
+      <h4>机制一：20个问题问答法</h4>
+      <p>把世界观问题设计成"角色会问的问题"，而不是设定清单：</p>
+      <ul>
+        <li>主角所在的地方有什么特殊限制？</li>
+        <li>谁是最有影响力的人？有没有秘密组织？</li>
+        <li>地图上有绝对不能去的地方吗？</li>
+        <li>这个世界最奇怪的规则是什么？</li>
+        <li>主角情绪最脆弱的时刻是什么？</li>
+        <li>主角最信任谁？最不信任谁？</li>
+        <li>如果世界突然消失，主角会失去什么？</li>
+      </ul>
+    </div>
+    <div class="mini">
+      <h4>机制二：AI 完整性审计员</h4>
+      <p>每轮对话后让 AI 按 11 大类检查，每项标注状态：</p>
+      <ul>
+        <li>【完整】肯定并锁定</li>
+        <li>【缺失】提出 3-5 个引导问题（不一次问太多）</li>
+        <li>【需补充】给出选项让用户确认</li>
+      </ul>
+      <p>同时检测矛盾：人物关系、力量体系、规则代价、时间线四处是矛盾高发区。</p>
+    </div>
+    <div class="mini">
+      <h4>机制三：补齐策略分流</h4>
+      <ul>
+        <li><b>次要设定</b>（节日/饮食/货币/地名）→ AI 自动填默认值，标注"建议值"可修改</li>
+        <li><b>核心设定</b>（主角/核心冲突/规则代价/情感线）→ AI 给选项，用户确认式补全</li>
+        <li><b>增量更新</b> → 每新增关键设定同步更新基本盘</li>
+      </ul>
+    </div>
+    <div class="mini">
+      <h4>机制四：一致性维护</h4>
+      <ul>
+        <li><b>版本管理</b>：记录变更原因 + 内容 + 影响范围</li>
+        <li><b>增量更新</b>：只记录变化，不重写全量</li>
+        <li><b>冲突检测</b>：AI 扫描时间线/力量体系/人物关系矛盾</li>
+        <li><b>引用链</b>：人物、地点、势力用固定名称，便于跨文本追踪</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- P5 提示词 -->
+<section class="section" id="p5">
+  <h2 class="sec-title"><span class="icon">05</span>可直接使用的提示词模板</h2>
+  <p class="sec-desc">三套核心模板：初始生成 → 审计迭代 → 自然语言转结构化。</p>
+
+  <h3 style="font-size:1.05em;margin-bottom:8px;">模板一：初始世界观生成（Master Prompt）</h3>
+  <pre><span class="c">// 用于第一轮：从用户想法生成完整基本盘</span>
+你是专业的世界观构建专家，擅长宫斗、甜宠、悬疑、规则怪谈、仙侠等女性向互动小说题材。
+
+请根据以下用户输入，生成完整的"基本盘"字段，输出为 JSON 格式。
+
+用户输入：
+风格：{风格}　年代：{年代}　一句话背景：{背景}
+主角：{姓名}，{年龄身份}，{外貌}，{性格}
+核心欲望：{欲望}　核心恐惧：{恐惧}
+
+请输出 11 大类：基本信息 / 主角信息 / 核心冲突 / 世界设定 / 故事开头 /
+人物关系 / 规则系统 / 情感线 / 关键物品 / 故事基调 / 名称体系
+
+要求：
+- 每个字段都要有具体细节，禁止写"由你决定"
+- 缺失信息基于输入合理补全，并标注"建议值"
+- 中文输出</pre>
+
+  <h3 style="font-size:1.05em;margin:18px 0 8px;">模板二：审计与冲突检测（迭代轮使用）</h3>
+  <pre><span class="c">// 每轮修改后运行，驱动多轮完善</span>
+你是世界观完整性审计员。请检查以下世界观基本盘，按 11 大类逐项评估。
+
+请输出：
+1. 每个字段状态：【完整】【缺失】【需补充】
+2. 缺失字段的原因
+3. 针对缺失字段提出 3-5 个引导问题（先聚焦 3 个最关键缺失项）
+4. 检查前后矛盾：人物关系 / 力量体系 / 规则代价 / 时间线
+
+世界观内容：{粘贴当前世界观JSON}
+
+要求：对已完整字段给出肯定；对矛盾字段给出具体修改建议；输出 JSON 格式。</pre>
+
+  <h3 style="font-size:1.05em;margin:18px 0 8px;">模板三：自然语言 → 结构化 JSON</h3>
+  <pre><span class="c">// 用于用户随口描述的即时转化</span>
+请将以下用户自然语言描述，转化为世界观"基本盘"JSON 结构。
+
+用户描述：{粘贴用户自然语言描述}
+
+要求：
+- 未提供字段基于输入合理补全并标注"建议值"
+- 输出 JSON，不输出额外解释
+- 描述明显不完整时，在 missing_fields 数组中列出缺失项</pre>
+</section>
+
+<!-- P6 落地方案 -->
+<section class="section" id="p6">
+  <h2 class="sec-title"><span class="icon">06</span>推荐落地方案（三档）</h2>
+  <p class="sec-desc">按投入成本从低到高三档方案，均为可直接执行的组合。</p>
+
+  <div class="tier t1">
+    <h4>方案一 · 零代码（快速验证，1天内可跑通）</h4>
+    <p><b>工具组合：</b>彩云小梦（世界设定词条）+ 墨狐AI（世界观大纲）+ Kimi/豆包（多轮问答补齐）+ Notion/飞书文档（人工维护基本盘）</p>
+    <ul>
+      <li>适合：先验证字段体系是否好用，跑通一个完整世界观的生成流程</li>
+      <li>局限：无自动触发注入、无版本管理、一致性靠人工</li>
+    </ul>
+  </div>
+
+  <div class="tier t2">
+    <h4>方案二 · 低代码（推荐起步，平衡效果与成本）</h4>
+    <p><b>工具组合：</b>Sudowrite Story Bible（Braindump→结构化）+ World Anvil（结构化模板）+ Obsidian 本地知识库 + Custom GPT/Claude Projects（自然语言转 JSON 助手）</p>
+    <ul>
+      <li>适合：中长期维护世界观与人物关系</li>
+      <li>核心是把第3节的 JSON 模板做成 Custom GPT 的系统提示词 + 输出格式约束</li>
+    </ul>
+  </div>
+
+  <div class="tier t3">
+    <h4>方案三 · 全定制（TRAE Skill + 本地知识库，产品化）</h4>
+    <pre>┌────────────────────────────────────────────┐
+│  前端界面（自然语言输入 / 字段编辑 / 缺失高亮 / 版本历史）│
+└──────────────────┬─────────────────────────┘
+┌──────────────────▼─────────────────────────┐
+│  AI 工作流层（TRAE Skill 封装）              │
+│  1. 自然语言 → 基本盘 JSON                   │
+│  2. 基本盘 → 完整性审计                      │
+│  3. 缺失字段 → 自动提问                      │
+│  4. 用户回答 → 增量更新                      │
+│  5. 多版本对比 → 冲突检测                    │
+└──────────────────┬─────────────────────────┘
+┌──────────────────▼─────────────────────────┐
+│  知识库 / Lorebook 层                        │
+│  - JSON/YAML 结构化设定                      │
+│  - 关键词触发：人物名/地点名/势力名/规则词    │
+│  - 增量更新：只记录新增/修改/删除            │
+│  - 版本管理：版本号 + 变更日志               │
+└────────────────────────────────────────────┘</pre>
+    <p style="margin-top:8px;"><b>关键实现点：</b>创建 worldbuilding-assistant Skill；用 Markdown+JSON 存储设定；对话中按关键词注入对应设定条目（Lorebook机制）；每轮自动跑完整性审计。</p>
+  </div>
+</section>
+
+<!-- P7 结论 -->
+<section class="section" id="p7">
+  <h2 class="sec-title"><span class="icon">07</span>结论与下一步衔接</h2>
+  <div class="card">
+    <ol style="padding-left:22px;font-size:.9em;">
+      <li style="margin-bottom:8px;"><b>自建工作流是最优解</b>：现有产品均不完整覆盖"迭代补齐→固定格式验收"闭环，但机制可拼装——Sudowrite 的 Braindump + NovelCrafter 的 Codex + SillyTavern 的关键词触发。</li>
+      <li style="margin-bottom:8px;"><b>基本盘 11 大类字段体系</b>是本模块核心交付物，JSON Schema 已就绪，可直接作为后续模块（人物生成、世界推演）的输入标准。</li>
+      <li style="margin-bottom:8px;"><b>多轮迭代</b>采用"审计员角色 + 分流补齐 + 版本管理"三机制，防止 AI 一次问太多或自作主张改核心设定。</li>
+      <li><b>衔接下一模块</b>：基本盘 JSON 中的 world_settings（势力/规则）和 character_relationships 是「人物设定模拟器」的输入；rules_system 是「故事推进模拟器」规则引擎的输入。</li>
+    </ol>
+  </div>
+  <p style="font-size:.8em;color:var(--text2);margin-top:16px;">主要来源：NovelCrafter / Sudowrite / World Anvil 官方文档、SillyTavern World Info 机制文档（deepwiki）、SummonWorlds 世界构建模板、Brandon Sanderson 世界观讲座、RoleplayingTips "20 Questions"、jwynia/agent-skills shared-world。</p>
+</section>
+
+</div>
+<div class="footer">互动小说工具调研 · 1/5 · 世界观设定工具 · 2026年8月</div>
+</body>
+</html>
