@@ -166,29 +166,201 @@ function textTarget(el) {
   return el.querySelector(".line-bubble") || el.querySelector(".narr-text");
 }
 
-async function addLine(speaker, text, instant) {
-  const el = buildLineEl(speaker, instant ? text : "");
+/* 立即渲染一行（历史回放用，不走逐句播放器） */
+function appendLineInstant(speaker, text) {
+  const el = buildLineEl(speaker, text);
   $("chat").appendChild(el);
-  if (instant) {
-    scrollBottom();
-    return;
-  }
-  // 打字机效果
-  const target = textTarget(el);
-  target.classList.add("cursor");
-  for (let i = 0; i < text.length; i += 2) {
-    target.textContent = text.slice(0, i + 2);
-    scrollBottom();
-    await sleep(12);
-  }
-  target.classList.remove("cursor");
 }
 
-async function addDialogue(lines, instant) {
-  for (const ln of (lines || [])) {
-    await addLine(ln.speaker, ln.text, instant);
-  }
-}
+/* ---------- 逐句播放器（文字游戏式） ----------
+   每次只显示一句话：当前句打字完成后等待推进（点击对话区或按空格）。
+   自动播放模式下按文本长度放慢推进，遇到选项时暂停；玩家选完、新场景
+   行流入后自动继续。 */
+const Player = {
+  container: null,      // 当前场景行的渲染容器
+  queue: [],            // 待显示的对话行 [{speaker,text}]
+  state: "idle",        // idle | typing | wait（wait=等点击/空格推进）
+  cur: null,            // 当前行 {el, target, text}
+  pendingChoices: null, // 场景行播完后要显示的选项
+  autoplay: false,
+  timer: null,
+  hint: null,
+
+  init() {
+    this.mountHint();
+    $("chat").addEventListener("click", () => this.advance());
+    document.addEventListener("keydown", (e) => {
+      if (e.code !== "Space") return;
+      const t = e.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "BUTTON")) return;
+      e.preventDefault();   // 空格不滚动页面
+      this.advance();
+    });
+    this._updateHint();
+  },
+
+  mountHint() {
+    if (!this.hint || !this.hint.parentNode) {
+      if (this.hint) this.hint.remove();
+      this.hint = document.createElement("div");
+      this.hint.className = "advance-hint hidden";
+      $("chat").appendChild(this.hint);
+    }
+    this._updateHint();
+  },
+
+  /* 开始播放一个场景（清空旧队列与定时器） */
+  play(container, lines, choices) {
+    this._stopTimer();
+    this.mountHint();
+    this.container = container;
+    this.queue = (lines || []).slice();
+    this.pendingChoices = (choices && choices.length) ? choices : null;
+    this.state = "idle";
+    this.cur = null;
+    this._updateHint();
+    this._kick();
+  },
+
+  /* 流式到达的新行：入队，若当前空闲立即开播 */
+  pushLine(speaker, text) {
+    this.queue.push({ speaker: speaker, text: text });
+    this._kick();
+  },
+
+  /* 流式完成：登记选项（队列播完后出选项） */
+  setChoices(choices) {
+    this.pendingChoices = (choices && choices.length) ? choices : null;
+    this._kick();
+  },
+
+  /* 流式与最终剧本不一致时：清空容器按最终剧本重播 */
+  reset(container, lines, choices) {
+    container.innerHTML = "";
+    this.play(container, lines, choices);
+  },
+
+  _kick() {
+    if (this.state !== "idle") return;
+    if (this.queue.length) {
+      this._showNext();
+    } else if (this.pendingChoices) {
+      const ch = this.pendingChoices;
+      this.pendingChoices = null;
+      this._updateHint();
+      renderChoiceButtons(ch);
+    }
+  },
+
+  async _showNext() {
+    const ln = this.queue.shift();
+    const el = buildLineEl(ln.speaker, "");
+    this.container.appendChild(el);
+    $("chat").appendChild(this.hint);   // 提示始终保持在对话区末尾（sticky 悬浮）
+    scrollBottom();
+    const target = textTarget(el);
+    target.classList.add("cursor");
+    this.cur = { el: el, target: target, text: ln.text };
+    this.state = "typing";
+    await this._typewrite();
+    if (!this.cur) return;              // 已被 stop()
+    this._afterTyping();
+  },
+
+  _typewrite() {
+    const c = this.cur;
+    let typed = 0;
+    return new Promise((resolve) => {
+      c._resolve = resolve;
+      c._iv = setInterval(() => {
+        if (this.cur !== c) return;     // 已被打断
+        typed += 2;
+        c.target.textContent = c.text.slice(0, typed);
+        scrollBottom();
+        if (typed >= c.text.length) {
+          clearInterval(c._iv);
+          c.target.textContent = c.text;
+          resolve();
+        }
+      }, 12);
+    });
+  },
+
+  _afterTyping() {
+    const c = this.cur;
+    c.target.classList.remove("cursor");
+    this.state = "wait";
+    if (this.autoplay) this._armTimer();
+    this._updateHint();
+  },
+
+  /* 自动播放：速度放慢——基础1.6s + 每字70ms，2s~5.5s 之间 */
+  _armTimer() {
+    this._stopTimer();
+    const len = this.cur ? this.cur.text.length : 20;
+    const delay = Math.min(5500, Math.max(2000, 1600 + len * 70));
+    this.timer = setTimeout(() => this._next(), delay);
+  },
+
+  _stopTimer() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+  },
+
+  /* 推进：打字中→立即补全本句；等待中→下一句 */
+  advance() {
+    if (this.state === "typing") {
+      const c = this.cur;
+      clearInterval(c._iv);
+      c.target.textContent = c.text;
+      c.target.classList.remove("cursor");
+      if (c._resolve) { c._resolve(); c._resolve = null; }
+      return;   // 补全后进入 wait，再次点击才切下一句
+    }
+    if (this.state === "wait") this._next();
+  },
+
+  _next() {
+    this._stopTimer();
+    this.cur = null;
+    this.state = "idle";
+    this._updateHint();
+    this._kick();
+  },
+
+  setAutoplay(on) {
+    this.autoplay = on;
+    this._stopTimer();
+    if (on && this.state === "wait") this._armTimer();
+    this._updateHint();
+  },
+
+  _updateHint() {
+    if (!this.hint) return;
+    const active = (this.state === "wait");
+    this.hint.classList.toggle("hidden", !active);
+    this.hint.classList.toggle("autoplay", active && this.autoplay);
+    this.hint.textContent = (active && this.autoplay)
+      ? "▶▶ 自动播放中"
+      : "▾ 点击或按空格继续";
+    const btn = $("btn-auto");
+    if (btn) {
+      btn.textContent = this.autoplay ? "⏸ 自动播放" : "▶ 自动播放";
+      btn.classList.toggle("active", this.autoplay);
+    }
+  },
+
+  /* 结束/换剧本：停止一切 */
+  stop() {
+    this._stopTimer();
+    if (this.cur && this.cur._iv) clearInterval(this.cur._iv);
+    if (this.cur && this.cur._resolve) { this.cur._resolve(); this.cur._resolve = null; }
+    this.cur = null;
+    this.queue = [];
+    this.pendingChoices = null;
+    this.state = "idle";
+    this._updateHint();
+  },
+};
 
 function addChoice(text) {
   const msg = document.createElement("div");
@@ -213,13 +385,8 @@ function setBusy(b) {
 function renderScene(view) {
   if (!view.scene) return;
   renderState(view);
-  renderDialogueThenChoices(view.scene);
-}
-
-function renderDialogueThenChoices(scene) {
-  const choices = $("choices");
-  choices.innerHTML = "";
-  addDialogue(scene.dialogue, false).then(() => renderChoiceButtons(scene.choices));
+  $("choices").innerHTML = "";
+  Player.play($("chat"), view.scene.dialogue, view.scene.choices);
 }
 
 function renderChoiceButtons(choices) {
@@ -239,6 +406,7 @@ function renderChoiceButtons(choices) {
 async function choose(index, text) {
   if (busy) return;
   setBusy(true);
+  $("choices").innerHTML = "";
   addChoice(text);
   const box = beginStream();
   try {
@@ -255,6 +423,7 @@ async function freeAct() {
   if (!text || busy) return;
   setBusy(true);
   $("free-input").value = "";
+  $("choices").innerHTML = "";
   addChoice(text);
   const box = beginStream();
   try {
@@ -271,13 +440,14 @@ function beginStream() {
   const root = document.createElement("div");
   root.className = "stream-root";
   $("chat").appendChild(root);
+  Player.container = root;   // 本回合的行渲染进流式容器
   scrollBottom();
-  return { root: root, rows: [] };   // rows: 已流式渲染的对话行
+  return { root: root, rows: [] };   // rows: 已流入播放器的对话行
 }
 
 function streamLine(box, speaker, text) {
-  box.root.appendChild(buildLineEl(speaker, text));
   box.rows.push({ speaker: speaker, text: text });
+  Player.pushLine(speaker, text);   // 流入逐句播放器，一句一句显示
   scrollBottom();
 }
 
@@ -335,23 +505,26 @@ async function streamTurn(sid, body, box) {
 function afterTurn(view, box) {
   renderState(view);
   if (view.finished) {
+    Player.stop();
     showEnding();
     return;
   }
-  // 流式行与最终对话一致则保留；不一致（重写/降级）则整体重绘，保证所见即最终剧本
-  if (box && !linesMatch(box.rows, view.scene.dialogue)) {
-    box.root.innerHTML = "";
-    box.rows = [];
-    for (const ln of (view.scene.dialogue || [])) {
-      box.root.appendChild(buildLineEl(ln.speaker, ln.text));
-    }
-    scrollBottom();
+  const final = view.scene.dialogue || [];
+  const choices = view.scene.choices || [];
+  // 流式行与最终对话一致则保留（选项在队列播完后出现）；
+  // 不一致（重写/降级）则整体重播，保证所见即最终剧本
+  if (box && linesMatch(box.rows, final)) {
+    Player.setChoices(choices);
+  } else {
+    Player.reset(box ? box.root : $("chat"), final, choices);
   }
-  renderChoiceButtons(view.scene.choices);  // 正文已流式渲染，这里只出选项
+  if (box) box.rows = [];
+  if (!choices.length) setBusy(false);   // 无选项场景兜底（正常由 renderChoiceButtons 复位）
 }
 
 /* ---------- 结局 ---------- */
 async function showEnding() {
+  Player.stop();
   setBusy(false);
   const recap = await api("/api/sessions/" + SID + "/recap").catch(() => null);
   if (recap && recap.ending) {
@@ -530,6 +703,7 @@ async function startNew(storyId, title) {
 function backToPicker() {
   localStorage.removeItem("qilu_sid");
   SID = null;
+  Player.stop();
   $("ending").classList.add("hidden");
   $("chat").innerHTML = "";
   $("start").classList.remove("hidden");
@@ -548,19 +722,20 @@ async function resume() {
       return true;
     }
     addSystem("已为你恢复存档");
-    // 回放历史时间线（对话行即时渲染，不逐字打字；当前场景的行跳过，交给下方实时渲染）
+    // 回放历史时间线（历史行即时渲染；当前场景的行跳过，交给逐句播放器）
     const hist = view.history || [];
     for (let i = 0; i < hist.length; i++) {
       const h = hist[i];
-      if (h.is_current) break;   // 到达当前场景首行：其后由实时渲染负责
+      if (h.is_current) break;   // 到达当前场景首行：其后由播放器负责
       if (h.kind === "line") {
-        addLine(h.speaker, h.text, true);
+        appendLineInstant(h.speaker, h.text);
       } else {
         addChoice(h.text);
       }
     }
     renderState(view);
-    renderDialogueThenChoices(view.scene);
+    $("choices").innerHTML = "";
+    Player.play($("chat"), view.scene.dialogue, view.scene.choices);
     return true;
   } catch (e) {
     return false;  // 存档失效:留在选故事页
@@ -584,11 +759,13 @@ $("btn-restart").onclick = backToPicker;
 $("btn-new").onclick = () => {
   if (confirm("换剧本会丢弃当前进度，确定吗？")) backToPicker();
 };
+$("btn-auto").onclick = () => Player.setAutoplay(!Player.autoplay);
 $("btn-send").onclick = freeAct;
 $("free-input").addEventListener("keydown", (e) => {
   if (e.key === "Enter") freeAct();
 });
 
+Player.init();
 loadStories();
 /* 注意:不再自动 resume()——打开网站始终先展示选故事页,
    有存档时由"继续上次的故事"卡片显式进入(同样走加载页)。 */

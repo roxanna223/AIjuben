@@ -51,6 +51,8 @@ body {
   padding: 12px 22px; border-bottom: 1px solid var(--line); background: var(--bg2);
 }
 .story-title { font-weight: 600; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+#btn-auto.active { border-color: var(--accent2); color: var(--accent2); }
 .chip {
   display: inline-block; margin-left: 10px; padding: 1px 10px; border-radius: 10px;
   border: 1px solid var(--accent); color: var(--accent); font-size: 12px;
@@ -110,6 +112,15 @@ body {
   padding: 2px 12px; white-space: pre-wrap; word-break: break-word;
 }
 .stream-root { min-height: 1px; }
+
+/* 逐句推进提示（sticky 悬浮于对话区底部） */
+.advance-hint {
+  position: sticky; bottom: 8px; z-index: 5;
+  text-align: center; pointer-events: none;
+  color: var(--accent); font-size: 12px; letter-spacing: 2px;
+  animation: pulse 1.6s infinite; padding: 4px 0 0;
+}
+.advance-hint.autoplay { color: var(--accent2); }
 
 /* 底部操作区 */
 .composer { border-top: 1px solid var(--line); background: var(--bg2); padding: 14px 22px 18px; }
