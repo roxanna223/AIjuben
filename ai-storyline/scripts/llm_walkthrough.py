@@ -26,6 +26,7 @@ if _env.exists():
             os.environ.setdefault(_k.strip(), _v.strip())
 
 from engine.constitution import Constitution
+from engine.scene import as_dialogue_lines
 from engine.state import WorldState
 from engine.pipeline import Pipeline, build_provider
 
@@ -38,6 +39,8 @@ def main() -> None:
     args = ap.parse_args()
 
     c = Constitution.load(str(BASE / "stories" / ("%s.json" % args.story)))
+    names = {ch["id"]: ch.get("name", ch["id"]) for ch in c.characters}
+    names["narrator"] = "旁白"
     sid = "s_" + uuid.uuid4().hex[:6]
     state = WorldState(c.story_id, c.char_defs(), c.global_defs(), c.ten_dims(),
                        session_id=sid)
@@ -55,7 +58,8 @@ def main() -> None:
         print("[beat %s] 第%s章 · 回合%s · 地点: %s" % (
             meta.get("beat_id"), state.chapter, state.turn, meta.get("location", "?")))
         print("=" * 64)
-        print(scene.get("narrative", ""))
+        for ln in as_dialogue_lines(scene):
+            print("【%s】%s" % (names.get(ln["speaker"], ln["speaker"]), ln["text"]))
         for j, ch in enumerate(scene.get("choices", []), 1):
             tag = ",".join("%s%+g" % (k, v) for k, v in (ch.get("tendency") or {}).items()) or "—"
             print("  %d. %s  [%s]" % (j, ch["text"], tag))

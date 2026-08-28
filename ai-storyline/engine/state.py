@@ -3,6 +3,8 @@ import json
 import time
 from typing import Any, Dict, List, Optional
 
+from .scene import as_dialogue_lines, dialogue_text
+
 
 class WorldState:
     def __init__(self, story_id: str, char_defs: Dict[str, Dict], global_defs: Dict[str, Dict],
@@ -69,7 +71,8 @@ class WorldState:
     def push_scene(self, scene: Dict[str, Any]) -> None:
         self.memory["recent"].append({"turn": self.turn,
                                       "beat": scene.get("scene_meta", {}).get("beat_id"),
-                                      "narrative": scene.get("narrative", ""),
+                                      "narrative": dialogue_text(scene),      # 纯文本（摘要/提示词用）
+                                      "dialogue": as_dialogue_lines(scene),   # 对话行（回放渲染用）
                                       "facts": [u for u in scene.get("world_updates", []) if u.get("type") == "fact"]})
         if len(self.memory["recent"]) > 10:
             self.memory["recent"] = self.memory["recent"][-10:]

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#3A8888"/>
+      <stop offset="100%" stop-color="#2E6B6B"/>
+    </radialGradient>
+  </defs>
+  <rect width="120" height="120" fill="url(#bg)"/>
+  <!-- 绿卫衣 -->
+  <path d="M30 120 C32 100 44 92 60 92 C76 92 88 100 90 120 Z" fill="#3F7A4A"/>
+  <!-- 脖子 -->
+  <rect x="54" y="74" width="12" height="14" rx="5" fill="#EBC49B"/>
+  <!-- 脸 -->
+  <ellipse cx="60" cy="56" rx="20" ry="21" fill="#F5D3AE"/>
+  <!-- 乱发（锯齿刘海） -->
+  <path d="M40 50 C40 36 49 31 60 31 C71 31 80 36 80 50 L74 45 L68 49 L62 44 L56 49 L50 44 L44 48 Z" fill="#26221E"/>
+  <!-- 大眼睛 -->
+  <circle cx="51" cy="56" r="3.2" fill="#1A1A1A"/>
+  <circle cx="69" cy="56" r="3.2" fill="#1A1A1A"/>
+  <circle cx="52.2" cy="54.8" r="1" fill="#FFFFFF"/>
+  <circle cx="70.2" cy="54.8" r="1" fill="#FFFFFF"/>
+  <!-- 腮红 -->
+  <circle cx="46" cy="63" r="3.5" fill="#EDA583" opacity="0.5"/>
+  <circle cx="74" cy="63" r="3.5" fill="#EDA583" opacity="0.5"/>
+  <!-- 小嘴 -->
+  <circle cx="60" cy="68" r="2.4" fill="#B0785A"/>
+  <!-- 缺角怀表（金色表盘缺一角） -->
+  <path d="M80 96 Q76 90 70 88" stroke="#8A6A2A" stroke-width="1.5" fill="none"/>
+  <circle cx="80" cy="104" r="8" fill="#D4A24E" stroke="#8A6A2A" stroke-width="1.5"/>
+  <path d="M80 104 L89 99 L89 109 Z" fill="#3F7A4A"/>
+  <path d="M80 104 L80 99" stroke="#6A4E1A" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M80 104 L84 106" stroke="#6A4E1A" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

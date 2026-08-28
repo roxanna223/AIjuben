@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#67833F"/>
+      <stop offset="100%" stop-color="#516732"/>
+    </radialGradient>
+  </defs>
+  <rect width="120" height="120" fill="url(#bg)"/>
+  <!-- 长发（背后） -->
+  <path d="M34 120 C32 78 38 40 60 38 C82 40 88 78 86 120 Z" fill="#241F26"/>
+  <!-- 灰卫衣 -->
+  <path d="M32 120 C34 100 46 92 60 92 C74 92 86 100 88 120 Z" fill="#8A919C"/>
+  <!-- 脖子 -->
+  <rect x="54" y="74" width="12" height="14" rx="5" fill="#EBC7A4"/>
+  <!-- 脸 -->
+  <ellipse cx="60" cy="56" rx="19" ry="21" fill="#F6D6B8"/>
+  <!-- 刘海 -->
+  <path d="M41 52 C42 40 50 36 60 36 C70 36 78 40 79 52 C74 46 70 44 60 44 C50 44 46 46 41 52 Z" fill="#241F26"/>
+  <!-- 垂肩发 -->
+  <path d="M38 76 C36 92 36 106 38 120 L48 120 C46 104 46 90 48 78 Z" fill="#241F26"/>
+  <path d="M82 76 C84 92 84 106 82 120 L72 120 C74 104 74 90 72 78 Z" fill="#241F26"/>
+  <!-- 眉（微蹙，神经质） -->
+  <path d="M47 50 Q51 47 55 49" stroke="#3A2E26" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M65 49 Q69 47 73 50" stroke="#3A2E26" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- 眼 -->
+  <circle cx="52" cy="57" r="2.8" fill="#1A1A1A"/>
+  <circle cx="68" cy="57" r="2.8" fill="#1A1A1A"/>
+  <circle cx="53" cy="56" r="0.9" fill="#FFFFFF"/>
+  <circle cx="69" cy="56" r="0.9" fill="#FFFFFF"/>
+  <!-- 腮红 -->
+  <circle cx="48" cy="64" r="3" fill="#E89A7A" opacity="0.4"/>
+  <circle cx="72" cy="64" r="3" fill="#E89A7A" opacity="0.4"/>
+  <!-- 嘴（微抿） -->
+  <path d="M56 70 Q60 68.5 64 70" stroke="#B0785A" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

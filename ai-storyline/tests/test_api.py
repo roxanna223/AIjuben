@@ -31,7 +31,13 @@ class TestApi(unittest.TestCase):
         view = r.json()
         self.assertTrue(view["sid"].startswith("s_"))
         self.assertFalse(view["finished"])
-        self.assertIn("narrative", view["scene"])
+        self.assertIn("dialogue", view["scene"])
+        self.assertIsInstance(view["scene"]["dialogue"], list)
+        self.assertTrue(all("speaker" in l and "text" in l
+                            for l in view["scene"]["dialogue"]))
+        # 人物表下发（供前端渲染说话人名字/头像）
+        self.assertIn("lin", view["characters"])
+        self.assertEqual(view["characters"]["lin"]["name"], "林sir")
         sid = view["sid"]
 
         # 路径A：谨慎利己 → 成为乘客
@@ -54,7 +60,7 @@ class TestApi(unittest.TestCase):
         sid = r.json()["sid"]
         r = client.post("/api/sessions/%s/turn" % sid, json={"free_text": "我四处张望"})
         self.assertEqual(r.status_code, 200)
-        self.assertIn("narrative", r.json()["scene"])
+        self.assertIn("dialogue", r.json()["scene"])
 
     def test_invalid_choice_rejected(self):
         r = client.post("/api/sessions")
@@ -106,8 +112,14 @@ class TestApi(unittest.TestCase):
         lines = [l for l in r.text.strip().split("\n") if l.strip()]
         evts = [json.loads(l) for l in lines]
         self.assertEqual(evts[-1]["type"], "done")
-        self.assertIn("narrative", evts[-1]["view"]["scene"])
+        self.assertIn("dialogue", evts[-1]["view"]["scene"])
         self.assertEqual(evts[-1]["view"]["sid"], sid)
+        # 流式对话行事件：逐行推送 speaker/text，与最终 dialogue 一致
+        line_evts = [e for e in evts if e["type"] == "line"]
+        self.assertTrue(line_evts, "流式响应应包含 line 事件")
+        self.assertEqual([(e["speaker"], e["text"]) for e in line_evts],
+                         [(l["speaker"], l["text"])
+                          for l in evts[-1]["view"]["scene"]["dialogue"]])
 
     def test_unknown_story_rejected(self):
         r = client.post("/api/sessions", json={"story_id": "nope"})

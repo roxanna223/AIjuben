@@ -1,7 +1,12 @@
 {
   "scenes": {
     "b1": {
-      "narrative": "你从摇晃中惊醒，喉咙干得像塞了砂纸。车厢里坐满了人，却安静得可怕——没有打鼾，没有小孩哭闹，只有车轮碾过铁轨的单调节拍。你抬头看了眼行李架上的电子钟：0:47。它已经三分钟没跳过了。",
+      "dialogue": [
+        {"speaker": "narrator", "text": "你从摇晃中惊醒，喉咙干得像塞了砂纸。"},
+        {"speaker": "narrator", "text": "车厢里坐满了人，却安静得可怕——没有打鼾，没有小孩哭闹，只有车轮碾过铁轨的单调节拍。"},
+        {"speaker": "pc", "text": "……几点了？"},
+        {"speaker": "narrator", "text": "你抬头看了眼行李架上的电子钟：0:47。它已经三分钟没跳过了。"}
+      ],
       "scene_meta": {"beat_id": "b1", "characters_present": ["pc"], "location": "3号车厢"},
       "choices": [
         {"text": "起身走到窗边，看看外面", "tendency": {"curiosity": 1}, "effects": []},
@@ -11,7 +16,12 @@
       "world_updates": []
     },
     "b2": {
-      "narrative": "广播沙沙响了两声：“前方到站，泗水站。”列车缓缓停稳。你无意间望向过道尽头——那个一直靠着椅背睡觉的男人，不见了。你问邻座，邻座头也不抬：“那座位本来就是空的。”",
+      "dialogue": [
+        {"speaker": "narrator", "text": "广播沙沙响了两声：“前方到站，泗水站。”列车缓缓停稳。"},
+        {"speaker": "narrator", "text": "你无意间望向过道尽头——那个一直靠着椅背睡觉的男人，不见了。"},
+        {"speaker": "pc", "text": "刚才坐这的人呢？"},
+        {"speaker": "narrator", "text": "你问邻座，邻座头也不抬：“那座位本来就是空的。”"}
+      ],
       "scene_meta": {"beat_id": "b2", "characters_present": ["pc", "lin"], "location": "3号车厢"},
       "choices": [
         {"text": "去找林sir求证，把疑问摊开说", "tendency": {"trust": 1},
@@ -35,7 +45,14 @@
       ]
     },
     "b3": {
-      "narrative": "林sir压低声音：“你不是第一个发现的人。”他从大衣内袋里抽出一张发黄的纸——乘客名册，其中几行名字被红笔圈起，像是早被谁‘登记’过。",
+      "dialogue": [
+        {"speaker": "narrator", "text": "林sir把你带到餐车角落，压低声音。"},
+        {"speaker": "lin", "text": "你不是第一个发现的人。"},
+        {"speaker": "narrator", "text": "他从大衣内袋里抽出一张发黄的纸——乘客名册，其中几行名字被红笔圈起，像是早被谁“登记”过。"},
+        {"speaker": "lin", "text": "这些人，一个接一个消失。下一个是谁，这上面写得清清楚楚。"},
+        {"speaker": "pc", "text": "……那这名单，是谁圈的？"},
+        {"speaker": "lin", "text": "我也想知道。先别急着害怕。人不会凭空消失，只会被人“拿走”。"}
+      ],
       "scene_meta": {"beat_id": "b3", "characters_present": ["pc", "lin"], "location": "餐车"},
       "choices": [
         {"text": "把自己见过名册残页的事也告诉他，一起研究", "tendency": {"trust": 1},
@@ -48,7 +65,11 @@
       ]
     },
     "b4": {
-      "narrative": "灯在毫无预兆中灭了。车厢陷入浓稠的黑暗，只有远处传来孩子的哭喊：“叔叔——救救我！”有什么东西抓住了你的衣角，而你身后三步就是半开的车门。",
+      "dialogue": [
+        {"speaker": "narrator", "text": "灯在毫无预兆中灭了。车厢陷入浓稠的黑暗。"},
+        {"speaker": "boy", "text": "叔叔——救救我！"},
+        {"speaker": "narrator", "text": "有什么东西抓住了你的衣角，而你身后三步，就是半开的车门。"}
+      ],
       "scene_meta": {"beat_id": "b4", "characters_present": ["pc", "boy"], "location": "3号车厢（断电中）"},
       "choices": [
         {"text": "先蹲下确认周围安全，再作打算", "tendency": {"caution": 1, "empathy": -0.5},
@@ -66,7 +87,12 @@
       "world_updates": []
     },
     "b5": {
-      "narrative": "小满蹲在座位上摆弄那块怀表，指针永远停在0:47。你突然意识到一件事：从上车站到现在，他的脚从没沾过地面。窗外的黑暗中，有无数张脸正贴着玻璃，安静地看着你们。",
+      "dialogue": [
+        {"speaker": "narrator", "text": "小满蹲在座位上，摆弄那块缺角的怀表，指针永远停在0:47。"},
+        {"speaker": "boy", "text": "叔叔，这表的心跳停了好久啦。它三年前就不走了。"},
+        {"speaker": "narrator", "text": "你突然意识到一件事：从上车站到现在，他的脚从没沾过地面。"},
+        {"speaker": "narrator", "text": "窗外的黑暗中，有无数张脸正贴着玻璃，安静地看着你们。"}
+      ],
       "scene_meta": {"beat_id": "b5", "characters_present": ["pc", "boy"], "location": "3号车厢"},
       "choices": [
         {"text": "追问小满：怀表是谁的？", "tendency": {"curiosity": 1},
@@ -79,7 +105,13 @@
       ]
     },
     "b7": {
-      "narrative": "葛姨塞给你一枚温热的茶叶蛋：“小伙子，趁热吃。凉了，人就认不得路喽。”她的絮叨里，三年前那场事故的细节一点一点漏了出来——脱轨、夜雨、没有一个乘客被找到。",
+      "dialogue": [
+        {"speaker": "narrator", "text": "葛姨推着小车停在过道，塞给你一枚温热的茶叶蛋。"},
+        {"speaker": "aunt", "text": "小伙子，蛋要趁热吃。凉了，人就认不得路喽。"},
+        {"speaker": "pc", "text": "葛姨，这趟车……三年前是不是出过事？"},
+        {"speaker": "narrator", "text": "葛姨的手顿了一下。她的絮叨里，那场事故的细节一点一点漏了出来。"},
+        {"speaker": "aunt", "text": "那夜雨大得很呐。车翻了，人没了，一个都没找着。喏，就是这趟车。"}
+      ],
       "scene_meta": {"beat_id": "b7", "characters_present": ["pc", "aunt"], "location": "餐车"},
       "choices": [
         {"text": "认真听她说完，追问更多", "tendency": {"empathy": 0.5, "curiosity": 0.5}, "effects": []},
@@ -90,7 +122,13 @@
       ]
     },
     "b6": {
-      "narrative": "终点站前夜，林sir把名册摊开。红笔圈起的名字、缺角的怀表、葛姨的絮叨，还有你越来越清晰的记忆拼成了真相：三年前这趟车脱轨，无人生还——除了你。你当年提前下了车。这列车，是他们的执念。",
+      "dialogue": [
+        {"speaker": "narrator", "text": "终点站前夜，林sir把名册摊在桌上。"},
+        {"speaker": "lin", "text": "红笔圈起的名字，缺角的怀表，葛姨的絮叨——还差最后一块，你自己的记忆。"},
+        {"speaker": "boy", "text": "叔叔，你就是当年先下车的那个人呀。"},
+        {"speaker": "narrator", "text": "记忆一点点拼出真相：三年前这趟车脱轨，无人生还——除了你。你当年提前下了车。这列车，是他们的执念。"},
+        {"speaker": "lin", "text": "现在你记起来了。想好怎么选了吗？"}
+      ],
       "scene_meta": {"beat_id": "b6", "characters_present": ["pc", "lin", "boy"], "location": "车尾（终点站前夜）"},
       "choices": [
         {"text": "接受真相，帮他们找到归宿", "tendency": {"empathy": 1}, "effects": []},

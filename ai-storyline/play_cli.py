@@ -12,16 +12,19 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from engine.constitution import Constitution
+from engine.scene import as_dialogue_lines
 from engine.state import WorldState
 from engine.pipeline import Pipeline, build_provider
 
 
-def print_scene(state: WorldState, scene: dict) -> None:
+def print_scene(state: WorldState, scene: dict, names: dict) -> None:
     meta = scene.get("scene_meta", {})
     print("\n" + "=" * 56)
     print("第%s章 · 回合%s · beat: %s" % (state.chapter, state.turn, meta.get("beat_id", "?")))
     print("=" * 56)
-    print(scene.get("narrative", ""))
+    for ln in as_dialogue_lines(scene):
+        sp = ln["speaker"]
+        print("【%s】 %s" % (names.get(sp, sp), ln["text"]))
     choices = scene.get("choices", [])
     if choices:
         print("\n—— 你的选择 ——")
@@ -55,6 +58,8 @@ def main() -> None:
     args = ap.parse_args()
 
     c = Constitution.load(args.story)
+    names = {ch["id"]: ch.get("name", ch["id"]) for ch in c.characters}
+    names["narrator"] = "旁白"
     state = WorldState(c.story_id, c.char_defs(), c.global_defs(), c.ten_dims())
     script = args.mock_script or args.story.replace(".json", ".mock.json")
     provider = build_provider(args.mode, script)
@@ -62,7 +67,7 @@ def main() -> None:
 
     scene = p.start()
     while True:
-        print_scene(state, scene)
+        print_scene(state, scene, names)
         if state.finished:
             break
         raw = input("\n你的选择(输入序号；q退出): ").strip()

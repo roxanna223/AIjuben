@@ -29,6 +29,7 @@ if _env.exists():
             os.environ.setdefault(_k.strip(), _v.strip())
 
 from engine.constitution import Constitution
+from engine.scene import dialogue_text
 from engine.state import WorldState
 from engine.pipeline import Pipeline, build_provider
 
@@ -67,7 +68,7 @@ def run_walk(c: Constitution, provider, rng: random.Random):
     steps = 0
     while not state.finished and steps < 30:
         collected.append({"beat": scene.get("scene_meta", {}).get("beat_id"),
-                          "narrative": scene.get("narrative", "")})
+                          "narrative": dialogue_text(scene)})
         opts = scene.get("choices", [])
         if not opts:
             break

@@ -26,6 +26,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from engine.constitution import Constitution
+from engine.scene import NARRATOR, as_dialogue_lines
 from engine.state import WorldState
 from engine.pipeline import Pipeline, build_provider
 from engine.llm import LLMError
@@ -201,12 +202,19 @@ def _stat_defs(c: Constitution) -> Dict[str, Dict]:
 
 
 def _history(state: WorldState) -> list:
-    """把三层记忆的recent场景与事件账本的选择按回合配对，重建可渲染的历史时间线。"""
+    """把三层记忆的recent场景与事件账本的选择按回合配对，重建可渲染的历史时间线。
+
+    场景正文按对话行逐条输出（kind=line），当前场景的行带 is_current 标记，
+    前端回放时跳过（由实时渲染负责，避免重复）。
+    """
     scenes = state.memory.get("recent", [])
     choices = [e for e in state.event_log if e["type"] == "choice"]
     out = []
     for i, sc in enumerate(scenes):
-        out.append({"kind": "narr", "turn": sc.get("turn"), "text": sc.get("narrative", "")})
+        for ln in (sc.get("dialogue") or as_dialogue_lines(sc)):
+            out.append({"kind": "line", "turn": sc.get("turn"),
+                        "speaker": ln.get("speaker", NARRATOR), "text": ln.get("text", ""),
+                        "is_current": i == len(scenes) - 1})
         lo = sc.get("turn", 0)
         hi = scenes[i + 1].get("turn", 10 ** 9) if i + 1 < len(scenes) else 10 ** 9
         for ch in choices:
@@ -218,9 +226,16 @@ def _history(state: WorldState) -> list:
 
 def _session_view(state: WorldState, scene: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     c = _load_constitution(state.story_id)
+    view_scene = None
+    if scene is not None:
+        view_scene = dict(scene)
+        view_scene["dialogue"] = as_dialogue_lines(scene)  # 旧存档的narrative自动归一化
     return {
         "sid": state.session_id,
         "story": {"id": state.story_id, "title": c.title, "genre": c.genre},
+        "characters": {ch["id"]: {"name": ch.get("name", ch["id"]),
+                                  "role": ch.get("role", "")}
+                       for ch in c.characters},
         "finished": state.finished,
         "ending": state.ending,
         "chapter": state.chapter,
@@ -234,7 +249,7 @@ def _session_view(state: WorldState, scene: Optional[Dict[str, Any]]) -> Dict[st
                                             key=lambda kv: kv[1].get("turn", 0))
                       if st["status"] == "done"],
         "history": _history(state),
-        "scene": scene if not state.finished else None,
+        "scene": view_scene if not state.finished else None,
     }
 
 
@@ -295,17 +310,17 @@ async def play_turn(sid: str, body: TurnIn, request: Request):
                             finished=state.finished,
                             ending=(state.ending or {}).get("id"))
 
-    # NDJSON 流式：生成跑在独立线程，正文增量经队列实时推给前端
+    # NDJSON 流式：生成跑在独立线程，对话行增量经队列实时推给前端
     if "ndjson" in accept:
         q: "queue.Queue" = queue.Queue()
 
-        def on_chunk(text: str) -> None:
-            q.put(("delta", text))
+        def on_line(speaker: str, text: str) -> None:
+            q.put(("line", {"speaker": speaker, "text": text}))
 
         def work() -> None:
             try:
                 scene = p.turn(choice_index=body.choice_index,
-                               free_text=body.free_text, on_chunk=on_chunk)
+                               free_text=body.free_text, on_line=on_line)
                 _persist(p.state)
                 _record_turn(p.state)
                 q.put(("done", _session_view(p.state, scene)))
@@ -317,8 +332,10 @@ async def play_turn(sid: str, body: TurnIn, request: Request):
         async def gen():
             while True:
                 kind, payload = await asyncio.to_thread(q.get)
-                if kind == "delta":
-                    yield json.dumps({"type": "delta", "text": payload},
+                if kind == "line":
+                    yield json.dumps({"type": "line",
+                                      "speaker": payload["speaker"],
+                                      "text": payload["text"]},
                                      ensure_ascii=False) + "\n"
                 elif kind == "done":
                     yield json.dumps({"type": "done", "view": payload},

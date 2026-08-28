@@ -1,6 +1,6 @@
 """AI编剧流水线（Narrator Pipeline）：规划器指令 → 编剧生成 → 审查器 → 落账。
 
-铁律：AI 只负责"写"（narrative/choices/world_updates 草案），
+铁律：AI 只负责"写"（dialogue/choices/world_updates 草案），
 确定性代码（导演/结算器/审查器）负责"管"。
 """
 import json
@@ -10,14 +10,15 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 from .constitution import Constitution
+from .scene import NARRATOR, as_dialogue_lines, dialogue_text, dialogue_len
 from .state import WorldState
 from .director import RouteDirector, DirectorInstruction
 from .ledger import Ledger, LedgerError
 from .llm import MockProvider, OpenAICompatProvider, LLMError
 
 JSON_BLOCK_RE = re.compile(r"\{.*\}", re.S)
-# 从部分JSON中提取 narrative 字段（模型按模板输出时 narrative 在最前）
-NARRATIVE_RE = re.compile(r'"narrative"\s*:\s*"((?:[^"\\]|\\.)*)"', re.S)
+# 从部分JSON中逐行提取对话体行（speaker在前、text在后，模型按模板输出时可增量流式）
+DIALOGUE_LINE_RE = re.compile(r'"speaker"\s*:\s*"([^"\\]*)"\s*,\s*"text"\s*:\s*"((?:[^"\\]|\\.)*)"', re.S)
 
 
 def _unescape_json_str(s: str) -> str:
@@ -38,22 +39,33 @@ class Critic:
 
     def review(self, scene: Dict[str, Any]) -> List[str]:
         issues: List[str] = []
-        narrative = scene.get("narrative", "")
-        if not narrative.strip():
-            issues.append("narrative 为空")
+        lines = as_dialogue_lines(scene)
+        text = dialogue_text(scene)
+        if not lines:
+            issues.append("dialogue 为空（需提供 dialogue 数组或兼容的 narrative）")
+        for ln in lines:
+            if not ln["text"].strip():
+                issues.append("dialogue 存在空文本行")
+        # 说话人必须在剧本人物表内（旁白 narrator 除外）；严格模式才校验，避免旧脚本被误伤
+        if self.strict:
+            known = {ch["id"] for ch in self.c.characters} | {NARRATOR}
+            for ln in lines:
+                if ln["speaker"] not in known:
+                    issues.append("dialogue 出现未定义说话人 %r（可用: %s）"
+                                  % (ln["speaker"], ", ".join(sorted(known))))
         # 禁忌短语检查（内容安全 + 设定边界）
         for kw in (self.c.world.get("taboos_content") or []) + (self.c.world.get("taboos_story") or []):
-            if kw and kw in narrative:
+            if kw and kw in text:
                 issues.append("违反禁忌: %s" % kw)
         for kw in self.SENSITIVE_KEYWORDS:
-            if kw in narrative:
+            if kw in text:
                 issues.append("疑似违规词: %s" % kw)
         # 字数（仅真实模型启用严格模式；Mock 文本短，不检查）
         # 阈值取声明值的0.5x/1.5x，给AI留出合理的弹性，避免无谓重试
         if self.strict:
             lo = (self.c.chapter_plan or {}).get("words_per_scene_min")
             hi = (self.c.chapter_plan or {}).get("words_per_scene_max")
-            n = len(narrative)
+            n = dialogue_len(scene)
             if lo and n < lo * 0.5:
                 issues.append("正文过短: %d字 < %d字" % (n, lo))
             if hi and n > hi * 1.5:
@@ -103,7 +115,7 @@ class Pipeline:
         return self._generate(instr, None)
 
     def turn(self, choice_index: Optional[int] = None, free_text: str = "",
-             on_chunk: Optional[Any] = None) -> Dict[str, Any]:
+             on_line: Optional[Any] = None) -> Dict[str, Any]:
         if self.state.finished:
             return {"finished": True, "ending": self.state.ending}
         if self.state.current_scene is None:
@@ -136,7 +148,7 @@ class Pipeline:
         instr = self.director.next_instruction()
         if instr.beat_id is None:
             return self._finish()
-        return self._generate(instr, chosen, on_chunk=on_chunk)
+        return self._generate(instr, chosen, on_line=on_line)
 
     def _finish(self) -> Dict[str, Any]:
         ending = self.director.judge_ending()
@@ -148,12 +160,12 @@ class Pipeline:
     # ---------- 生成 ----------
 
     def _generate(self, instr: DirectorInstruction, chosen: Optional[Dict[str, Any]],
-                  on_chunk: Optional[Any] = None) -> Dict[str, Any]:
+                  on_line: Optional[Any] = None) -> Dict[str, Any]:
         self._active_beat = instr.beat_id  # 导演指令是唯一权威
         system = self._system_prompt()
         user = self._user_prompt(instr, chosen)
-        if on_chunk is not None and hasattr(self.provider, "generate_stream"):
-            scene = self._writer_streaming(system, user, instr, on_chunk)
+        if on_line is not None and hasattr(self.provider, "generate_stream"):
+            scene = self._writer_streaming(system, user, instr, on_line)
         else:
             scene = self._writer_with_retries(system, user, instr)
         # 审查器第二道关：LLM事实一致性检查（仅真实模型模式）
@@ -215,7 +227,7 @@ class Pipeline:
         s = self.state
         known = "\n".join("- %s: %s" % (fid, self.c.facts_catalog.get(fid, fid))
                           for fid in sorted(s.facts))
-        narrative = scene.get("narrative", "")[:800]
+        narrative = dialogue_text(scene)[:800]
         if not narrative:
             return []
         prompt = (
@@ -241,7 +253,8 @@ class Pipeline:
         if getattr(self.provider, "is_mock", False):
             s.compress_scene("第%d回合: %s" % (s.turn, instr.must_happen[:80]))
             return
-        recent = "\n".join(m["narrative"] for m in s.memory["recent"][-5:])
+        recent = "\n".join(m.get("narrative") or dialogue_text(m)
+                           for m in s.memory["recent"][-5:])
         prev = "; ".join(s.memory["chapter_summary"][-2:])
         prompt = ("请把以下剧情压缩为100字以内的章节摘要（只保留关键事实、人物关系变化、未解悬念）：\n"
                   "【已有摘要】%s\n【最近剧情】\n%s" % (prev or "无", recent))
@@ -252,23 +265,25 @@ class Pipeline:
             s.compress_scene("(摘要失败) %s" % instr.must_happen[:80])
 
     def _writer_streaming(self, system: str, user: str,
-                          instr: DirectorInstruction, on_chunk: Any) -> Dict[str, Any]:
-        """流式编剧：第1次尝试流式输出（只把正文增量推给前端，不泄露JSON元数据），
-        失败后第2/3次用非流式重写，前端在done事件里以最终正文覆盖。"""
+                          instr: DirectorInstruction, on_line: Any) -> Dict[str, Any]:
+        """流式编剧：第1次尝试流式输出（把已完成的对话行增量推给前端，
+        只推 speaker/text，不泄露JSON元数据），失败后第2/3次用非流式重写，
+        前端在done事件里以最终 dialogue 覆盖校验。"""
         last_err = ""
         for attempt in range(3):
             try:
                 if attempt == 0:
                     buf: List[str] = []
-                    sent = 0
+                    emitted = 0
                     for delta in self.provider.generate_stream(system, user):
                         buf.append(delta)
-                        m = NARRATIVE_RE.search("".join(buf))
-                        if m:
-                            narr = _unescape_json_str(m.group(1))
-                            if len(narr) > sent:
-                                on_chunk(narr[sent:])
-                                sent = len(narr)
+                        joined = "".join(buf)
+                        # 正则从头匹配：前缀性质保证前 emitted 个匹配与上次一致，只推新增行
+                        for m in list(DIALOGUE_LINE_RE.finditer(joined))[emitted:]:
+                            emitted += 1
+                            speaker, text = m.group(1), _unescape_json_str(m.group(2))
+                            if speaker and text:
+                                on_line(speaker, text)
                     self._record_usage(instr)
                     text = "".join(buf)
                 else:
@@ -285,7 +300,7 @@ class Pipeline:
         # 三次失败：降级保守输出并标记（评测可见）
         self.state.fallback_flags.append("generation_fallback: " + last_err[:80])
         self.state.log("generation_fallback", {"beat": instr.beat_id, "reason": last_err})
-        return {"narrative": "（生成异常，请重试或选择：继续）",
+        return {"dialogue": [{"speaker": NARRATOR, "text": "（生成异常，请重试或选择：继续）"}],
                 "scene_meta": {"beat_id": instr.beat_id},
                 "choices": [{"text": "继续", "tendency": {}, "effects": []}],
                 "world_updates": []}
@@ -309,7 +324,7 @@ class Pipeline:
         # 三次失败：降级保守输出并标记（评测可见）
         self.state.fallback_flags.append("generation_fallback: " + last_err[:80])
         self.state.log("generation_fallback", {"beat": instr.beat_id, "reason": last_err})
-        return {"narrative": "（生成异常，请重试或选择：继续）",
+        return {"dialogue": [{"speaker": NARRATOR, "text": "（生成异常，请重试或选择：继续）"}],
                 "scene_meta": {"beat_id": instr.beat_id},
                 "choices": [{"text": "继续", "tendency": {}, "effects": []}],
                 "world_updates": []}
@@ -351,6 +366,7 @@ class Pipeline:
             for ch in c.characters if ch["id"] != "pc")
         facts = "\n".join("- %s: %s" % (fid, desc)
                           for fid, desc in sorted(c.facts_catalog.items()))
+        speaker_ids = [ch["id"] for ch in c.characters]
         return (
             "你是互动叙事游戏《%s》的AI编剧。严格遵守以下剧本宪法，只写用户能看到的内容。\n"
             "【世界观】%s\n【世界规则】%s\n【文风】%s\n【输出形态】%s\n"
@@ -358,15 +374,22 @@ class Pipeline:
             "【人物卡】\n%s\n"
             "【事实清单（effects/world_updates中的fact与close_fact只能使用这些ID）】\n%s\n"
             "【写作铁律】\n"
-            "1. 对白占比70%%以上，叙述精短；\n"
-            "2. 禁止泄露任何NPC的secret；节拍未到不得剧透；\n"
-            "3. 选项必须真实分化——至少一个选项会显著改变后续走向；\n"
-            "4. 每个选项必须带tendency标签，如实标注其性格倾向含义；\n"
-            "5. 选项与场景在叙事上真正发生的事实，必须从事实清单中挑选对应ID写入effects/world_updates"
+            "1. 正文必须输出为 dialogue 对话行数组（文字游戏对话体），对白占比70%%以上，叙述精短；\n"
+            "2. dialogue 每行格式固定为 {\"speaker\":\"人物ID\",\"text\":\"台词\"}，speaker 键在前；"
+            "speaker 只能是：narrator（旁白/环境叙述）或人物ID %s；"
+            "narrator 行用于动作、环境、氛围等非台词叙述，每行不超过60字；pc 是主角，"
+            "其台词只表现玩家所选行动的即时反应，不必替玩家长篇发言；同一行只放一句台词；\n"
+            "3. 全文长度控制：dialogue 总行数 8~16 行，全部 text 合计 300~600 字（含 narrator 行），"
+            "超长会被审查器驳回重写；\n"
+            "4. 禁止泄露任何NPC的secret；节拍未到不得剧透；\n"
+            "5. 选项必须真实分化——至少一个选项会显著改变后续走向；\n"
+            "6. 每个选项必须带tendency标签，如实标注其性格倾向含义；\n"
+            "7. 选项与场景在叙事上真正发生的事实，必须从事实清单中挑选对应ID写入effects/world_updates"
             "——这是剧情机械结算的依据，漏标会让后续剧情无法解锁；\n"
-            "6. scene_meta.beat_id 必须与导演指令中的节拍一致；\n"
-            "7. 只输出一个JSON对象，不要输出其他文字。JSON结构：\n"
-            '{"narrative":"正文","scene_meta":{"beat_id":"...","characters_present":["pc","..."],"location":"..."},'
+            "8. scene_meta.beat_id 必须与导演指令中的节拍一致；\n"
+            "9. 只输出一个JSON对象，不要输出其他文字。JSON结构：\n"
+            '{"dialogue":[{"speaker":"lin","text":"台词"},{"speaker":"narrator","text":"旁白/环境描写"}],'
+            '"scene_meta":{"beat_id":"...","characters_present":["pc","..."],"location":"..."},'
             '"choices":[{"text":"...","tendency":{"curiosity":1},"effects":[{"type":"stat","target":"sanity","delta":-5,"reason":"..."},{"type":"fact","id":"f_x","text":"..."},{"type":"close_fact","id":"f_x"}]}],'
             '"world_updates":[{"type":"stat","target":"sanity","delta":-5,"reason":"..."}]}\n'
             "注意：effects 是玩家选择该选项后的后果；world_updates 是本场景立即生效的变化；"
@@ -374,7 +397,8 @@ class Pipeline:
         ) % (c.title, c.world.get("setting", ""), "; ".join(c.world.get("rules", [])),
              c.world.get("tone", ""), c.world.get("style_guide", ""),
              "; ".join(c.world.get("taboos_content", [])), "; ".join(c.world.get("taboos_story", [])),
-             chars, facts, ", ".join(sorted(set(c.char_defs()) | set(c.global_defs()))),
+             chars, facts, ", ".join(speaker_ids),
+             ", ".join(sorted(set(c.char_defs()) | set(c.global_defs()))),
              ", ".join(c.ten_dims()))
 
     def _user_prompt(self, instr: DirectorInstruction, chosen: Optional[Dict[str, Any]]) -> str:
@@ -397,7 +421,8 @@ class Pipeline:
         if s.memory["recent"]:
             lines.append("【近期剧情】")
             for m in s.memory["recent"][-3:]:
-                lines.append("- (beat %s) %s" % (m["beat"], m["narrative"][:100]))
+                lines.append("- (beat %s) %s" % (
+                    m["beat"], (m.get("narrative") or dialogue_text(m))[:100]))
         if s.memory["chapter_summary"]:
             lines.append("【章节摘要】%s" % "; ".join(s.memory["chapter_summary"][-3:]))
         if chosen:

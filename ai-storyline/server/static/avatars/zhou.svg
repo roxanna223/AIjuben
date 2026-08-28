@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#487E44"/>
+      <stop offset="100%" stop-color="#396336"/>
+    </radialGradient>
+  </defs>
+  <rect width="120" height="120" fill="url(#bg)"/>
+  <!-- 值班外套 -->
+  <path d="M22 120 C24 96 40 88 60 88 C80 88 96 96 98 120 Z" fill="#33413A"/>
+  <path d="M52 88 L60 98 L68 88 L66 120 L54 120 Z" fill="#2A3630"/>
+  <!-- 脖子 -->
+  <rect x="53" y="72" width="14" height="18" rx="6" fill="#D8AC82"/>
+  <!-- 脸 -->
+  <ellipse cx="60" cy="55" rx="21" ry="23" fill="#E5BD93"/>
+  <!-- 鬓角白发（守夜人） -->
+  <ellipse cx="41" cy="52" rx="5" ry="9" fill="#B9BEC2"/>
+  <ellipse cx="79" cy="52" rx="5" ry="9" fill="#B9BEC2"/>
+  <!-- 灰眉 -->
+  <rect x="45" y="48" width="10" height="2.5" rx="1.2" fill="#9AA0A4"/>
+  <rect x="65" y="48" width="10" height="2.5" rx="1.2" fill="#9AA0A4"/>
+  <!-- 眼（疲惫温和） -->
+  <ellipse cx="50" cy="56" rx="2.4" ry="2" fill="#1A1A1A"/>
+  <ellipse cx="70" cy="56" rx="2.4" ry="2" fill="#1A1A1A"/>
+  <!-- 法令纹 -->
+  <path d="M50 65 Q47 68 48 71" stroke="#B98A63" stroke-width="1.5" fill="none"/>
+  <path d="M70 65 Q73 68 72 71" stroke="#B98A63" stroke-width="1.5" fill="none"/>
+  <!-- 嘴 -->
+  <path d="M54 71 Q60 74 66 71" stroke="#A9755A" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- 钥匙串（他的标志物） -->
+  <circle cx="76" cy="99" r="4" stroke="#D4A24E" stroke-width="1.5" fill="none"/>
+  <path d="M76 103 L76 111 M73.5 109 L78.5 109" stroke="#D4A24E" stroke-width="2" stroke-linecap="round"/>
+  <path d="M72 103 L70 110 M68 108 L72 109.5" stroke="#C9B26A" stroke-width="2" stroke-linecap="round"/>
+</svg>

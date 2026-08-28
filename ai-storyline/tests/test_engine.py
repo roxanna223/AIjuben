@@ -165,5 +165,56 @@ class TestGoldenWalkthroughs(unittest.TestCase):
         self.assertEqual(len(endings), 3, "三条路线未分化出三个结局: %s" % endings)
 
 
+class TestDialogueFormat(unittest.TestCase):
+    """v0.3 对话体输出：结构化 dialogue 数组 + 旧版 narrative 兼容。"""
+
+    def test_legacy_narrative_normalized(self):
+        from engine.scene import as_dialogue_lines, dialogue_text
+        scene = {"narrative": "车厢摇晃。"}
+        self.assertEqual(as_dialogue_lines(scene),
+                         [{"speaker": "narrator", "text": "车厢摇晃。"}])
+        self.assertIn("车厢摇晃", dialogue_text(scene))
+
+    def test_dialogue_preferred_over_narrative(self):
+        from engine.scene import as_dialogue_lines
+        scene = {"narrative": "旧正文", "dialogue": [{"speaker": "lin", "text": "别怕。"}]}
+        self.assertEqual(as_dialogue_lines(scene),
+                         [{"speaker": "lin", "text": "别怕。"}])
+
+    def test_mock_scenes_have_dialogue(self):
+        c, state, p = build()
+        scene = p.start()
+        self.assertIn("dialogue", scene)
+        self.assertTrue(scene["dialogue"])
+        self.assertEqual(scene["dialogue"][0]["speaker"], "narrator")
+
+    def test_critic_rejects_unknown_speaker_in_strict_mode(self):
+        c, state, p = build()
+        p.critic.strict = True
+        issues = p.critic.review({
+            "dialogue": [{"speaker": "ghost", "text": "你好"}],
+            "choices": [{"text": "继续", "tendency": {}}],
+            "world_updates": [],
+        })
+        self.assertTrue(any("未定义说话人" in i for i in issues))
+
+    def test_critic_rejects_empty_dialogue(self):
+        c, state, p = build()
+        issues = p.critic.review({
+            "dialogue": [],
+            "choices": [{"text": "继续", "tendency": {}}],
+            "world_updates": [],
+        })
+        self.assertTrue(any("dialogue 为空" in i for i in issues))
+
+    def test_state_memory_stores_dialogue(self):
+        c, state, p = build()
+        p.start()
+        last = state.memory["recent"][-1]
+        self.assertIn("dialogue", last)
+        self.assertTrue(last["dialogue"])
+        self.assertTrue(last["narrative"])  # 纯文本副本仍保留（摘要/提示词用）
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

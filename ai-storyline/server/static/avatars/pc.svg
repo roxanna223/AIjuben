@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#833F60"/>
+      <stop offset="100%" stop-color="#67324C"/>
+    </radialGradient>
+  </defs>
+  <rect width="120" height="120" fill="url(#bg)"/>
+  <!-- 玩家剪影 -->
+  <circle cx="60" cy="54" r="20" fill="#C695AD"/>
+  <path d="M24 120 C28 94 44 86 60 86 C76 86 92 94 96 120 Z" fill="#C695AD"/>
+  <!-- 主角星标 -->
+  <path d="M60 98 l2.4 4.8 5.3 0.8 -3.8 3.7 0.9 5.3 -4.8 -2.5 -4.8 2.5 0.9 -5.3 -3.8 -3.7 5.3 -0.8 Z" fill="#D4A24E"/>
+</svg>

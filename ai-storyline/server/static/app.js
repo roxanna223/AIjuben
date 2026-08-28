@@ -6,6 +6,22 @@ let SID = localStorage.getItem("qilu_sid") || null;
 let busy = false;
 let enteringStory = false;   // 进入故事过渡防抖:同一时间只允许一次开局/恢复请求
 
+/* ---------- 人物头像配置 ----------
+   每个角色的人物图片放在 server/static/avatars/ 目录下，在此按角色ID登记。
+   当前为程序手绘的扁平风SVG占位头像（零生成成本）；
+   后续换成AI生成的人物图时，只需把对应路径改掉（支持 png/jpg/webp/svg）。
+   未登记的角色会自动显示"首字彩色占位头像"。 */
+const AVATAR_IMAGES = {
+  pc: "/avatars/pc.svg",       // 你（主角，双剧本共用）
+  lin: "/avatars/lin.svg",     // 林sir《午夜列车》
+  aunt: "/avatars/aunt.svg",   // 葛姨《午夜列车》
+  boy: "/avatars/boy.svg",     // 小满《午夜列车》
+  zhou: "/avatars/zhou.svg",   // 老周《规则楼》
+  he: "/avatars/he.svg",       // 阿禾《规则楼》
+};
+
+let CHARS = {};   // 当前剧本的人物表 { id: {name, role} }，由服务端下发
+
 /* ---------- 基础请求 ---------- */
 async function api(path, opts = {}) {
   const res = await fetch(path, {
@@ -21,6 +37,7 @@ async function api(path, opts = {}) {
 
 /* ---------- 渲染 ---------- */
 function renderState(view) {
+  if (view.characters) CHARS = view.characters;
   $("chapter-chip").textContent = "第" + view.chapter + "章";
   if (view.story) $("story-title").innerHTML =
     "《" + view.story.title + "》<span id=\"chapter-chip\" class=\"chip\">第" + view.chapter + "章</span>";
@@ -77,26 +94,100 @@ function addSystem(text) {
   scrollBottom();
 }
 
-async function addNarrative(text, instant) {
+/* ---------- 人物对话渲染（文字游戏式气泡） ---------- */
+
+function speakerName(speaker) {
+  if (speaker === "narrator") return "旁白";
+  const ch = CHARS[speaker];
+  return (ch && ch.name) || speaker;
+}
+
+/* 确定性哈希：同一角色始终同色（头像占位/名字着色），后续替换为人物图片后仍可保留名字色 */
+function speakerHue(id) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
+  return h;
+}
+
+function buildLineEl(speaker, text) {
+  const isPc = speaker === "pc";
+  const isNarr = speaker === "narrator";
   const msg = document.createElement("div");
-  msg.className = "msg";
+  msg.className = "msg msg-line" + (isPc ? " msg-pc" : "") + (isNarr ? " msg-narr" : "");
+  msg.dataset.speaker = speaker;
+
+  if (isNarr) {
+    const b = document.createElement("div");
+    b.className = "narr-text";
+    b.textContent = text;
+    msg.appendChild(b);
+    return msg;
+  }
+
+  // 头像槽：有登记图片时渲染 <img>，否则显示首字彩色占位（后续可直接换图）
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  const imgUrl = AVATAR_IMAGES[speaker];
+  if (imgUrl) {
+    const img = document.createElement("img");
+    img.className = "avatar-photo";
+    img.src = imgUrl;
+    img.alt = speakerName(speaker);
+    img.loading = "lazy";
+    avatar.appendChild(img);
+  } else {
+    const fb = document.createElement("span");
+    fb.className = "avatar-fallback";
+    fb.textContent = (speakerName(speaker) || "?").charAt(0);
+    fb.style.background = "hsl(" + speakerHue(speaker) + ", 38%, 26%)";
+    fb.style.borderColor = "hsl(" + speakerHue(speaker) + ", 45%, 55%)";
+    avatar.appendChild(fb);
+  }
+
+  const body = document.createElement("div");
+  body.className = "line-body";
+  const name = document.createElement("div");
+  name.className = "line-name";
+  name.textContent = speakerName(speaker);
+  if (!isPc) name.style.color = "hsl(" + speakerHue(speaker) + ", 42%, 72%)";
   const bubble = document.createElement("div");
-  bubble.className = "msg-narr";
-  if (!instant) bubble.classList.add("cursor");
-  msg.appendChild(bubble);
-  $("chat").appendChild(msg);
+  bubble.className = "line-bubble";
+  bubble.textContent = text;
+  body.appendChild(name);
+  body.appendChild(bubble);
+
+  msg.appendChild(avatar);
+  msg.appendChild(body);
+  return msg;
+}
+
+/* 打字目标：NPC/主角行是气泡，旁白行是居中文本 */
+function textTarget(el) {
+  return el.querySelector(".line-bubble") || el.querySelector(".narr-text");
+}
+
+async function addLine(speaker, text, instant) {
+  const el = buildLineEl(speaker, instant ? text : "");
+  $("chat").appendChild(el);
   if (instant) {
-    bubble.textContent = text;
     scrollBottom();
     return;
   }
   // 打字机效果
+  const target = textTarget(el);
+  target.classList.add("cursor");
   for (let i = 0; i < text.length; i += 2) {
-    bubble.textContent = text.slice(0, i + 2);
+    target.textContent = text.slice(0, i + 2);
     scrollBottom();
     await sleep(12);
   }
-  bubble.classList.remove("cursor");
+  target.classList.remove("cursor");
+}
+
+async function addDialogue(lines, instant) {
+  for (const ln of (lines || [])) {
+    await addLine(ln.speaker, ln.text, instant);
+  }
 }
 
 function addChoice(text) {
@@ -122,13 +213,13 @@ function setBusy(b) {
 function renderScene(view) {
   if (!view.scene) return;
   renderState(view);
-  renderNarrativeThenChoices(view.scene);
+  renderDialogueThenChoices(view.scene);
 }
 
-function renderNarrativeThenChoices(scene) {
+function renderDialogueThenChoices(scene) {
   const choices = $("choices");
   choices.innerHTML = "";
-  addNarrative(scene.narrative).then(() => renderChoiceButtons(scene.choices));
+  addDialogue(scene.dialogue, false).then(() => renderChoiceButtons(scene.choices));
 }
 
 function renderChoiceButtons(choices) {
@@ -149,12 +240,12 @@ async function choose(index, text) {
   if (busy) return;
   setBusy(true);
   addChoice(text);
-  const bubble = beginStream();
+  const box = beginStream();
   try {
-    const view = await streamTurn(SID, { choice_index: index }, bubble);
-    afterTurn(view);
+    const view = await streamTurn(SID, { choice_index: index }, box);
+    afterTurn(view, box);
   } catch (e) {
-    finalizeStream(bubble, "（生成失败: " + e.message + "）");
+    addSystem("（生成失败: " + e.message + "）");
     setBusy(false);
   }
 }
@@ -165,41 +256,40 @@ async function freeAct() {
   setBusy(true);
   $("free-input").value = "";
   addChoice(text);
-  const bubble = beginStream();
+  const box = beginStream();
   try {
-    const view = await streamTurn(SID, { free_text: text }, bubble);
-    afterTurn(view);
+    const view = await streamTurn(SID, { free_text: text }, box);
+    afterTurn(view, box);
   } catch (e) {
-    finalizeStream(bubble, "（生成失败: " + e.message + "）");
+    addSystem("（生成失败: " + e.message + "）");
     setBusy(false);
   }
 }
 
 /* ---------- 流式渲染 ---------- */
 function beginStream() {
-  const msg = document.createElement("div");
-  msg.className = "msg";
-  const bubble = document.createElement("div");
-  bubble.className = "msg-narr cursor";
-  bubble.textContent = "";
-  msg.appendChild(bubble);
-  $("chat").appendChild(msg);
+  const root = document.createElement("div");
+  root.className = "stream-root";
+  $("chat").appendChild(root);
   scrollBottom();
-  return bubble;
+  return { root: root, rows: [] };   // rows: 已流式渲染的对话行
 }
 
-function appendDelta(bubble, text) {
-  bubble.textContent += text;
+function streamLine(box, speaker, text) {
+  box.root.appendChild(buildLineEl(speaker, text));
+  box.rows.push({ speaker: speaker, text: text });
   scrollBottom();
 }
 
-function finalizeStream(bubble, text) {
-  bubble.textContent = text;
-  bubble.classList.remove("cursor");
-  scrollBottom();
+function linesMatch(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].speaker !== b[i].speaker || a[i].text !== b[i].text) return false;
+  }
+  return true;
 }
 
-async function streamTurn(sid, body, bubble) {
+async function streamTurn(sid, body, box) {
   const res = await fetch("/api/sessions/" + sid + "/turn", {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/x-ndjson" },
@@ -211,9 +301,7 @@ async function streamTurn(sid, body, bubble) {
   }
   const ct = res.headers.get("content-type") || "";
   if (ct.indexOf("application/json") >= 0) {
-    const view = await res.json();          // 兼容非流式
-    if (view.scene) finalizeStream(bubble, view.scene.narrative);
-    return view;
+    return await res.json();          // 兼容非流式：afterTurn 会整体渲染最终对话
   }
   // NDJSON 流
   const reader = res.body.getReader();
@@ -231,11 +319,10 @@ async function streamTurn(sid, body, bubble) {
       if (!line) continue;
       let evt;
       try { evt = JSON.parse(line); } catch (e) { continue; }
-      if (evt.type === "delta") {
-        appendDelta(bubble, evt.text);
+      if (evt.type === "line") {
+        streamLine(box, evt.speaker, evt.text);
       } else if (evt.type === "done") {
         view = evt.view;
-        if (view.scene) finalizeStream(bubble, view.scene.narrative);
       } else if (evt.type === "error") {
         throw new Error(evt.detail || "生成错误");
       }
@@ -245,14 +332,22 @@ async function streamTurn(sid, body, bubble) {
   return view;
 }
 
-function afterTurn(view) {
+function afterTurn(view, box) {
+  renderState(view);
   if (view.finished) {
-    renderState(view);
     showEnding();
-  } else {
-    renderState(view);
-    renderChoiceButtons(view.scene.choices);  // 正文已流式渲染，这里只出选项
+    return;
   }
+  // 流式行与最终对话一致则保留；不一致（重写/降级）则整体重绘，保证所见即最终剧本
+  if (box && !linesMatch(box.rows, view.scene.dialogue)) {
+    box.root.innerHTML = "";
+    box.rows = [];
+    for (const ln of (view.scene.dialogue || [])) {
+      box.root.appendChild(buildLineEl(ln.speaker, ln.text));
+    }
+    scrollBottom();
+  }
+  renderChoiceButtons(view.scene.choices);  // 正文已流式渲染，这里只出选项
 }
 
 /* ---------- 结局 ---------- */
@@ -453,20 +548,19 @@ async function resume() {
       return true;
     }
     addSystem("已为你恢复存档");
-    // 回放历史时间线（正文即时渲染，不逐字打字）
+    // 回放历史时间线（对话行即时渲染，不逐字打字；当前场景的行跳过，交给下方实时渲染）
     const hist = view.history || [];
-    const last = hist.length - 1;
     for (let i = 0; i < hist.length; i++) {
       const h = hist[i];
-      if (h.kind === "narr") {
-        if (i === last) break; // 最后一场正文交给下方实时渲染，避免重复
-        addNarrative(h.text, true);
+      if (h.is_current) break;   // 到达当前场景首行：其后由实时渲染负责
+      if (h.kind === "line") {
+        addLine(h.speaker, h.text, true);
       } else {
         addChoice(h.text);
       }
     }
     renderState(view);
-    renderNarrativeThenChoices(view.scene);
+    renderDialogueThenChoices(view.scene);
     return true;
   } catch (e) {
     return false;  // 存档失效:留在选故事页

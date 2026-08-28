@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#948538"/>
+      <stop offset="100%" stop-color="#766A2D"/>
+    </radialGradient>
+  </defs>
+  <rect width="120" height="120" fill="url(#bg)"/>
+  <!-- 红衣肩膀 -->
+  <path d="M22 120 C24 96 40 88 60 88 C80 88 96 96 98 120 Z" fill="#A03828"/>
+  <!-- 围裙 -->
+  <path d="M46 120 L48 94 L72 94 L74 120 Z" fill="#E8DCC8"/>
+  <!-- 茶叶蛋 -->
+  <ellipse cx="60" cy="106" rx="6" ry="7" fill="#8A5A33"/>
+  <ellipse cx="58" cy="103" rx="2" ry="2.5" fill="#B07B4A"/>
+  <!-- 脖子 -->
+  <rect x="53" y="72" width="14" height="16" rx="6" fill="#E5B98F"/>
+  <!-- 脸 -->
+  <ellipse cx="60" cy="56" rx="21" ry="22" fill="#F2C9A4"/>
+  <!-- 发髻 -->
+  <circle cx="60" cy="30" r="9" fill="#4A3B30"/>
+  <path d="M38 56 C36 40 46 32 60 32 C74 32 84 40 82 56 C80 47 74 42 60 42 C46 42 40 47 38 56 Z" fill="#4A3B30"/>
+  <!-- 笑眼 -->
+  <path d="M45 55 Q49 51 53 55" stroke="#3A2E26" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M67 55 Q71 51 75 55" stroke="#3A2E26" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- 腮红 -->
+  <circle cx="46" cy="62" r="4" fill="#E89A7A" opacity="0.55"/>
+  <circle cx="74" cy="62" r="4" fill="#E89A7A" opacity="0.55"/>
+  <!-- 笑嘴 -->
+  <path d="M52 68 Q60 75 68 68" stroke="#A9684F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>

@@ -104,11 +104,15 @@ class TestHistoryApi(unittest.TestCase):
         r = client.get("/api/sessions/%s" % sid)
         view = r.json()
         kinds = [h["kind"] for h in view["history"]]
-        self.assertIn("narr", kinds)
+        self.assertIn("line", kinds)
         self.assertIn("choice", kinds)
-        # 最后一个条目应是当前场景正文
-        self.assertEqual(view["history"][-1]["kind"], "narr")
-        self.assertEqual(view["history"][-1]["text"], view["scene"]["narrative"])
+        # 当前场景的对话行带 is_current 标记，且与 scene.dialogue 一致
+        cur = [h for h in view["history"] if h.get("is_current")]
+        self.assertTrue(cur)
+        self.assertEqual([(h["speaker"], h["text"]) for h in cur],
+                         [(l["speaker"], l["text"]) for l in view["scene"]["dialogue"]])
+        # 最后一个条目应是当前场景的最后一行
+        self.assertEqual(view["history"][-1]["kind"], "line")
 
     def test_admin_metrics_endpoint_requires_token(self):
         # 生产环境未配 ADMIN_TOKEN 或未带头 → 一律 403(鉴权通过与否由 security_tests 验证)

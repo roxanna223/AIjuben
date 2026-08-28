@@ -1,7 +1,12 @@
 {
   "scenes": {
     "b1": {
-      "narrative": "你在一阵眩晕里睁开眼。电梯门开在一条灰白的走廊上，楼层指示牌写着：负一层。可这栋楼的电梯，从来不到负一层。电梯口贴着一张泛黄的纸，字是手写的：『规则一：听见敲门声，不要应答。』",
+      "dialogue": [
+        {"speaker": "narrator", "text": "你在一阵眩晕里睁开眼。电梯门开在一条灰白的走廊上。"},
+        {"speaker": "narrator", "text": "楼层指示牌写着：负一层。可这栋楼的电梯，从来不到负一层。"},
+        {"speaker": "narrator", "text": "电梯口贴着一张泛黄的纸，字是手写的：『规则一：听见敲门声，不要应答。』"},
+        {"speaker": "pc", "text": "负一层……？这栋楼哪来的负一层。"}
+      ],
       "scene_meta": {"beat_id": "b1", "characters_present": ["pc"], "location": "负一层电梯口"},
       "choices": [
         {"text": "先观察四周，把规则默背下来", "tendency": {"caution": 1}, "effects": []},
@@ -17,7 +22,12 @@
       "world_updates": []
     },
     "b2": {
-      "narrative": "半夜，三下敲门声。不轻不重，正好三下。门外静得没有呼吸声。隔壁房门忽然开了一条缝，一个女生的声音又急又轻：“别应门！求你了，别应门——”",
+      "dialogue": [
+        {"speaker": "narrator", "text": "半夜，三下敲门声。不轻不重，正好三下。门外静得没有呼吸声。"},
+        {"speaker": "narrator", "text": "隔壁房门忽然开了一条缝。"},
+        {"speaker": "he", "text": "别应门！求你了，别应门——"},
+        {"speaker": "narrator", "text": "那个女生的声音又急又轻，像被风吹灭的烛火。"}
+      ],
       "scene_meta": {"beat_id": "b2", "characters_present": ["pc", "zhou"], "location": "负一层走廊"},
       "choices": [
         {"text": "装睡，一声不吭", "tendency": {"order": 1, "caution": 1},
@@ -45,7 +55,13 @@
       ]
     },
     "b3": {
-      "narrative": "老周给你倒了杯热茶，手有点抖：“这楼吃人。想出去，只有一条路——三张楼长卡，藏在这栋楼最不讲理的三层。卡集齐，天台的门才开。”",
+      "dialogue": [
+        {"speaker": "narrator", "text": "值班室里，老周给你倒了杯热茶，手有点抖。"},
+        {"speaker": "zhou", "text": "这楼吃人。想出去，只有一条路。"},
+        {"speaker": "zhou", "text": "三张楼长卡，藏在这栋楼最不讲理的三层。卡集齐，天台的门才开。"},
+        {"speaker": "pc", "text": "……为什么告诉我这些？"},
+        {"speaker": "zhou", "text": "因为这楼的规矩，是拿命换来的。别不当回事。"}
+      ],
       "scene_meta": {"beat_id": "b3", "characters_present": ["pc", "zhou"], "location": "值班室"},
       "choices": [
         {"text": "把自己观察到的规则都告诉老周", "tendency": {"trust": 1},
@@ -58,7 +74,12 @@
       ]
     },
     "b4": {
-      "narrative": "午夜十二点，整栋楼发出齿轮咬合的声音。你的房门不知何时开了。走廊尽头，清洁工推着垃圾车，停在了阿禾的门前。敲门声又响起了——这次，敲的是她的门。",
+      "dialogue": [
+        {"speaker": "narrator", "text": "午夜十二点，整栋楼发出齿轮咬合的声音。"},
+        {"speaker": "narrator", "text": "你的房门不知何时开了。走廊尽头，清洁工推着垃圾车，停在了阿禾的门前。"},
+        {"speaker": "narrator", "text": "敲门声又响起了——这次，敲的是她的门。"},
+        {"speaker": "he", "text": "不……不……救、救命……"}
+      ],
       "scene_meta": {"beat_id": "b4", "characters_present": ["pc", "he"], "location": "走廊（换层中）"},
       "choices": [
         {"text": "冲出去，把阿禾拉进自己房间", "tendency": {"empathy": 0.8, "caution": -0.5},
@@ -76,7 +97,12 @@
       "world_updates": []
     },
     "b5": {
-      "narrative": "阿禾缩在墙角，浑身发抖：“其实我已经违规三次了。可我没消失。清洁工说……说我快和他们一样了。”她卷起袖子，手腕上有一圈青灰的印子，像被什么握过。",
+      "dialogue": [
+        {"speaker": "narrator", "text": "阿禾缩在墙角，浑身发抖。"},
+        {"speaker": "he", "text": "其实我已经违规三次了。可我没消失。"},
+        {"speaker": "he", "text": "清洁工说……说我快和他们一样了。"},
+        {"speaker": "narrator", "text": "她卷起袖子，手腕上有一圈青灰的印子，像被什么握过。"}
+      ],
       "scene_meta": {"beat_id": "b5", "characters_present": ["pc", "he"], "location": "你的房间"},
       "choices": [
         {"text": "追问她三次违规的经过", "tendency": {"curiosity": 1},
@@ -89,7 +115,12 @@
       ]
     },
     "b7": {
-      "narrative": "老周叹气：“我的钥匙串被扫进垃圾车了。别的无所谓，那一串里，有天台的备份钥匙。”他盯着你，等你开口。",
+      "dialogue": [
+        {"speaker": "narrator", "text": "老周站在垃圾间外，重重叹了口气。"},
+        {"speaker": "zhou", "text": "我的钥匙串被扫进垃圾车了。"},
+        {"speaker": "zhou", "text": "别的无所谓，那一串里，有天台的备份钥匙。"},
+        {"speaker": "narrator", "text": "他盯着你，等你开口。"}
+      ],
       "scene_meta": {"beat_id": "b7", "characters_present": ["pc", "zhou"], "location": "垃圾间外"},
       "choices": [
         {"text": "陪他去垃圾间找", "tendency": {"empathy": 0.5, "caution": -0.5},
@@ -102,7 +133,11 @@
       "world_updates": []
     },
     "b6": {
-      "narrative": "天台的门。你手里攥着三张楼长卡，门缝外漏进来的是城市的灯光和车流声。身后，清洁工们排成两列，安静地站着。老周低声说：“门开了就关不上。你想好，带谁走。”",
+      "dialogue": [
+        {"speaker": "narrator", "text": "天台的门。你手里攥着三张楼长卡，门缝外漏进来的是城市的灯光和车流声。"},
+        {"speaker": "narrator", "text": "身后，清洁工们排成两列，安静地站着。"},
+        {"speaker": "zhou", "text": "门开了就关不上。你想好，带谁走。"}
+      ],
       "scene_meta": {"beat_id": "b6", "characters_present": ["pc", "zhou", "he"], "location": "天台门前"},
       "choices": [
         {"text": "开门，自己离开", "tendency": {"caution": 1},

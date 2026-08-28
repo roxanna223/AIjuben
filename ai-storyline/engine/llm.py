@@ -50,6 +50,13 @@ class MockProvider:
         scene["choices"] = choices
         return json.dumps(scene, ensure_ascii=False)
 
+    def generate_stream(self, system: str, user: str):
+        """模拟真实LLM的分块流式输出：内容与 generate 完全一致，
+        按小块yield，让流水线的对话行流式解析路径在Mock模式下同样被覆盖。"""
+        text = self.generate(system, user)
+        for i in range(0, len(text), 24):
+            yield text[i:i + 24]
+
     @staticmethod
     def _visible(choice: Dict[str, Any], facts: set) -> bool:
         cond = choice.get("visible_condition")
