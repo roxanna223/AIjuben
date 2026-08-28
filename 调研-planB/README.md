@@ -35,9 +35,9 @@
 
 ## 三、隔离约定（与 ai-storyline 的关系）
 
-1. **代码/文档互不改动**：PlanB 的一切产物只在本目录或未来的独立新目录中进行，不修改 `ai-storyline/`。
+1. **代码/文档互不改动**：PlanB 的一切产物在独立新目录 `../planb/`（**独立 git 仓库**）中进行，不修改 `ai-storyline/`。
 2. **独立路线**：PlanB 不承担「给 ai-storyline 打补丁」的任务；两条路线各自演进，必要时再比较取舍。
-3. **git 分提交**：本目录的变更作为独立 commit，不与 `ai-storyline/` 的改动混提。
+3. **git 彻底分离**：`../planb/` 自建 git 仓库（外层 .gitignore 已排除），与 `ai-storyline/` 无共享提交历史。
 4. 调研中引用的技术栈（Godot、ink、ComfyUI 配图、chara_card_v3 等）属 PlanB 路线假设，与 ai-storyline 的 Web+Python 栈无关。
 
 ## 四、推荐阅读顺序
@@ -50,6 +50,7 @@
 
 - [x] 归一化：以 Cursor 版为准，旧版归档 legacy/，HTML 归入 html-存档/
 - [x] 新建索引（本文件）与结论速查卡
+- [x] 建立独立分支项目 `../planb/`（独立 git 仓库；规划见其 docs/00-项目规划总览.md）
 - [ ] 题材串线：把 `html-存档/worldview-research-report.html`（女性向题材）结论映射进五环字段与节奏设计
 - [ ] 冻结 01 的 WorldBible JSON Schema（含三态字段 + 知识状态预留）
 - [ ] P0 最小工具包开工：访谈 Skill + chara_card_v2 生成 + 单角色逐章生成（见 Cursor00 第六节）

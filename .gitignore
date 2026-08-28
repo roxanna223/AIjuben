@@ -20,3 +20,6 @@ ai-storyline/data/
 
 # 部署期临时密钥(勿提交)
 deploy/ssh_keys/
+
+# PlanB 分支项目(独立 git 仓库,外层不跟踪)
+planb/
