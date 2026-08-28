@@ -13,7 +13,9 @@ ai-storyline/
 │   ├── 02-剧本Schema规范.md    # 剧本宪法/世界状态/场景输出 三类数据结构
 │   ├── 03-系统架构.md          # 四层模型/流水线/成本/评测/内容安全
 │   ├── 04-样例剧本-午夜列车.md  # 样例剧本节拍骨架 + 千人千线走查演示
-│   └── 05-迭代文档.md          # 迭代历史/生产环境/安全措施/运维速查(每次更新必写)
+│   ├── 05-迭代文档.md          # 迭代历史/生产环境/安全措施/运维速查(每次更新必写)
+│   ├── 06-Bug记录与修复.md     # Bug记录(现象/复现/根因/修复/遗留风险)
+│   └── 07-工程化校验框架.md     # ValidationScale设计:定位/能力边界/架构/使用指南/插件开发
 ├── engine/                    # 引擎（纯Python标准库）
 │   ├── constitution.py        # 剧本宪法：加载与校验
 │   ├── conditions.py          # 条件表达式求值（节拍触发/结局判定共用）
@@ -111,7 +113,7 @@ curl http://127.0.0.1:8000/api/admin/metrics   # API（含逐项PASS/FAIL）
 ## 质量评测工具
 
 ```bash
-# 工程化校验（构建期/审计期二合一CLI，校验口径见剧本 validation 段与 engine/validation.py）
+# 工程化校验（构建期/审计期二合一CLI，校验口径见剧本 validation 段；完整设计见 docs/07-工程化校验框架.md）
 .venv/bin/python scripts/validate_content.py --story midnight-train --mock               # 构建期:校验mock全场景
 .venv/bin/python scripts/validate_content.py --story midnight-train --sessions data/sessions  # 审计期:扫描历史会话的数值/剧情出发点违规
 
