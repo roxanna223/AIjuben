@@ -108,6 +108,12 @@ body {
 }
 .stream-root { min-height: 1px; }
 
+/* "✦ 影响"提示：本次选择的后果（数值/倾向/线索） */
+.msg-fx {
+  text-align: center; color: var(--accent2); font-size: 12px;
+  letter-spacing: 1px; margin: 4px 0 12px; animation: lineIn .3s ease;
+}
+
 /* 逐句推进提示（sticky 悬浮于对话区底部） */
 .advance-hint {
   position: sticky; bottom: 8px; z-index: 5;

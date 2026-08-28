@@ -224,6 +224,27 @@ def _history(state: WorldState) -> list:
     return out
 
 
+def _last_effects(state: WorldState) -> list:
+    """最近一次玩家行动（选项/自由输入）结算产生的影响：数值/倾向变化与事实授予。
+    供前端在对话流中即时展示"这一选择带来了什么"，强化选择与剧情的因果感。"""
+    turn = state.turn - 1
+    out = []
+    for e in state.event_log:
+        if e.get("turn") != turn or e.get("type") not in ("stat", "tendency", "fact", "close_fact"):
+            continue
+        p = e.get("payload") or {}
+        if e["type"] == "stat":
+            out.append({"kind": "stat", "target": p.get("target"),
+                        "delta": p.get("delta"), "text": p.get("reason", "")})
+        elif e["type"] == "tendency":
+            out.append({"kind": "tendency", "target": p.get("dim"), "delta": p.get("delta")})
+        elif e["type"] == "fact":
+            out.append({"kind": "fact", "text": p.get("text") or p.get("id", "")})
+        elif e["type"] == "close_fact":
+            out.append({"kind": "close_fact", "text": p.get("id", "")})
+    return out
+
+
 def _session_view(state: WorldState, scene: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     c = _load_constitution(state.story_id)
     view_scene = None
@@ -245,6 +266,7 @@ def _session_view(state: WorldState, scene: Optional[Dict[str, Any]]) -> Dict[st
         "stat_defs": _stat_defs(c),
         "facts": sorted(state.facts),
         "closed_facts": sorted(state.closed_facts),
+        "last_effects": _last_effects(state),
         "beat_path": [b for b, st in sorted(state.beat_status.items(),
                                             key=lambda kv: kv[1].get("turn", 0))
                       if st["status"] == "done"],

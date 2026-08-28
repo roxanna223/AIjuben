@@ -21,6 +21,7 @@ const AVATAR_IMAGES = {
 };
 
 let CHARS = {};   // 当前剧本的人物表 { id: {name, role} }，由服务端下发
+let STAT_DEFS = {};   // 数值定义（标签），用于"影响"提示
 
 /* ---------- 基础请求 ---------- */
 async function api(path, opts = {}) {
@@ -38,6 +39,7 @@ async function api(path, opts = {}) {
 /* ---------- 渲染 ---------- */
 function renderState(view) {
   if (view.characters) CHARS = view.characters;
+  if (view.stat_defs) STAT_DEFS = view.stat_defs;
   $("chapter-chip").textContent = "第" + view.chapter + "章";
   if (view.story) $("story-title").innerHTML =
     "《" + view.story.title + "》<span id=\"chapter-chip\" class=\"chip\">第" + view.chapter + "章</span>";
@@ -530,7 +532,37 @@ function afterTurn(view, box) {
     Player.reset(box ? box.root : $("chat"), final, choices);
   }
   if (box) box.rows = [];
+  // 即时展示本次选择带来的影响（强化"选择→后果"的因果感），插在选项气泡与新场景之间
+  if (box) showEffects(view.last_effects, box.root);
   if (!choices.length) setBusy(false);   // 无选项场景兜底（正常由 renderChoiceButtons 复位）
+}
+
+/* "✦ 影响"提示：本次选择的数值/倾向变化与获得的事实 */
+function showEffects(fx, container) {
+  if (!fx || !fx.length) return;
+  const parts = [];
+  for (const f of fx) {
+    if (f.kind === "stat") {
+      const label = (STAT_DEFS[f.target] && STAT_DEFS[f.target].label)
+        || TEND_LABELS[f.target] || f.target;
+      const d = Math.round(f.delta * 10) / 10;
+      parts.push(label + (d >= 0 ? " +" : " ") + d + (f.text ? "（" + f.text + "）" : ""));
+    } else if (f.kind === "tendency") {
+      const label = TEND_LABELS[f.target] || f.target;
+      const d = Math.round(f.delta * 100) / 100;
+      parts.push(label + (d >= 0 ? " +" : " ") + d);
+    } else if (f.kind === "fact") {
+      parts.push("解锁线索：" + f.text);
+    } else if (f.kind === "close_fact") {
+      parts.push("错过可能：" + f.text);
+    }
+  }
+  if (!parts.length) return;
+  const div = document.createElement("div");
+  div.className = "msg-fx";
+  div.textContent = "✦ " + parts.join(" · ");
+  container.insertBefore(div, container.firstChild);
+  scrollBottom();
 }
 
 /* ---------- 结局 ---------- */

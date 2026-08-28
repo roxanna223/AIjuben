@@ -172,12 +172,14 @@ class Pipeline:
             scene = self._writer_streaming(system, user, instr, on_line)
         else:
             scene = self._writer_with_retries(system, user, instr)
-        # 审查器第二道关：LLM事实一致性检查（仅真实模型模式）
-        contradictions = self._consistency_check(scene, instr)
+        # 审查器第二道关：LLM事实一致性检查 + 玩家选择承接检查（仅真实模型模式）
+        contradictions = self._consistency_check(scene, instr, chosen)
         if contradictions and not getattr(self.provider, "is_mock", False):
             feedback = ("\n\n[一致性审查驳回] 新剧情与既定事实存在以下矛盾，必须修正：\n"
                         + "\n".join("- " + c for c in contradictions)
-                        + "\n请在不违反事实的前提下重写。")
+                        + "\n请在不违反事实的前提下重写。"
+                        + "若包含 choice_ignored，本场开头必须先直接承接玩家上一选择（被示意的人先开口、"
+                          "被选择的行动先发生），再推进节拍。")
             self.state.log("consistency_rejected",
                            {"beat": instr.beat_id, "contradictions": contradictions})
             scene = self._writer_with_retries(system, user + feedback, instr)
@@ -221,8 +223,10 @@ class Pipeline:
             return False
 
     def _consistency_check(self, scene: Dict[str, Any],
-                           instr: DirectorInstruction) -> List[str]:
-        """LLM事实一致性检查（真实模型模式）：新场景是否与既定事实矛盾。
+                           instr: DirectorInstruction,
+                           chosen: Optional[Dict[str, Any]] = None) -> List[str]:
+        """LLM事实一致性检查 + 玩家选择承接检查（真实模型模式）：新场景是否与既定事实矛盾、
+        是否明确回应了玩家上一选择。
 
         Mock模式返回空（确定性脚本天然一致）。
         """
@@ -234,12 +238,20 @@ class Pipeline:
         narrative = dialogue_text(scene)[:800]
         if not narrative:
             return []
+        choice_ask = ""
+        if chosen and chosen.get("text"):
+            choice_ask = (
+                "\n另外，玩家在本场之前的选择是：「%s」。请检查新场景是否明确承接了这一选择"
+                "（被示意的人要开口回应、被选择的行动要被执行并产生可见后果）。"
+                "若新场景完全无视或回避了玩家选择，在 contradictions 中加一条："
+                "choice_ignored: 具体说明哪里没有承接。"
+            ) % chosen["text"]
         prompt = (
             "你是一致性审查员。以下是此前剧情的既定事实，请检查新场景是否与之矛盾"
             "（人物身份/性别/关系、物件归属、时间线、地点、逻辑）。\n"
-            "【既定事实】\n%s\n【新场景】\n%s\n"
+            "【既定事实】\n%s\n【新场景】\n%s\n%s"
             "只输出JSON：{\"contradictions\": [\"矛盾描述\", ...]}；无矛盾输出空数组。"
-        ) % (known or "无", narrative)
+        ) % (known or "无", narrative, choice_ask)
         try:
             out = self.provider.generate("你是事实一致性审查员，只输出JSON。", prompt)
             m = JSON_BLOCK_RE.search(out)
@@ -436,8 +448,14 @@ class Pipeline:
             if chosen.get("_free"):
                 lines.append("【玩家刚刚的自主行动/发言（必须让在场人物明确回应或受影响，剧情要直接接住它）】%s"
                              % chosen.get("text"))
+                lines.append("写作要求：本场开头2~4行必须先承接玩家这一行动——行动先发生、相关人物先开口回应，"
+                             "让玩家立刻看到自己行动的后果；随后再自然过渡到本场节拍。")
             else:
                 lines.append("【玩家上一选择】%s" % chosen.get("text"))
+                lines.append("写作要求：本场开头2~4行必须先承接玩家的选择——被示意的人要先开口、"
+                             "被选择的行动要先发生并产生可见后果（例如选了‘先听他怎么说’，他必须先开口继续讲）；"
+                             "随后再自然过渡到本场节拍。不得跳过玩家选择的即时后果，"
+                             "否则会被一致性审查驳回重写。")
         else:
             lines.append("【本场为开场】")
         lines.append("\n[META]%s[/META]" % json.dumps(

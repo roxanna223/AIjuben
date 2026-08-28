@@ -40,10 +40,15 @@ class TestApi(unittest.TestCase):
         self.assertEqual(view["characters"]["lin"]["name"], "林sir")
         sid = view["sid"]
 
-        # 路径A：谨慎利己 → 成为乘客
-        for idx in (2, 2, 1, 3):
+        # 路径A：谨慎利己 → 成为乘客（首回合后应返回"选择影响"供前端即时展示）
+        for i, idx in enumerate((2, 2, 1, 3)):
             r = client.post("/api/sessions/%s/turn" % sid, json={"choice_index": idx})
             self.assertEqual(r.status_code, 200)
+            if i == 0:
+                fx = r.json().get("last_effects")
+                self.assertTrue(fx, "回合响应应包含 last_effects")
+                self.assertTrue(any(f["kind"] == "stat" and f["target"] == "sanity"
+                                    for f in fx))
         self.assertTrue(r.json()["finished"])
         self.assertEqual(r.json()["ending"]["id"], "end_passenger")
 
@@ -113,6 +118,7 @@ class TestApi(unittest.TestCase):
         evts = [json.loads(l) for l in lines]
         self.assertEqual(evts[-1]["type"], "done")
         self.assertIn("dialogue", evts[-1]["view"]["scene"])
+        self.assertIn("last_effects", evts[-1]["view"])
         self.assertEqual(evts[-1]["view"]["sid"], sid)
         # 流式对话行事件：逐行推送 speaker/text，与最终 dialogue 一致
         line_evts = [e for e in evts if e["type"] == "line"]
