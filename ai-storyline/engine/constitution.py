@@ -27,6 +27,8 @@ class Constitution:
         self.endings: List[Dict[str, Any]] = raw.get("endings", [])
         self.stats: Dict[str, Any] = raw.get("stats", {})
         self.chapter_plan: Dict[str, Any] = raw.get("chapter_plan", {})
+        # 固定剧情锚点：用户不可操作的基础剧情细节在此定稿（跨局一致、省token）
+        self.fixed_plot: List[Dict[str, Any]] = raw.get("fixed_plot", [])
         # 便捷索引
         self.char_index: Dict[str, Dict] = {c["id"]: c for c in self.characters}
         self.beat_index: Dict[str, Dict] = {b["id"]: b for b in self.beats}
@@ -118,6 +120,17 @@ class Constitution:
                 if h.get("fact") not in known_facts:
                     fail("beat %s 的 fact_hints 引用了未声明的事实 %s" % (b["id"], h.get("fact")))
 
+        # 固定剧情锚点（可选但强烈建议）：每项 {id, beat, fact, basis?, mutable_by?}
+        seen_fp = set()
+        for f in raw.get("fixed_plot", []):
+            if not isinstance(f, dict) or not f.get("id") or not f.get("fact"):
+                fail("fixed_plot 条目必须是 {id, beat, fact} 对象")
+            if f["id"] in seen_fp:
+                fail("fixed_plot id 重复: %s" % f["id"])
+            seen_fp.add(f["id"])
+            if f.get("beat") not in seen:
+                fail("fixed_plot %s 引用了不存在的节拍 %s" % (f["id"], f.get("beat")))
+
         # 结局：条件引用的 stats/facts 必须存在
         known_stats = set(char_defs) | set(global_defs) | set(ten_dims)
         for e in raw["endings"]:
@@ -152,3 +165,7 @@ class Constitution:
 
     def initial_tendencies(self) -> Dict[str, float]:
         return {t: 0.0 for t in self.ten_dims()}
+
+    def fixed_plot_for(self, beat_id: str) -> List[Dict[str, Any]]:
+        """某节拍的固定剧情锚点列表（基础剧情细节，编剧不得改写）。"""
+        return [f for f in self.fixed_plot if f.get("beat") == beat_id]

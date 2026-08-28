@@ -97,6 +97,26 @@
                     {"fact": "f_refused_door", "hint": "主角拒绝打开天台门时授予"}],
      "grants": ["f_card3"]}
   ],
+  "fixed_plot": [
+    {
+      "id": "fp_rule_paper",
+      "beat": "b1",
+      "fact": "负一层电梯口贴着一张泛黄的手写纸：『规则一：听见敲门声，不要应答。』",
+      "basis": "规则是上一批被困者用命换来的，每层一条，贴纸的人是老周"
+    },
+    {
+      "id": "fp_knock",
+      "beat": "b2",
+      "fact": "半夜的敲门声永远是不轻不重、正好三下，门外静得没有呼吸声",
+      "basis": "敲门的『东西』从不发出别的声音——应答或开门即违反规则一"
+    },
+    {
+      "id": "fp_midnight_shift",
+      "beat": "b4",
+      "fact": "午夜十二点整栋楼发出齿轮声换层，所有人必须留在房间；清洁工会推着垃圾车停在违规者门前",
+      "basis": "换层是这栋楼的固定机制，敲门声会找上违规者"
+    }
+  ],
   "endings": [
     {"id": "end_hero", "name": "全员生还", "type": "secret",
      "conditions": {"facts": ["f_escaped", "f_took_he", "f_he_truth", "f_zhou_key"],

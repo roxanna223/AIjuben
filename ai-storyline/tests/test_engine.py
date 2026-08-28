@@ -271,5 +271,33 @@ class TestGenerationFallbackRetry(unittest.TestCase):
         self.assertEqual(state.beat_status["b1"]["status"], "done")
 
 
+class TestFixedPlot(unittest.TestCase):
+    """固定剧情锚点：用户不可操作的基础剧情细节定稿，跨局一致、有据可依。"""
+
+    def test_fixed_plot_loaded(self):
+        c, state, p = build()
+        self.assertTrue(c.fixed_plot)
+        b2 = c.fixed_plot_for("b2")
+        self.assertTrue(any("沈阿婆" in f["fact"] for f in b2))
+
+    def test_fixed_plot_injected_into_instruction(self):
+        c, state, p = build()
+        p.director.mark_done("b1")
+        instr = p.director.next_instruction()
+        self.assertEqual(instr.beat_id, "b2")
+        self.assertTrue(any("固定剧情" in n and "沈阿婆" in n for n in instr.notes))
+        self.assertIn("固定剧情", p._user_prompt(instr, None))
+
+    def test_fixed_plot_unknown_beat_rejected(self):
+        import json
+        from engine.constitution import ConstitutionError
+        with open(STORY, encoding="utf-8") as f:
+            raw = json.load(f)
+        raw["fixed_plot"] = raw.get("fixed_plot", []) + [
+            {"id": "fp_bad", "beat": "nope", "fact": "x"}]
+        with self.assertRaises(ConstitutionError):
+            Constitution.validate(raw)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

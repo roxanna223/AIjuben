@@ -98,6 +98,39 @@
                     {"fact": "f_refused_truth", "hint": "主角拒绝相信真相时授予"}],
      "grants": ["f_truth_revealed"]}
   ],
+  "fixed_plot": [
+    {
+      "id": "fp_station1_victim",
+      "beat": "b2",
+      "fact": "第一站泗水站消失的乘客是沈阿婆——靠窗织毛衣、带着枣红色毛线篮的老太太",
+      "basis": "林sir的乘客名册上，沈阿婆的名字在泗水站前被红笔圈起——名册的红圈决定谁消失，这是这趟车一直以来的规矩",
+      "mutable_by": "只有玩家改写了名册、破坏红圈标记等行为改变了这一依据，下一个消失的人才会改变"
+    },
+    {
+      "id": "fp_clock_047",
+      "beat": "b1",
+      "fact": "车厢里的电子钟永远停在0:47",
+      "basis": "0:47与三年前那场事故有关（真相在b6才揭示，本场只可渲染气氛）"
+    },
+    {
+      "id": "fp_ledger_circled",
+      "beat": "b3",
+      "fact": "林sir的乘客名册上被红笔圈起的名字决定下一站消失的人；排在最前面的是沈阿婆，红圈像新描过的",
+      "basis": "名册在乘务员室被林sir翻到；红圈每个循环都会被重描"
+    },
+    {
+      "id": "fp_boy_watch",
+      "beat": "b5",
+      "fact": "小满的怀表缺了一角，指针永远停在0:47",
+      "basis": "怀表是三年前留下的旧物（真相在b6揭示，本场只可渲染细节）"
+    },
+    {
+      "id": "fp_aunt_egg",
+      "beat": "b7",
+      "fact": "葛姨在餐车叫卖茶叶蛋，热络絮叨、句句像闲话又句句有信息",
+      "basis": "她在这趟车上卖了很多年茶叶蛋，记得很多乘客的脸"
+    }
+  ],
   "endings": [
     {"id": "end_truth", "name": "真相大白", "type": "good",
      "conditions": {"facts": ["f_truth_revealed"], "stats": {"trust_lin": {"gte": 70}, "sanity": {"gte": 40}}}},

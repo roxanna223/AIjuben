@@ -18,8 +18,8 @@
     "b2": {
       "dialogue": [
         {"speaker": "narrator", "text": "广播沙沙响了两声：“前方到站，泗水站。”列车缓缓停稳。"},
-        {"speaker": "narrator", "text": "你无意间望向过道尽头——那个一直靠着椅背睡觉的男人，不见了。"},
-        {"speaker": "pc", "text": "刚才坐这的人呢？"},
+        {"speaker": "narrator", "text": "你无意间望向前排——那位一直靠窗织毛衣的老太太，不见了。枣红色的毛线篮还搁在座位底下，棒针滚到了过道里。"},
+        {"speaker": "pc", "text": "刚才坐这的老太太呢？"},
         {"speaker": "narrator", "text": "你问邻座，邻座头也不抬：“那座位本来就是空的。”"}
       ],
       "scene_meta": {"beat_id": "b2", "characters_present": ["pc", "lin"], "location": "3号车厢"},
@@ -48,8 +48,8 @@
       "dialogue": [
         {"speaker": "narrator", "text": "林sir把你带到餐车角落，压低声音。"},
         {"speaker": "lin", "text": "你不是第一个发现的人。"},
-        {"speaker": "narrator", "text": "他从大衣内袋里抽出一张发黄的纸——乘客名册，其中几行名字被红笔圈起，像是早被谁“登记”过。"},
-        {"speaker": "lin", "text": "这些人，一个接一个消失。下一个是谁，这上面写得清清楚楚。"},
+        {"speaker": "narrator", "text": "他从大衣内袋里抽出一张发黄的纸——乘客名册，其中几行名字被红笔圈起。排在最前面的是沈阿婆，红圈像新描过的，墨迹还没干透。"},
+        {"speaker": "lin", "text": "上一站没的就是她。这名册我翻了三遍——每次到泗水站，圈的都是她的名字。"},
         {"speaker": "pc", "text": "……那这名单，是谁圈的？"},
         {"speaker": "lin", "text": "我也想知道。先别急着害怕。人不会凭空消失，只会被人“拿走”。"}
       ],

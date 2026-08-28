@@ -257,12 +257,23 @@ class Pipeline:
                 "若新场景完全无视或回避了玩家选择，在 contradictions 中加一条："
                 "choice_ignored: 具体说明哪里没有承接。"
             ) % chosen["text"]
+        fixed_ask = ""
+        if instr.beat_id:
+            fixed = self.c.fixed_plot_for(instr.beat_id)
+            if fixed:
+                fixed_txt = "\n".join("- %s（依据：%s）" % (f.get("fact"), f.get("basis", ""))
+                                      for f in fixed)
+                fixed_ask = (
+                    "\n【本场固定剧情·基础设定】\n%s\n"
+                    "若新场景与固定剧情不符，除非既定事实显示玩家已通过行为改变了其依据，"
+                    "否则把不符点列为矛盾。"
+                ) % fixed_txt
         prompt = (
             "你是一致性审查员。以下是此前剧情的既定事实，请检查新场景是否与之矛盾"
             "（人物身份/性别/关系、物件归属、时间线、地点、逻辑）。\n"
-            "【既定事实】\n%s\n【新场景】\n%s\n%s"
+            "【既定事实】\n%s\n【新场景】\n%s\n%s%s"
             "只输出JSON：{\"contradictions\": [\"矛盾描述\", ...]}；无矛盾输出空数组。"
-        ) % (known or "无", narrative, choice_ask)
+        ) % (known or "无", narrative, fixed_ask, choice_ask)
         try:
             out = self.provider.generate("你是事实一致性审查员，只输出JSON。", prompt)
             m = JSON_BLOCK_RE.search(out)

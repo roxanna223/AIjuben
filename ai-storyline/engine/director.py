@@ -135,6 +135,14 @@ class RouteDirector:
         notes = []
         if b.get("constraints"):
             notes.append("硬约束: %s" % b["constraints"])
+        # 固定剧情锚点：用户不可操作的基础剧情细节，编剧不得改写（除非玩家已改变其依据）
+        for f in self.c.fixed_plot_for(b["id"]):
+            note = "【固定剧情·基础设定，不得改写】%s" % f["fact"]
+            if f.get("basis"):
+                note += "；依据：%s" % f["basis"]
+            if f.get("mutable_by"):
+                note += "；变数：%s" % f["mutable_by"]
+            notes.append(note)
         ending_mode = len(self.s.endings_viable) <= 1
         if ending_mode:
             notes.append("收束模式：结局池已收敛，开始回收伏笔，准备收尾。")
